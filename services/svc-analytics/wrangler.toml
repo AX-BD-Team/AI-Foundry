@@ -1,0 +1,20 @@
+name = "svc-analytics"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB_ANALYTICS"
+database_name = "db-analytics"
+database_id = "PLACEHOLDER"
+
+# Service binding to svc-security for audit logging
+[[services]]
+binding = "SECURITY"
+service = "svc-security"
+
+[vars]
+ENVIRONMENT = "development"
+SERVICE_NAME = "svc-analytics"
+# Secrets (set via `wrangler secret put`):
+# INTERNAL_API_SECRET

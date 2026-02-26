@@ -1,0 +1,16 @@
+name = "svc-security"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB_SECURITY"
+database_name = "db-security"
+database_id = "PLACEHOLDER"
+
+[vars]
+ENVIRONMENT = "development"
+SERVICE_NAME = "svc-security"
+# Secrets (set via `wrangler secret put`):
+# INTERNAL_API_SECRET
+# JWT_SECRET

@@ -1,0 +1,38 @@
+name: Deploy svc-security
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "services/svc-security/**"
+      - "packages/types/**"
+      - "packages/utils/**"
+      - ".github/workflows/deploy-svc-security.yml"
+
+jobs:
+  deploy:
+    name: Deploy to Cloudflare Workers
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Typecheck svc-security
+        run: bun run typecheck --filter=@ai-foundry/svc-security
+
+      - name: Deploy svc-security
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: services/svc-security
+        env:
+          INTERNAL_API_SECRET: ${{ secrets.INTERNAL_API_SECRET }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}

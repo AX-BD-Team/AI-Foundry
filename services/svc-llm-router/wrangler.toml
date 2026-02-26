@@ -1,0 +1,26 @@
+name = "svc-llm-router"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# D1 — cost/usage logging
+[[d1_databases]]
+binding = "DB_LLM"
+database_name = "db-llm"
+database_id = "PLACEHOLDER"
+
+# KV — prompt registry cache
+[[kv_namespaces]]
+binding = "KV_PROMPTS"
+id = "PLACEHOLDER"
+
+# AI Gateway is accessed via env var (CLOUDFLARE_AI_GATEWAY_URL)
+# Anthropic calls route through AI Gateway for logging/caching/rate-limiting
+
+[vars]
+ENVIRONMENT = "development"
+SERVICE_NAME = "svc-llm-router"
+# Secrets (set via `wrangler secret put`):
+# INTERNAL_API_SECRET — shared HMAC secret for inter-service auth
+# ANTHROPIC_API_KEY — Anthropic API key
+# CLOUDFLARE_AI_GATEWAY_URL — AI Gateway base URL

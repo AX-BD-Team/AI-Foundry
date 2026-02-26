@@ -1,0 +1,25 @@
+name = "svc-extraction"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB_EXTRACTION"
+database_name = "db-extraction"
+database_id = "PLACEHOLDER"
+
+# Service binding to svc-security for audit logging
+[[services]]
+binding = "SECURITY"
+service = "svc-security"
+
+# Service binding to svc-llm-router for LLM tier routing
+[[services]]
+binding = "LLM_ROUTER"
+service = "svc-llm-router"
+
+[vars]
+ENVIRONMENT = "development"
+SERVICE_NAME = "svc-extraction"
+# Secrets (set via `wrangler secret put`):
+# INTERNAL_API_SECRET

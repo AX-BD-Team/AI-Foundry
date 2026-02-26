@@ -1,0 +1,27 @@
+name = "svc-notification"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB_NOTIFICATION"
+database_name = "db-notification"
+database_id = "PLACEHOLDER"
+
+# Queue consumer — listens for pipeline events requiring notification dispatch
+[[queues.consumers]]
+queue = "ai-foundry-pipeline"
+max_batch_size = 10
+max_batch_timeout = 30
+
+# Queue producer — re-emit or forward events as needed
+[[queues.producers]]
+binding = "QUEUE_PIPELINE"
+queue = "ai-foundry-pipeline"
+
+[vars]
+ENVIRONMENT = "development"
+SERVICE_NAME = "svc-notification"
+# Secrets (set via `wrangler secret put`):
+# INTERNAL_API_SECRET
+# SLACK_WEBHOOK_URL (optional)

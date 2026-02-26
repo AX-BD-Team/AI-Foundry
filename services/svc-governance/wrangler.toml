@@ -1,0 +1,24 @@
+name = "svc-governance"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB_GOVERNANCE"
+database_name = "db-governance"
+database_id = "PLACEHOLDER"
+
+[[kv_namespaces]]
+binding = "KV_PROMPTS"
+id = "PLACEHOLDER"
+
+# Service binding to svc-security for audit logging
+[[services]]
+binding = "SECURITY"
+service = "svc-security"
+
+[vars]
+ENVIRONMENT = "development"
+SERVICE_NAME = "svc-governance"
+# Secrets (set via `wrangler secret put`):
+# INTERNAL_API_SECRET

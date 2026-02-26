@@ -1,0 +1,27 @@
+name = "svc-ontology"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB_ONTOLOGY"
+database_name = "db-ontology"
+database_id = "PLACEHOLDER"
+
+# Service binding to svc-security for audit logging
+[[services]]
+binding = "SECURITY"
+service = "svc-security"
+
+# Service binding to svc-llm-router for LLM tier routing
+[[services]]
+binding = "LLM_ROUTER"
+service = "svc-llm-router"
+
+[vars]
+ENVIRONMENT = "development"
+SERVICE_NAME = "svc-ontology"
+# Secrets (set via `wrangler secret put`):
+# INTERNAL_API_SECRET
+# NEO4J_URI
+# NEO4J_PASSWORD

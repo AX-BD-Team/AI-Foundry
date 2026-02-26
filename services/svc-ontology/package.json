@@ -1,0 +1,22 @@
+{
+  "name": "@ai-foundry/svc-ontology",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@ai-foundry/types": "workspace:*",
+    "@ai-foundry/utils": "workspace:*"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241230.0",
+    "typescript": "^5.7.3",
+    "wrangler": "^4.8.0"
+  }
+}

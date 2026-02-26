@@ -1,0 +1,99 @@
+import { z } from "zod";
+
+// Cloudflare Queue event types for the pipeline event bus
+
+export const BaseEventSchema = z.object({
+  eventId: z.string().uuid(),
+  occurredAt: z.string().datetime(), // ISO-8601
+  traceId: z.string().optional(),
+});
+
+// Stage 1 → Stage 2
+export const DocumentUploadedEventSchema = BaseEventSchema.extend({
+  type: z.literal("document.uploaded"),
+  payload: z.object({
+    documentId: z.string(),
+    organizationId: z.string(),
+    uploadedBy: z.string(),
+    r2Key: z.string(),
+    fileType: z.enum(["pdf", "ppt", "pptx", "docx", "xlsx", "xls", "png", "jpg", "jpeg"]),
+    fileSizeByte: z.number().int(),
+    originalName: z.string(),
+  }),
+});
+
+// Stage 2 → Stage 3
+export const ExtractionCompletedEventSchema = BaseEventSchema.extend({
+  type: z.literal("extraction.completed"),
+  payload: z.object({
+    documentId: z.string(),
+    extractionId: z.string(),
+    processNodeCount: z.number().int(),
+    entityCount: z.number().int(),
+    neo4jGraphId: z.string().optional(),
+  }),
+});
+
+// Stage 3: policy candidate → HITL
+export const PolicyCandidateReadyEventSchema = BaseEventSchema.extend({
+  type: z.literal("policy.candidate_ready"),
+  payload: z.object({
+    extractionId: z.string(),
+    policyId: z.string(),
+    hitlSessionId: z.string(),
+    reviewerId: z.string().optional(),
+    candidateCount: z.number().int(),
+  }),
+});
+
+// Stage 3: HITL → Stage 4
+export const PolicyApprovedEventSchema = BaseEventSchema.extend({
+  type: z.literal("policy.approved"),
+  payload: z.object({
+    policyId: z.string(),
+    hitlSessionId: z.string(),
+    approvedBy: z.string(),
+    approvedAt: z.string().datetime(),
+    policyCount: z.number().int(),
+  }),
+});
+
+// Stage 4 → Stage 5
+export const OntologyNormalizedEventSchema = BaseEventSchema.extend({
+  type: z.literal("ontology.normalized"),
+  payload: z.object({
+    policyId: z.string(),
+    ontologyId: z.string(),
+    termCount: z.number().int(),
+    skosGraphId: z.string().optional(),
+  }),
+});
+
+// Stage 5: skill package created
+export const SkillPackagedEventSchema = BaseEventSchema.extend({
+  type: z.literal("skill.packaged"),
+  payload: z.object({
+    skillId: z.string(),
+    ontologyId: z.string(),
+    r2Key: z.string(),
+    policyCount: z.number().int(),
+    trustScore: z.number().min(0).max(1),
+  }),
+});
+
+export const PipelineEventSchema = z.discriminatedUnion("type", [
+  DocumentUploadedEventSchema,
+  ExtractionCompletedEventSchema,
+  PolicyCandidateReadyEventSchema,
+  PolicyApprovedEventSchema,
+  OntologyNormalizedEventSchema,
+  SkillPackagedEventSchema,
+]);
+
+export type DocumentUploadedEvent = z.infer<typeof DocumentUploadedEventSchema>;
+export type ExtractionCompletedEvent = z.infer<typeof ExtractionCompletedEventSchema>;
+export type PolicyCandidateReadyEvent = z.infer<typeof PolicyCandidateReadyEventSchema>;
+export type PolicyApprovedEvent = z.infer<typeof PolicyApprovedEventSchema>;
+export type OntologyNormalizedEvent = z.infer<typeof OntologyNormalizedEventSchema>;
+export type SkillPackagedEvent = z.infer<typeof SkillPackagedEventSchema>;
+export type PipelineEvent = z.infer<typeof PipelineEventSchema>;

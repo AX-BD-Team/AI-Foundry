@@ -1,0 +1,38 @@
+name: Deploy svc-llm-router
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "services/svc-llm-router/**"
+      - "packages/types/**"
+      - "packages/utils/**"
+      - ".github/workflows/deploy-svc-llm-router.yml"
+
+jobs:
+  deploy:
+    name: Deploy to Cloudflare Workers
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Typecheck svc-llm-router
+        run: bun run typecheck --filter=@ai-foundry/svc-llm-router
+
+      - name: Deploy svc-llm-router
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: services/svc-llm-router
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          INTERNAL_API_SECRET: ${{ secrets.INTERNAL_API_SECRET }}

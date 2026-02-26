@@ -1,0 +1,29 @@
+name = "svc-ingestion"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB_INGESTION"
+database_name = "db-ingestion"
+database_id = "PLACEHOLDER"
+
+[[r2_buckets]]
+binding = "R2_DOCUMENTS"
+bucket_name = "ai-foundry-documents"
+
+[[queues.producers]]
+binding = "QUEUE_PIPELINE"
+queue = "ai-foundry-pipeline"
+
+# Service binding to svc-security for audit logging
+[[services]]
+binding = "SECURITY"
+service = "svc-security"
+
+[vars]
+ENVIRONMENT = "development"
+SERVICE_NAME = "svc-ingestion"
+MAX_FILE_SIZE_MB = "50"
+# Secrets (set via `wrangler secret put`):
+# INTERNAL_API_SECRET
