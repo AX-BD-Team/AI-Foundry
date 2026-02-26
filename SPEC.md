@@ -83,6 +83,18 @@
   - PII 5종 탐지: SSN, PHONE, EMAIL, ACCOUNT, CORP_ID
   - `@ai-foundry/types` security.ts 추가 (MaskRequest/MaskResponse)
   - D1 `masking_tokens` 저장 (original_hash only)
+- **E-02 Stage 1 완성**: ✅ svc-ingestion 큐 소비자 + Unstructured.io 연동 구현 (2026-02-26)
+  - Queue consumer: `document.uploaded` 이벤트 처리
+  - Unstructured.io `/general/v0/general` REST API 연동 (graceful fallback)
+  - POST /mask 연동: 각 청크 마스킹 후 D1 저장
+  - `document_chunks` 테이블 (infra/migrations/db-ingestion/0002_chunks.sql)
+  - `parsing/unstructured.ts`, `parsing/masking.ts`, `parsing/classifier.ts`, `queue.ts` 신규
+- **E-03 Stage 2 완성**: ✅ svc-extraction 구현 (2026-02-26)
+  - Claude Sonnet/Haiku 연동으로 구조 추출 (process/entity/rule)
+  - POST /extract + GET /extractions/:id + Queue consumer
+  - svc-llm-router service binding 통한 LLM 호출
+  - `prompts/structure.ts`, `llm/caller.ts`, `routes/extract.ts`, `queue/handler.ts` 신규
+  - wrangler.toml `database_name = "db-structure"` 수정
 - **Test Coverage**: 0%
 
 ---
@@ -120,10 +132,10 @@
 - [x] `/stream` E2E 테스트 — SSE 스트림 정상 수신 확인
 - [x] `printf` 방식으로 INTERNAL_API_SECRET 재설정 (echo newline 이슈 해결)
 
-### ✅ Phase C-2 (진행 중) — Pipeline Stage 1 Full Impl (E-01~E-03)
+### ✅ Phase C-2 — Pipeline Stage 1+2 Full Impl (E-01~E-03) (완료)
 - [x] **E-01** — 마스킹 미들웨어: `POST /mask` (svc-security) 구현 + E2E 검증
-- [ ] **E-02** — Stage 1 완성: Unstructured.io 연동, 파일 분류 로직
-- [ ] **E-03** — Stage 2 완성: svc-extraction — Claude Sonnet/Haiku로 구조 추출
+- [x] **E-02** — Stage 1 완성: Unstructured.io 연동, 파일 분류 로직, Queue consumer, /mask 연동
+- [x] **E-03** — Stage 2 완성: svc-extraction — Claude Sonnet/Haiku로 구조 추출
 
 ### 🔜 Phase D — Governance Baseline (E-04~E-05)
 - [ ] **E-04** — Prompt Registry: svc-governance에 버전 관리/롤아웃 구현
@@ -163,3 +175,5 @@
 - 2026-02-26: Wrangler secrets 실값 설정 완료 (ANTHROPIC_API_KEY, JWT_SECRET auto-gen, CLOUDFLARE_AI_GATEWAY_URL)
 - 2026-02-26: AI Gateway 'ai-foundry' 생성 + E2E LLM 파이프라인 검증 완료 (/complete + /stream)
 - 2026-02-26: E-01 마스킹 미들웨어 구현 (svc-security POST /mask, PII 5종, D1 audit 저장)
+- 2026-02-26: E-02 Stage 1 완성 — svc-ingestion Queue consumer + Unstructured.io 연동 + /mask 연동 + document_chunks D1 저장
+- 2026-02-26: E-03 Stage 2 완성 — svc-extraction 구현 (Claude Sonnet으로 process/entity/rule 구조 추출, service binding LLM 호출)

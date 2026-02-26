@@ -2,6 +2,30 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 005 — 2026-02-26
+
+- ✅ **E-02 Stage 1 완성** — svc-ingestion Queue consumer + Unstructured.io 연동
+  - `parsing/unstructured.ts`: Unstructured.io `/general/v0/general` REST API 연동 (API key 없을 시 graceful fallback)
+  - `parsing/masking.ts`: svc-security service binding 통한 `/mask` 호출, 청크별 PII 마스킹
+  - `parsing/classifier.ts`: 키워드 기반 문서 분류 (erd/screen_design/api_spec/requirements/process/general)
+  - `queue.ts`: `document.uploaded` 큐 이벤트 소비 → R2 fetch → parse → classify → mask → D1 chunks 저장
+  - `infra/migrations/db-ingestion/0002_chunks.sql`: `document_chunks` 테이블 신규
+  - `wrangler.toml`: Queue consumer 추가, `UNSTRUCTURED_API_URL` vars 추가
+- ✅ **E-03 Stage 2 완성** — svc-extraction 구현 (Claude Sonnet 구조 추출)
+  - `prompts/structure.ts`: 퇴직연금 도메인 구조 추출 프롬프트 (process/entity/rule JSON 형식)
+  - `llm/caller.ts`: svc-llm-router service binding 통한 LLM 호출 (tier 선택 지원)
+  - `routes/extract.ts`: `POST /extract` — 청크 수집 → 프롬프트 생성 → LLM 호출 → D1 저장
+  - `queue/handler.ts`: `document.uploaded` 큐 이벤트 소비 → 자동 추출
+  - `src/index.ts`: 전체 라우팅 + queue export (skeleton 대체)
+  - `wrangler.toml`: `database_name = "db-structure"` 수정 (db-extraction 오타 수정), Queue consumer 추가
+
+**검증**
+- typecheck: 15/15 pass (`bun run typecheck`)
+- lint: skip (미구성)
+- E2E: 배포 전 (UNSTRUCTURED_API_KEY 설정 + D1 migration 적용 필요)
+
+---
+
 ## 세션 004 — 2026-02-26
 
 - ✅ **E-01 PII 마스킹 미들웨어** 구현 및 배포 (svc-security)
