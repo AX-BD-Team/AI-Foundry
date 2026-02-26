@@ -1,74 +1,76 @@
 ---
 name: s-start
-description: 세션 시작 시 프로젝트 컨텍스트를 복원한다. MEMORY.md(자동 로딩)로 즉시 맥락 파악 후 SPEC.md를 읽어 프로젝트 사양을 보충한다.
+description: res-ai-foundry 세션 시작. PRD/doc 기반 컨텍스트와 SPEC/CHANGELOG 상태를 빠르게 복원한다.
 argument-hint: "[오늘 작업할 내용]"
 user-invocable: true
 ---
 
-# Session Start — 3-Tier 컨텍스트 복원
+# Session Start — res-ai-foundry 컨텍스트 복원
 
-## 아키텍처
+## 목적
+- 현재 프로젝트 상태를 3분 내 파악
+- 오늘 작업 범위를 SPEC 기준으로 고정
+- 문서 중심(Pre-development) 단계에서 흔들리지 않게 시작
+
+## 3-Tier
 
 ```
-Tier 1 (자동): CLAUDE.md + MEMORY.md → 이미 컨텍스트에 있음
-Tier 2 (Read): SPEC.md (~540줄) → 프로젝트 사양 보충
-Tier 3 (검색): docs/CHANGELOG.md → 필요 시에만 grep
+Tier 1 (자동): CLAUDE.md + MEMORY.md
+Tier 2 (필수 Read): SPEC.md
+Tier 3 (선택 검색): docs/CHANGELOG.md
 ```
 
-## Git 상태 확인
+## 시작 체크
 
 ```bash
+!`git branch --show-current`
 !`git log --oneline -5`
-```
-
-```bash
-!`git status`
+!`git status --short`
 ```
 
 ## 지시사항
 
-### 1. MEMORY.md 컨텍스트 확인 (이미 로딩됨)
+### 1) 현재 컨텍스트 요약
+- MEMORY.md에서 최근 작업/다음 작업 확인
+- CLAUDE.md에서 아키텍처/제약(6-layer, 5-stage, 10 SVC) 재확인
 
-MEMORY.md는 시스템 프롬프트에 자동 로딩되어 있다. 다음을 즉시 파악:
-- **현재 작업 컨텍스트**: 버전, 마지막 세션, 다음 작업
-- **최근 세션 요약**: 최근 5개 세션 1줄 요약
-- **활성 결정사항**: 인증, 스택, 배포, 운영 상태
+### 2) SPEC.md 확인 (필수)
+아래 섹션 중심으로 확인:
+- §5 Current Status
+- §6 Execution Plan
+- §8 Decision Log
 
-### 2. SPEC.md 읽기 (프로젝트 사양 보충)
-
-SPEC.md를 읽되, 이미 MEMORY.md에서 파악한 정보는 건너뛴다:
-- §1-4: 프로젝트 배경/설계/아키텍처/제약 (변경이 드묾, 빠르게 스캔)
-- §5: 버전 + 지표 숫자 확인 (세션 히스토리는 CHANGELOG.md에 있음)
-- §6: 구현 현황 및 미래 작업
-
-### 3. 과거 세션 상세 필요 시 (선택적)
-
-특정 세션의 상세가 필요하면 docs/CHANGELOG.md에서 검색:
+### 3) CHANGELOG 확인 (필요 시)
+최근 세션 상세가 필요하면:
 ```bash
-grep -n '세션 NNN' docs/CHANGELOG.md
+grep -n "세션" docs/CHANGELOG.md | head -n 10
 ```
 
-### 4. 프로젝트 상태 요약 출력
-
-### 5. 인자가 제공된 경우
-
-`$ARGUMENTS`로 오늘 작업할 내용이 전달되면:
-- 해당 작업과 관련된 SPEC.md 섹션 강조
-- 관련 파일, 패턴, 주의사항 제시
-- MEMORY.md의 "다음 작업" 확인하여 연속성 체크
+### 4) 오늘 작업 포커스 정리
+`$ARGUMENTS`가 있으면 해당 범위를 아래 형식으로 정리:
+- 관련 SPEC 항목
+- 변경 예정 파일
+- 완료 기준(Definition of Done)
 
 ## 출력 형식
 
-```
+```markdown
 ## 프로젝트 상태 요약
 
-**현재 버전**: [MEMORY.md에서]
-**빌드/테스트**: [SPEC.md §5 지표]
-**최근 세션**: [MEMORY.md 최근 요약]
+- 브랜치: [현재 브랜치]
+- 작업트리: [clean/dirty]
+- 현재 단계: [SPEC §5 기준]
+- 오늘 목표: [인자 기반 또는 사용자 지정]
 
-### 오늘 작업 관련 컨텍스트
-[인자가 있으면 관련 정보 출력]
+### 오늘 작업 체크리스트
+- [ ] 항목 1
+- [ ] 항목 2
+- [ ] 항목 3
 
 ### 참고
-[주의사항, 관련 패턴 등]
+- 리스크/주의사항 1~2개
 ```
+
+## res-ai-foundry 전용 주의
+- 아직 초기 단계이므로 “코드 구현”보다 “구조/계약/문서 정합성”을 우선
+- PRD 원문(`docs/AI_Foundry_PRD_TDS_v0.6.docx`)과 SPEC 불일치 시 SPEC을 즉시 갱신
