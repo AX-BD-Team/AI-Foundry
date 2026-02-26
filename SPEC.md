@@ -71,12 +71,14 @@
   - https://svc-llm-router.sinclair-account.workers.dev — `GET /health` HTTP 200 ✅
   - https://svc-security.sinclair-account.workers.dev — `GET /health` HTTP 200 ✅
   - https://svc-ingestion.sinclair-account.workers.dev — `GET /health` HTTP 200 ✅
-- **Wrangler Secrets**: ✅ 핵심 secrets 설정 완료 (2026-02-26)
+- **Wrangler Secrets**: ✅ 전 서비스 핵심 secrets 실값 설정 완료 (2026-02-26)
   - svc-llm-router: `INTERNAL_API_SECRET` / `ANTHROPIC_API_KEY` / `CLOUDFLARE_AI_GATEWAY_URL` ✅
-  - svc-security: `INTERNAL_API_SECRET` / `JWT_SECRET` ✅
+  - svc-security: `INTERNAL_API_SECRET` / `JWT_SECRET`(auto-gen) ✅
   - svc-ingestion: `INTERNAL_API_SECRET` ✅
-  - ⚠️ **AI Gateway 대시보드 생성 필요**: https://dash.cloudflare.com/02ae9a2bead25d99caa8f3258b81f568/ai-gateway → "ai-foundry" 게이트웨이 생성
   - svc-ontology (미배포): `NEO4J_URI`, `NEO4J_PASSWORD` — Neo4j 연동 시점에 설정
+- **AI Gateway**: ✅ `ai-foundry` 게이트웨이 생성 완료, Authentication Off, Anthropic 라우팅 확인
+- **E2E LLM 파이프라인**: ✅ `/complete` HTTP 200, `/stream` SSE 정상 수신 확인 (2026-02-26)
+  - `INTERNAL_API_SECRET` printf 방식으로 재설정 (echo newline 이슈 해결)
 - **Test Coverage**: 0%
 
 ---
@@ -97,19 +99,7 @@
 - [x] Queue × 2 (ai-foundry-pipeline, ai-foundry-pipeline-dlq) 확인
 - [x] KV × 2 (AI_FOUNDRY_PROMPTS, AI_FOUNDRY_CACHE) ID 반영
 - [x] D1 마이그레이션 remote 적용 완료 (10개 DB × `0001_init.sql`)
-- [ ] **Wrangler Secrets 설정** — 첫 배포 후 터미널에서 실행:
-  ```bash
-  # 각 서비스 디렉토리에서 실행
-  echo "VALUE" | wrangler secret put INTERNAL_API_SECRET
-  # svc-llm-router 추가:
-  echo "VALUE" | wrangler secret put ANTHROPIC_API_KEY
-  echo "VALUE" | wrangler secret put CLOUDFLARE_AI_GATEWAY_URL
-  # svc-security 추가:
-  echo "VALUE" | wrangler secret put JWT_SECRET
-  # svc-ontology 추가:
-  echo "VALUE" | wrangler secret put NEO4J_URI
-  echo "VALUE" | wrangler secret put NEO4J_PASSWORD
-  ```
+- [x] **Wrangler Secrets 설정** — 실값 설정 완료 (printf 방식 사용)
 
 ### ✅ Phase C-0 — 첫 배포 + Smoke Test (완료)
 
@@ -117,21 +107,16 @@
 - [x] INTERNAL_API_SECRET 설정 (모든 서비스)
 - [x] `GET /health` 엔드포인트 smoke test — 전 서비스 HTTP 200 확인
 
-### 🔜 Phase C-1 — Secrets 완성 + Pipeline Stage 1 Full Impl
-- [ ] **E-01** — 마스킹 미들웨어: PII 토크나이징 → svc-security 연동
-- [ ] **E-02** — Stage 1 완성: Unstructured.io 연동, 파일 분류 로직
-- [ ] **E-03** — Stage 2 완성: svc-extraction — Claude Sonnet/Haiku로 구조 추출
+### ✅ Phase C-1 — Secrets 완성 + E2E 검증 (완료)
 
-- [ ] **실 Secrets 설정** — 배포된 서비스에 실값 주입 필요:
-  ```bash
-  # svc-llm-router
-  cd services/svc-llm-router
-  echo "sk-ant-..." | wrangler secret put ANTHROPIC_API_KEY
-  echo "https://gateway.ai.cloudflare.com/..." | wrangler secret put CLOUDFLARE_AI_GATEWAY_URL
-  # svc-security
-  cd services/svc-security
-  echo "your-jwt-secret" | wrangler secret put JWT_SECRET
-  ```
+- [x] ANTHROPIC_API_KEY, CLOUDFLARE_AI_GATEWAY_URL (svc-llm-router) 실값 설정
+- [x] JWT_SECRET auto-gen (svc-security) 설정
+- [x] AI Gateway 'ai-foundry' 생성 + Authentication Off
+- [x] `/complete` E2E 테스트 — HTTP 200, Haiku 응답 확인
+- [x] `/stream` E2E 테스트 — SSE 스트림 정상 수신 확인
+- [x] `printf` 방식으로 INTERNAL_API_SECRET 재설정 (echo newline 이슈 해결)
+
+### 🔜 Phase C-2 — Pipeline Stage 1 Full Impl (E-01~E-03)
 - [ ] **E-01** — 마스킹 미들웨어: PII 토크나이징 → svc-security 연동
 - [ ] **E-02** — Stage 1 완성: Unstructured.io 연동, 파일 분류 로직
 - [ ] **E-03** — Stage 2 완성: svc-extraction — Claude Sonnet/Haiku로 구조 추출
@@ -172,3 +157,4 @@
 - 2026-02-26: D1 마이그레이션 remote 적용 완료 (Cloudflare REST API 직접 사용)
 - 2026-02-26: svc-llm-router / svc-security / svc-ingestion wrangler deploy 완료 — 전 서비스 /health HTTP 200 확인
 - 2026-02-26: Wrangler secrets 실값 설정 완료 (ANTHROPIC_API_KEY, JWT_SECRET auto-gen, CLOUDFLARE_AI_GATEWAY_URL)
+- 2026-02-26: AI Gateway 'ai-foundry' 생성 + E2E LLM 파이프라인 검증 완료 (/complete + /stream)
