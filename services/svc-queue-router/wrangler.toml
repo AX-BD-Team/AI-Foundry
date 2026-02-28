@@ -1,0 +1,41 @@
+name = "svc-queue-router"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Sole consumer of the pipeline event bus
+[[queues.consumers]]
+queue = "ai-foundry-pipeline"
+max_batch_size = 10
+max_batch_timeout = 30
+
+# Service bindings — fan-out targets
+[[services]]
+binding = "SVC_INGESTION"
+service = "svc-ingestion"
+
+[[services]]
+binding = "SVC_EXTRACTION"
+service = "svc-extraction"
+
+[[services]]
+binding = "SVC_POLICY"
+service = "svc-policy"
+
+[[services]]
+binding = "SVC_ONTOLOGY"
+service = "svc-ontology"
+
+[[services]]
+binding = "SVC_SKILL"
+service = "svc-skill"
+
+[[services]]
+binding = "SVC_NOTIFICATION"
+service = "svc-notification"
+
+[vars]
+ENVIRONMENT = "development"
+SERVICE_NAME = "svc-queue-router"
+# Secrets (set via `wrangler secret put`):
+# INTERNAL_API_SECRET

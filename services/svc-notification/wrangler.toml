@@ -8,11 +8,7 @@ binding = "DB_NOTIFICATION"
 database_name = "db-notification"
 database_id = "1a6ef6a4-6087-4637-b4d8-4abc7ab2e1bf"
 
-# Queue consumer — listens for pipeline events requiring notification dispatch
-[[queues.consumers]]
-queue = "ai-foundry-pipeline"
-max_batch_size = 10
-max_batch_timeout = 30
+# Queue consumer removed — svc-queue-router is the sole consumer
 
 # Queue producer — re-emit or forward events as needed
 [[queues.producers]]

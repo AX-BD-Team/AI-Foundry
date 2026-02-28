@@ -154,6 +154,19 @@
         "wrangler": "^4.8.0",
       },
     },
+    "services/svc-queue-router": {
+      "name": "@ai-foundry/svc-queue-router",
+      "version": "0.1.0",
+      "dependencies": {
+        "@ai-foundry/types": "workspace:*",
+        "@ai-foundry/utils": "workspace:*",
+      },
+      "devDependencies": {
+        "@cloudflare/workers-types": "^4.20241230.0",
+        "typescript": "^5.7.3",
+        "wrangler": "^4.8.0",
+      },
+    },
     "services/svc-security": {
       "name": "@ai-foundry/svc-security",
       "version": "0.1.0",
@@ -201,6 +214,8 @@
     "@ai-foundry/svc-ontology": ["@ai-foundry/svc-ontology@workspace:services/svc-ontology"],
 
     "@ai-foundry/svc-policy": ["@ai-foundry/svc-policy@workspace:services/svc-policy"],
+
+    "@ai-foundry/svc-queue-router": ["@ai-foundry/svc-queue-router@workspace:services/svc-queue-router"],
 
     "@ai-foundry/svc-security": ["@ai-foundry/svc-security@workspace:services/svc-security"],
 

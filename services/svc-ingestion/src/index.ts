@@ -2,7 +2,7 @@ import { createLogger, unauthorized, extractRbacContext, checkPermission, logAud
 import type { Env } from "./env.js";
 import { handleHealth } from "./routes/health.js";
 import { handleUpload, handleGetDocument } from "./routes/upload.js";
-import { handleQueue } from "./queue.js";
+import { processQueueEvent } from "./queue.js";
 
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
@@ -24,6 +24,12 @@ export default {
     }
 
     try {
+      // POST /internal/queue-event — queue router delivers events here
+      if (method === "POST" && path === "/internal/queue-event") {
+        const body: unknown = await request.json();
+        return await processQueueEvent(body, env);
+      }
+
       // POST /documents — upload a new document
       if (method === "POST" && path === "/documents") {
         const rbacCtx = extractRbacContext(request);
@@ -60,9 +66,5 @@ export default {
       logger.error("Unhandled error", { error: String(e), path, method });
       return new Response("Internal Server Error", { status: 500 });
     }
-  },
-
-  async queue(batch: MessageBatch<unknown>, env: Env, ctx: ExecutionContext): Promise<void> {
-    await handleQueue(batch, env, ctx);
   },
 } satisfies ExportedHandler<Env>;

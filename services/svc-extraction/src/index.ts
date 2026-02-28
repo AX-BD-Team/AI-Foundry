@@ -12,7 +12,7 @@
 import { createLogger, unauthorized, notFound, ok, extractRbacContext, checkPermission, logAudit } from "@ai-foundry/utils";
 import type { Env } from "./env.js";
 import { handleExtract } from "./routes/extract.js";
-import { handleQueueBatch } from "./queue/handler.js";
+import { processQueueEvent } from "./queue/handler.js";
 
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
@@ -37,6 +37,12 @@ export default {
     }
 
     try {
+      // POST /internal/queue-event — invoked by svc-queue-router via service binding
+      if (method === "POST" && path === "/internal/queue-event") {
+        const body: unknown = await request.json();
+        return await processQueueEvent(body, env, ctx);
+      }
+
       // POST /extract — trigger structure extraction for a document
       if (method === "POST" && path === "/extract") {
         const rbacCtx = extractRbacContext(request);
@@ -105,6 +111,4 @@ export default {
       return new Response("Internal Server Error", { status: 500 });
     }
   },
-
-  queue: handleQueueBatch,
 } satisfies ExportedHandler<Env>;

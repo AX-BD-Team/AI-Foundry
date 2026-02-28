@@ -8,7 +8,7 @@
  *  - Maintains a terminology dictionary in DB_ONTOLOGY (D1)
  *  - Emits ontology.normalized events for svc-skill (Stage 5)
  *
- * Queue consumer: listens on "ai-foundry-pipeline" for policy.approved events.
+ * Queue events: delivered by svc-queue-router via POST /internal/queue-event.
  */
 
 import {
@@ -18,11 +18,10 @@ import {
   checkPermission,
   logAudit,
 } from "@ai-foundry/utils";
-import type { ExportedHandler } from "@cloudflare/workers-types";
 import type { Env } from "./env.js";
 import { handleNormalize } from "./routes/normalize.js";
 import { handleGetTerm, handleListTerms, handleGetGraph } from "./routes/terms.js";
-import { handleQueueBatch } from "./queue/handler.js";
+import { processQueueEvent } from "./queue/handler.js";
 
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
@@ -47,6 +46,12 @@ export default {
     }
 
     try {
+      // POST /internal/queue-event — queue router delivers events here
+      if (method === "POST" && path === "/internal/queue-event") {
+        const body: unknown = await request.json();
+        return await processQueueEvent(body, env, ctx);
+      }
+
       // POST /normalize — normalize terms against the ontology
       if (method === "POST" && path === "/normalize") {
         const rbacCtx = extractRbacContext(request);
@@ -105,9 +110,5 @@ export default {
       logger.error("Unhandled error", { error: String(e), path, method });
       return new Response("Internal Server Error", { status: 500 });
     }
-  },
-
-  async queue(batch: MessageBatch, env: Env, ctx: ExecutionContext): Promise<void> {
-    await handleQueueBatch(batch, env, ctx);
   },
 } satisfies ExportedHandler<Env>;

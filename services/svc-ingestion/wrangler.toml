@@ -30,7 +30,4 @@ UNSTRUCTURED_API_URL = "https://api.unstructuredapp.io"
 # INTERNAL_API_SECRET
 # UNSTRUCTURED_API_KEY
 
-[[queues.consumers]]
-queue = "ai-foundry-pipeline"
-max_batch_size = 10
-max_batch_timeout = 30
+# Queue consumer removed — svc-queue-router is the sole consumer

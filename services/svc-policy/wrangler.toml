@@ -33,11 +33,7 @@ script_name = "svc-policy"
 tag = "v1"
 new_classes = ["HitlSession"]
 
-# Queue consumer — listens for pipeline events requiring policy inference
-[[queues.consumers]]
-queue = "ai-foundry-pipeline"
-max_batch_size = 5
-max_batch_timeout = 30
+# Queue consumer removed — svc-queue-router is the sole consumer
 
 # Queue producer — emits events after policy inference completes
 [[queues.producers]]

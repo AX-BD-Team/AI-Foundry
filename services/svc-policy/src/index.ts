@@ -10,14 +10,14 @@
  *  3. Exposes HITL review endpoints so Reviewers can approve / modify / reject.
  *  4. On confirmation, emits a pipeline event to QUEUE_PIPELINE for svc-ontology.
  *
- * Queue consumer: listens on "ai-foundry-pipeline" for Stage 2 completion events.
+ * Receives queue events via POST /internal/queue-event from svc-queue-router.
  */
 
 import { createLogger, unauthorized, extractRbacContext, checkPermission, logAudit } from "@ai-foundry/utils";
 import type { Env } from "./env.js";
 import { handleInferPolicies, handleListPolicies, handleGetPolicy } from "./routes/policies.js";
 import { handleApprovePolicy, handleModifyPolicy, handleRejectPolicy, handleGetSession } from "./routes/hitl.js";
-import { handleQueueBatch } from "./queue/handler.js";
+import { processQueueEvent } from "./queue/handler.js";
 
 export { HitlSession } from "./hitl-session.js";
 
@@ -44,6 +44,12 @@ export default {
     }
 
     try {
+      // POST /internal/queue-event — receive pipeline events from svc-queue-router
+      if (method === "POST" && path === "/internal/queue-event") {
+        const body: unknown = await request.json();
+        return await processQueueEvent(body, env, ctx);
+      }
+
       // POST /policies/infer — trigger policy inference for an extraction result
       if (method === "POST" && path === "/policies/infer") {
         const rbacCtx = extractRbacContext(request);
@@ -161,9 +167,5 @@ export default {
       logger.error("Unhandled error", { error: String(e), path, method });
       return new Response("Internal Server Error", { status: 500 });
     }
-  },
-
-  async queue(batch: MessageBatch, env: Env, ctx: ExecutionContext): Promise<void> {
-    await handleQueueBatch(batch, env, ctx);
   },
 } satisfies ExportedHandler<Env>;
