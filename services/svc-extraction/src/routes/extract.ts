@@ -10,6 +10,7 @@ import type { Env } from "../env.js";
 
 interface ExtractRequestBody {
   documentId: string;
+  organizationId?: string;
   chunks: string[];
   tier?: "sonnet" | "haiku";
 }
@@ -33,7 +34,7 @@ export async function handleExtract(
     return badRequest("Request body must be valid JSON");
   }
 
-  const { documentId, chunks, tier = "sonnet" } = body;
+  const { documentId, organizationId = "default", chunks, tier = "sonnet" } = body;
 
   if (!documentId || typeof documentId !== "string") {
     return badRequest("documentId is required");
@@ -47,10 +48,10 @@ export async function handleExtract(
 
   // Insert pending record
   await env.DB_EXTRACTION.prepare(
-    `INSERT INTO extractions (id, document_id, status, created_at, updated_at)
-     VALUES (?, ?, 'pending', ?, ?)`,
+    `INSERT INTO extractions (id, document_id, organization_id, status, created_at, updated_at)
+     VALUES (?, ?, ?, 'pending', ?, ?)`,
   )
-    .bind(extractionId, documentId, now, now)
+    .bind(extractionId, documentId, organizationId, now, now)
     .run();
 
   try {

@@ -61,10 +61,10 @@ async function runExtraction(
 
   // Insert pending extraction record
   await env.DB_EXTRACTION.prepare(
-    `INSERT INTO extractions (id, document_id, status, created_at, updated_at)
-     VALUES (?, ?, 'pending', ?, ?)`,
+    `INSERT INTO extractions (id, document_id, organization_id, status, created_at, updated_at)
+     VALUES (?, ?, ?, 'pending', ?, ?)`,
   )
-    .bind(extractionId, documentId, now, now)
+    .bind(extractionId, documentId, organizationId, now, now)
     .run();
 
   // Fetch real parsed chunks from svc-ingestion
