@@ -52,7 +52,7 @@
 
 ## 5) Current Status
 
-- **Last Updated**: 2026-02-28
+- **Last Updated**: 2026-02-28 (세션 007)
 - **Repo Bootstrap**: ✅
 - **PRD Seed Document**: ✅ (`docs/AI_Foundry_PRD_TDS_v0.6.docx`)
 - **.claude Skills/Agents Migration**: ✅
@@ -104,6 +104,22 @@
   - `@ai-foundry/utils` rbac.ts 추가 (extractRbacContext, checkPermission, logAudit)
   - svc-governance / svc-ingestion / svc-extraction에 RBAC 적용
   - 선택적 RBAC: X-User-Role 헤더 없으면 skip (inter-service 호출 허용)
+- **E-06 Stage 3 Policy Inference**: ✅ svc-policy 전체 구현 (2026-02-28)
+  - Claude Opus 기반 condition-criteria-outcome 정책 추론
+  - `packages/types/src/policy.ts`: PolicyInferRequestSchema, PolicyCandidateSchema, HitlActionSchema
+  - `services/svc-policy/src/prompts/policy.ts`: 퇴직연금 도메인 정책 추론 프롬프트 (10 TYPE 코드)
+  - `services/svc-policy/src/llm/caller.ts`: svc-llm-router service binding (Opus tier)
+  - `services/svc-policy/src/routes/policies.ts`: POST /policies/infer, GET /policies, GET /policies/:id
+  - `services/svc-policy/src/queue/handler.ts`: extraction.completed 큐 소비자
+  - D1 + DO 이중 영속: D1(쿼리용 프로젝션) + HitlSession DO(권한적 상태 머신)
+  - Queue 이벤트: policy.candidate_ready 발행
+- **E-07 HitlSession DO**: ✅ HITL 리뷰 워크플로우 전체 구현 (2026-02-28)
+  - HitlSession DO 상태 머신: open → in_progress → completed
+  - `services/svc-policy/src/hitl-session.ts`: DO fetch 라우팅 (init/assign/action)
+  - `services/svc-policy/src/routes/hitl.ts`: approve/modify/reject/get-session 4개 라우트
+  - modify: 허용 필드(condition, criteria, outcome, title) 동적 UPDATE
+  - policy.approved 이벤트 발행 (approve + modify 시)
+  - svc-policy/src/index.ts: 7개 엔드포인트 라우팅 + RBAC 적용
 - **Test Coverage**: 0%
 
 ---
@@ -150,9 +166,9 @@
 - [x] **E-04** — Prompt Registry: svc-governance에 버전 관리/롤아웃 구현
 - [x] **E-05** — RBAC 적용: svc-governance / svc-ingestion / svc-extraction에 RBAC 미들웨어 적용
 
-### 🔜 Phase E — Policy Inference + HITL (E-06~E-08, Phase 2)
-- [ ] **E-06** — Stage 3: svc-policy 전체 구현 (Claude Opus 연동)
-- [ ] **E-07** — HitlSession DO: 실제 리뷰 워크플로우 구현
+### 🚧 Phase E — Policy Inference + HITL (E-06~E-08, Phase 2)
+- [x] **E-06** — Stage 3: svc-policy 전체 구현 (Claude Opus 연동)
+- [x] **E-07** — HitlSession DO: 실제 리뷰 워크플로우 구현
 - [ ] **E-08** — Review UI: app-web Persona B 화면 구현
 
 ### 🔜 Phase F — Ontology + Skill Packaging (Phase 3)

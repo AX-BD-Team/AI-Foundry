@@ -2,6 +2,33 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 007 — 2026-02-28
+
+- ✅ **E-06 Stage 3 Policy Inference** — svc-policy 전체 구현
+  - `packages/types/src/policy.ts`: PolicyInferRequestSchema, PolicyCandidateSchema, HitlActionSchema Zod 스키마
+  - `services/svc-policy/src/prompts/policy.ts`: Claude Opus 퇴직연금 도메인 정책 추론 프롬프트 (10 TYPE 코드)
+  - `services/svc-policy/src/llm/caller.ts`: svc-llm-router service binding (Opus tier, temperature 0.3)
+  - `services/svc-policy/src/routes/policies.ts`: POST /policies/infer (추론 + D1 저장 + DO 초기화 + 이벤트 발행), GET /policies (페이지네이션), GET /policies/:id
+  - `services/svc-policy/src/queue/handler.ts`: extraction.completed 큐 소비자 (TODO: cross-service 청크 조회)
+  - D1 + DO 이중 영속: D1 = 쿼리용 프로젝션, HitlSession DO = 권한적 상태 머신
+- ✅ **E-07 HitlSession DO** — HITL 리뷰 워크플로우 전체 구현
+  - `services/svc-policy/src/hitl-session.ts`: Durable Object 상태 머신 (open → in_progress → completed)
+    - POST /init, POST /assign, POST /action, GET / — 4개 DO 내부 라우트
+    - HitlActionEntry 이력 추적, 잘못된 상태 전환 시 409 Conflict 반환
+  - `services/svc-policy/src/routes/hitl.ts`: 외부 라우트 4개
+    - POST /policies/:id/approve: DO 액션 → D1 갱신 → PolicyApprovedEvent 발행
+    - POST /policies/:id/modify: 허용 필드(condition, criteria, outcome, title) 동적 UPDATE → 이벤트 발행
+    - POST /policies/:id/reject: DO 액션 → D1 갱신 (이벤트 없음)
+    - GET /sessions/:id: D1 lookup → DO proxy
+  - `services/svc-policy/src/index.ts`: 7개 엔드포인트 라우팅 + RBAC 6개 권한 매핑 + Queue export
+    - policy:create (infer), policy:read (list/get/session), policy:approve, policy:update (modify), policy:reject
+
+**검증**
+- typecheck: 15/15 pass (`bun run typecheck`)
+- lint: 0 tasks (미구성)
+
+---
+
 ## 세션 006 — 2026-02-28
 
 - ✅ **.claude 설정 정비** — pnpm→bun 마이그레이션 잔재 제거, Discovery-X 잔재 정리
