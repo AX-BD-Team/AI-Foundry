@@ -52,7 +52,7 @@
 
 ## 5) Current Status
 
-- **Last Updated**: 2026-02-28 (세션 007)
+- **Last Updated**: 2026-02-28 (세션 008)
 - **Repo Bootstrap**: ✅
 - **PRD Seed Document**: ✅ (`docs/AI_Foundry_PRD_TDS_v0.6.docx`)
 - **.claude Skills/Agents Migration**: ✅
@@ -120,6 +120,23 @@
   - modify: 허용 필드(condition, criteria, outcome, title) 동적 UPDATE
   - policy.approved 이벤트 발행 (approve + modify 시)
   - svc-policy/src/index.ts: 7개 엔드포인트 라우팅 + RBAC 적용
+- **Phase F — svc-ontology (SVC-04)**: ✅ Stage 4 전체 구현 (2026-02-28)
+  - Neo4j HTTP Transaction API 클라이언트 (Workers Bolt 미지원 → REST 사용)
+  - POST /normalize: SKOS URI 생성, D1 terms 저장, Neo4j 그래프 upsert (graceful fallback)
+  - GET /terms, /terms/:id, /graph: 용어 조회 + Neo4j Cypher 프록시
+  - Queue consumer: policy.approved → ontology.normalized 이벤트 발행
+  - RBAC: ontology:create (normalize), ontology:read (terms/graph)
+- **Phase F — svc-skill (SVC-05)**: ✅ Stage 5 전체 구현 (2026-02-28)
+  - SkillPackage 어셈블러: trust score 집계 + SkillPackageSchema Zod 검증
+  - POST /skills: R2에 .skill.json 저장 + D1 카탈로그 + skill.packaged 이벤트
+  - GET /skills, /skills/:id: 카탈로그 조회 (domain/status/trustLevel 필터)
+  - GET /skills/:id/download: R2에서 .skill.json 다운로드 + download 로그
+  - Sonnet tier LLM caller (문서 생성용)
+  - RBAC: skill:create, skill:read, skill:download
+- **E-08 Review UI**: ✅ app-web Persona B(Reviewer) 화면 구현 (2026-02-28)
+  - review-queue.tsx: 정책 후보 목록 + 상태 필터 + 페이지네이션
+  - review-detail.tsx: 조건/기준/결과 카드 + 승인/수정/반려 액션 패널
+  - api/policy.ts: svc-policy API 클라이언트 (MVP 하드코딩 헤더)
 - **Test Coverage**: 0%
 
 ---
@@ -166,15 +183,21 @@
 - [x] **E-04** — Prompt Registry: svc-governance에 버전 관리/롤아웃 구현
 - [x] **E-05** — RBAC 적용: svc-governance / svc-ingestion / svc-extraction에 RBAC 미들웨어 적용
 
-### 🚧 Phase E — Policy Inference + HITL (E-06~E-08, Phase 2)
+### ✅ Phase E — Policy Inference + HITL (E-06~E-08, Phase 2) (완료)
 - [x] **E-06** — Stage 3: svc-policy 전체 구현 (Claude Opus 연동)
 - [x] **E-07** — HitlSession DO: 실제 리뷰 워크플로우 구현
-- [ ] **E-08** — Review UI: app-web Persona B 화면 구현
+- [x] **E-08** — Review UI: app-web Persona B 화면 구현
 
-### 🔜 Phase F — Ontology + Skill Packaging (Phase 3)
-- [ ] Stage 4: svc-ontology — Neo4j Aura + SKOS/JSON-LD
-- [ ] Stage 5: svc-skill — Skill Spec 완성, R2 패키징
+### ✅ Phase F — Ontology + Skill Packaging (Phase 3) (완료)
+- [x] Stage 4: svc-ontology — Neo4j Aura + SKOS/JSON-LD
+- [x] Stage 5: svc-skill — Skill Spec 완성, R2 패키징
+- [ ] MCP 어댑터 생성 (Phase 4 범위)
+
+### 🔜 Phase G — Integration + Deployment (Phase 4)
+- [ ] 전 파이프라인 서비스 배포 (svc-policy, svc-ontology, svc-skill 등)
+- [ ] E2E 파이프라인 통합 테스트
 - [ ] MCP 어댑터 생성
+- [ ] app-web 나머지 Persona 화면 (A, C, D, E)
 
 ---
 

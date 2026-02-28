@@ -2,6 +2,30 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 008 — 2026-02-28
+
+- ✅ **Phase F — svc-ontology (Stage 4)** — Neo4j + SKOS/JSON-LD 온톨로지 정규화
+  - `neo4j/client.ts`: Neo4j HTTP Transaction API (Workers Bolt 미지원 → REST)
+  - `routes/normalize.ts`: POST /normalize — SKOS URI + D1 + Neo4j upsert (graceful fallback)
+  - `routes/terms.ts`: GET /terms, /terms/:id (D1), GET /graph (Neo4j Cypher 프록시)
+  - `queue/handler.ts`: policy.approved → ontology.normalized 이벤트
+  - RBAC: ontology:create, ontology:read
+- ✅ **Phase F — svc-skill (Stage 5)** — Skill 패키징 + R2 저장
+  - `assembler/skill-builder.ts`: trust score 집계 + SkillPackageSchema Zod 검증
+  - `routes/skills.ts`: POST /skills (R2+D1+이벤트), GET /skills, GET /skills/:id, GET /skills/:id/download
+  - `llm/caller.ts`: Sonnet tier LLM caller
+  - RBAC: skill:create, skill:read, skill:download
+- ✅ **E-08 Review UI** — app-web Persona B(Reviewer)
+  - `api/policy.ts`: svc-policy API 클라이언트
+  - `review-queue.tsx`: 정책 목록 + 필터 + 페이지네이션
+  - `review-detail.tsx`: 조건/기준/결과 카드 + 승인/수정/반려 액션
+  - `components/StatusBadge.tsx`: 상태 뱃지
+
+**검증**
+- typecheck: 15/15 pass (`bun run typecheck`)
+
+---
+
 ## 세션 007 — 2026-02-28
 
 - ✅ **E-06 Stage 3 Policy Inference** — svc-policy 전체 구현
