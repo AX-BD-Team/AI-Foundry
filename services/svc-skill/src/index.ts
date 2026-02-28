@@ -27,6 +27,7 @@ import {
   handleGetSkill,
   handleDownloadSkill,
 } from "./routes/skills.js";
+import { handleGetMcpAdapter } from "./routes/mcp.js";
 import { processQueueEvent } from "./queue/handler.js";
 
 export default {
@@ -112,6 +113,26 @@ export default {
             );
           }
           return await handleDownloadSkill(request, env, skillId, ctx);
+        }
+
+        // GET /skills/:id/mcp — MCP adapter projection
+        if (method === "GET" && subpath === "mcp") {
+          const rbacCtx = extractRbacContext(request);
+          if (rbacCtx) {
+            const denied = await checkPermission(env, rbacCtx.role, "skill", "download");
+            if (denied) return denied;
+            ctx.waitUntil(
+              logAudit(env, {
+                userId: rbacCtx.userId,
+                organizationId: rbacCtx.organizationId,
+                action: "download",
+                resource: "skill",
+                resourceId: skillId,
+                details: { adapter_type: "mcp" },
+              }),
+            );
+          }
+          return await handleGetMcpAdapter(request, env, skillId, ctx);
         }
 
         // GET /skills/:id
