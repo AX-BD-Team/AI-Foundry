@@ -2,6 +2,32 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 012 — 2026-02-28
+
+- ✅ **H-01: Unit test 인프라 + 테스트 작성** — 132 tests, 60%+ coverage 달성
+  - vitest + @vitest/coverage-v8 설치 (root devDependencies)
+  - svc-policy: 7 test files, 64 tests, 73.55% Stmts coverage
+    - hitl-session.test.ts (16): DO 상태머신 init/assign/action/routing
+    - hitl.test.ts (14): approve/modify/reject/getSession 핸들러
+    - policies.test.ts (15): extractJsonArray + formatPolicyRow 순수함수
+    - policies-handlers.test.ts (5): list/get 핸들러 D1 mock
+    - policy.test.ts (6): buildPolicyInferencePrompt 프롬프트
+    - caller.test.ts (4): callOpusLlm Fetcher mock
+    - handler.test.ts (4): queue event 처리
+  - svc-skill: 7 test files, 68 tests, 80.41% Stmts coverage
+    - skill-builder.test.ts (18): aggregateTrust + buildSkillPackage
+    - skills.test.ts (16): parseTags + rowToSummary + rowToDetail
+    - skills-handlers.test.ts (9): list/get/download 핸들러
+    - mcp.test.ts (13): toMcpAdapter policy→tool 변환
+    - mcp-handler.test.ts (4): handleGetMcpAdapter
+    - caller.test.ts (4): callSonnetLlm
+    - handler.test.ts (4): queue event 처리
+- ⏳ **H-02: app-web Pages 배포** — 빌드 성공 (51 modules), API 토큰 미설정으로 배포 보류
+
+**검증**
+- typecheck: svc-policy, svc-skill pass
+- test: 132/132 pass
+
 ## 세션 011 — 2026-02-28
 
 - ✅ **G-02b: svc-policy LLM 프롬프트 수정** — JSON-only 출력 강제 + extractJsonArray 로버스트 파싱

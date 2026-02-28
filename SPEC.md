@@ -174,7 +174,7 @@
   - Persona D (Client): results.tsx, audit.tsx
   - Persona E (Executive): dashboard.tsx, cost.tsx
   - API 클라이언트 5개: ingestion, extraction, skill, security, governance
-- **Test Coverage**: 0% (unit test 미작성, E2E 스크립트만 존재)
+- **Test Coverage**: svc-policy 73.55%, svc-skill 80.41% (132 tests, vitest)
 
 ---
 
@@ -239,8 +239,8 @@
 - [x] **G-04** — app-web 나머지 Persona 화면 (A, C, D, E — 9페이지)
 
 ### 🔜 Phase H — Hardening + Production Readiness
-- [ ] Unit test 작성 (target: 60%+ coverage)
-- [ ] app-web Cloudflare Pages 배포
+- [x] Unit test 작성 — svc-policy 73.55%, svc-skill 80.41% (132 tests)
+- [ ] app-web Cloudflare Pages 배포 (빌드 완료, API 토큰 필요)
 - [ ] Neo4j Aura 연결 (svc-ontology NEO4J_URI/PASSWORD)
 - [ ] svc-notification 알림 로직 구현
 - [ ] svc-analytics KPI 집계 구현
