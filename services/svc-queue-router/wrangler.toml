@@ -34,6 +34,10 @@ service = "svc-skill"
 binding = "SVC_NOTIFICATION"
 service = "svc-notification"
 
+[[services]]
+binding = "SVC_ANALYTICS"
+service = "svc-analytics"
+
 [vars]
 ENVIRONMENT = "development"
 SERVICE_NAME = "svc-queue-router"

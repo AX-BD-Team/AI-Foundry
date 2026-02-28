@@ -1,19 +1,21 @@
 /**
  * svc-analytics — SVC-10
- * Analytics: KPI aggregation, business dashboards
+ * Analytics: KPI aggregation, business dashboards, cost tracking
+ *
+ * Routes:
+ *   POST /internal/queue-event — process pipeline events for metric aggregation
+ *   GET  /kpi                  — KPI summary (pipeline metrics)
+ *   GET  /cost                 — LLM cost breakdown by tier
+ *   GET  /dashboards           — combined dashboard (pipeline + cost + usage)
  */
 
-import { createLogger, unauthorized } from "@ai-foundry/utils";
-import type { ExportedHandler } from "@cloudflare/workers-types";
+import { createLogger, unauthorized, notFound } from "@ai-foundry/utils";
+import { processQueueEvent } from "./routes/queue.js";
+import { handleGetKpi, handleGetCost, handleGetDashboard } from "./routes/kpi.js";
 import type { Env } from "./env.js";
 
-const NOT_IMPLEMENTED = JSON.stringify({
-  success: false,
-  error: { code: "NOT_IMPLEMENTED", message: "Not implemented" },
-});
-
 export default {
-  async fetch(request: Request, env: Env, _ctx: ExecutionContext): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const logger = createLogger("svc-analytics");
     const url = new URL(request.url);
     const method = request.method;
@@ -39,15 +41,27 @@ export default {
     }
 
     try {
-      // TODO: implement analytics routes
-      // GET /kpi              — KPI aggregation summary
-      // GET /dashboards       — business dashboard data
-      // GET /cost             — cost breakdown by service / LLM tier
-      // POST /events          — ingest an analytics event
-      return new Response(NOT_IMPLEMENTED, {
-        status: 501,
-        headers: { "Content-Type": "application/json" },
-      });
+      // POST /internal/queue-event
+      if (method === "POST" && path === "/internal/queue-event") {
+        return processQueueEvent(request, env, ctx);
+      }
+
+      // GET /kpi
+      if (method === "GET" && path === "/kpi") {
+        return handleGetKpi(request, env);
+      }
+
+      // GET /cost
+      if (method === "GET" && path === "/cost") {
+        return handleGetCost(request, env);
+      }
+
+      // GET /dashboards
+      if (method === "GET" && path === "/dashboards") {
+        return handleGetDashboard(request, env);
+      }
+
+      return notFound("route", path);
     } catch (e) {
       logger.error("Unhandled error", { error: String(e), path, method });
       return new Response("Internal Server Error", { status: 500 });

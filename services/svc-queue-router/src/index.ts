@@ -16,6 +16,7 @@ interface Env {
   SVC_ONTOLOGY: Fetcher;
   SVC_SKILL: Fetcher;
   SVC_NOTIFICATION: Fetcher;
+  SVC_ANALYTICS: Fetcher;
 }
 
 type EventType =
@@ -29,22 +30,26 @@ type EventType =
 
 /** Map each event type to the target service binding(s) */
 function getTargets(type: EventType, env: Env): Fetcher[] {
-  switch (type) {
-    case "document.uploaded":
-      return [env.SVC_INGESTION];
-    case "ingestion.completed":
-      return [env.SVC_EXTRACTION];
-    case "extraction.completed":
-      return [env.SVC_POLICY];
-    case "policy.candidate_ready":
-      return [env.SVC_NOTIFICATION];
-    case "policy.approved":
-      return [env.SVC_ONTOLOGY];
-    case "ontology.normalized":
-      return [env.SVC_SKILL];
-    case "skill.packaged":
-      return [env.SVC_NOTIFICATION];
-  }
+  const primary: Fetcher[] = (() => {
+    switch (type) {
+      case "document.uploaded":
+        return [env.SVC_INGESTION];
+      case "ingestion.completed":
+        return [env.SVC_EXTRACTION];
+      case "extraction.completed":
+        return [env.SVC_POLICY];
+      case "policy.candidate_ready":
+        return [env.SVC_NOTIFICATION];
+      case "policy.approved":
+        return [env.SVC_ONTOLOGY];
+      case "ontology.normalized":
+        return [env.SVC_SKILL];
+      case "skill.packaged":
+        return [env.SVC_NOTIFICATION];
+    }
+  })();
+  // All events also go to analytics for metric aggregation
+  return [...primary, env.SVC_ANALYTICS];
 }
 
 export default {
