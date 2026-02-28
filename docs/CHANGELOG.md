@@ -2,6 +2,25 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 009 — 2026-02-28
+
+- ✅ **G-01 Queue Router + 전 서비스 배포**
+  - Cloudflare Queues single-consumer 제약 발견 → Queue Router 아키텍처 설계
+  - `services/svc-queue-router/`: 신규 서비스 (sole queue consumer)
+    - event type별 service binding fan-out (document.uploaded→ingestion, extraction.completed→policy 등)
+  - 기존 6개 서비스 `[[queues.consumers]]` 제거 + `POST /internal/queue-event` HTTP 엔드포인트 추가
+    - svc-ingestion, svc-extraction, svc-policy, svc-ontology, svc-skill, svc-notification
+  - 각 서비스 queue handler → `processQueueEvent(body, env, ctx)` 리팩토링
+  - 병렬 에이전트 4개 활용하여 6개 서비스 동시 수정
+  - 11개 Workers 전체 배포 + /health HTTP 200 확인
+  - INTERNAL_API_SECRET 전 서비스 설정 완료
+
+**검증**
+- typecheck: 16/16 pass (`bun run typecheck`)
+- /health: 11/11 HTTP 200
+
+---
+
 ## 세션 008 — 2026-02-28
 
 - ✅ **Phase F — svc-ontology (Stage 4)** — Neo4j + SKOS/JSON-LD 온톨로지 정규화

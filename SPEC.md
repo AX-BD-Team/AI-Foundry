@@ -52,7 +52,7 @@
 
 ## 5) Current Status
 
-- **Last Updated**: 2026-02-28 (세션 008)
+- **Last Updated**: 2026-02-28 (세션 009)
 - **Repo Bootstrap**: ✅
 - **PRD Seed Document**: ✅ (`docs/AI_Foundry_PRD_TDS_v0.6.docx`)
 - **.claude Skills/Agents Migration**: ✅
@@ -66,16 +66,23 @@
 - **D1 Migrations**: ✅ 10개 DB 스키마 작성 + remote 적용 완료 (2026-02-26)
 - **Cloudflare 인프라**: ✅ D1(×10) / R2(×2) / Queue(×2) / KV(×2) 프로비저닝 완료, wrangler.toml ID 반영
 - **CI/CD Workflows**: ✅ GitHub Actions (CI + 4개 deploy workflow)
-- **typecheck**: ✅ 13개 패키지 전체 통과
-- **서비스 배포**: ✅ svc-llm-router / svc-security / svc-ingestion 배포 완료 (2026-02-26)
+- **typecheck**: ✅ 16개 패키지 전체 통과 (svc-queue-router 추가)
+- **서비스 배포**: ✅ 전 서비스 배포 완료 (2026-02-28)
   - https://svc-llm-router.sinclair-account.workers.dev — `GET /health` HTTP 200 ✅
   - https://svc-security.sinclair-account.workers.dev — `GET /health` HTTP 200 ✅
   - https://svc-ingestion.sinclair-account.workers.dev — `GET /health` HTTP 200 ✅
-- **Wrangler Secrets**: ✅ 전 서비스 핵심 secrets 실값 설정 완료 (2026-02-26)
+  - https://svc-notification.sinclair-account.workers.dev — `GET /health` HTTP 200 ✅
+  - https://svc-governance.sinclair-account.workers.dev — `GET /health` HTTP 200 ✅
+  - https://svc-extraction.sinclair-account.workers.dev — `GET /health` HTTP 200 ✅
+  - https://svc-policy.sinclair-account.workers.dev — `GET /health` HTTP 200 ✅
+  - https://svc-ontology.sinclair-account.workers.dev — `GET /health` HTTP 200 ✅
+  - https://svc-skill.sinclair-account.workers.dev — `GET /health` HTTP 200 ✅
+  - https://svc-queue-router.sinclair-account.workers.dev — `GET /health` HTTP 200 ✅ (sole queue consumer)
+- **Wrangler Secrets**: ✅ 전 서비스 INTERNAL_API_SECRET 설정 완료 (2026-02-28)
   - svc-llm-router: `INTERNAL_API_SECRET` / `ANTHROPIC_API_KEY` / `CLOUDFLARE_AI_GATEWAY_URL` ✅
   - svc-security: `INTERNAL_API_SECRET` / `JWT_SECRET`(auto-gen) ✅
-  - svc-ingestion: `INTERNAL_API_SECRET` ✅
-  - svc-ontology (미배포): `NEO4J_URI`, `NEO4J_PASSWORD` — Neo4j 연동 시점에 설정
+  - svc-ingestion / svc-extraction / svc-policy / svc-ontology / svc-skill / svc-governance / svc-notification / svc-queue-router: `INTERNAL_API_SECRET` ✅
+  - svc-ontology: `NEO4J_URI`, `NEO4J_PASSWORD` — Neo4j Aura 연동 시점에 설정 예정
 - **AI Gateway**: ✅ `ai-foundry` 게이트웨이 생성 완료, Authentication Off, Anthropic 라우팅 확인
 - **E2E LLM 파이프라인**: ✅ `/complete` HTTP 200, `/stream` SSE 정상 수신 확인 (2026-02-26)
   - `INTERNAL_API_SECRET` printf 방식으로 재설정 (echo newline 이슈 해결)
@@ -137,6 +144,11 @@
   - review-queue.tsx: 정책 후보 목록 + 상태 필터 + 페이지네이션
   - review-detail.tsx: 조건/기준/결과 카드 + 승인/수정/반려 액션 패널
   - api/policy.ts: svc-policy API 클라이언트 (MVP 하드코딩 헤더)
+- **G-01 Queue Router + 전 서비스 배포**: ✅ svc-queue-router 신규 + 전 서비스 배포 (2026-02-28)
+  - svc-queue-router: 단일 Queue consumer → service binding fan-out 패턴
+  - 기존 6개 서비스 queue consumer 제거 → POST /internal/queue-event HTTP 엔드포인트 전환
+  - 라우팅 테이블: document.uploaded→ingestion, extraction.completed→policy, policy.approved→ontology, ontology.normalized→skill, policy.candidate_ready/skill.packaged→notification
+  - 11개 Workers 전체 배포 + /health HTTP 200 확인 + INTERNAL_API_SECRET 설정
 - **Test Coverage**: 0%
 
 ---
@@ -193,8 +205,8 @@
 - [x] Stage 5: svc-skill — Skill Spec 완성, R2 패키징
 - [ ] MCP 어댑터 생성 (Phase 4 범위)
 
-### 🔜 Phase G — Integration + Deployment (Phase 4)
-- [ ] 전 파이프라인 서비스 배포 (svc-policy, svc-ontology, svc-skill 등)
+### 🔄 Phase G — Integration + Deployment (Phase 4)
+- [x] **G-01** — svc-queue-router 신규 + 전 서비스 배포 (Queue Router 패턴)
 - [ ] E2E 파이프라인 통합 테스트
 - [ ] MCP 어댑터 생성
 - [ ] app-web 나머지 Persona 화면 (A, C, D, E)
@@ -227,3 +239,5 @@
 - 2026-02-26: E-03 Stage 2 완성 — svc-extraction 구현 (Claude Sonnet으로 process/entity/rule 구조 추출, service binding LLM 호출)
 - 2026-02-28: E-04 Prompt Registry — svc-governance 라우트 구현 (CRUD + KV 캐시 + Trust + Cost)
 - 2026-02-28: E-05 RBAC 적용 — extractRbacContext/checkPermission/logAudit 유틸 + 3개 서비스 적용
+- 2026-02-28: G-01 Queue Router 아키텍처 도입 — Cloudflare Queues single-consumer 제약 해결. svc-queue-router가 유일한 consumer로 event type별 service binding fan-out. 기존 6개 서비스의 queue consumer를 POST /internal/queue-event HTTP 엔드포인트로 전환
+- 2026-02-28: G-01 전 서비스 배포 완료 — 11개 Workers (10 SVC + queue-router) 전체 배포, /health HTTP 200 확인, INTERNAL_API_SECRET 설정
