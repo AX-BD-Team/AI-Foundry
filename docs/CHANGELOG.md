@@ -2,6 +2,24 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 013 — 2026-02-28
+
+- ✅ **H-02: app-web Cloudflare Pages 배포** — https://ai-foundry-web.pages.dev
+  - `wrangler pages project create ai-foundry-web` → `wrangler pages deploy dist/`
+  - 19 files (index.html + 18 JS bundles) 업로드, HTTP 200 확인
+  - VITE_API_BASE 미설정 (API 연결은 후속 작업)
+- ✅ **H-04: svc-notification 구현 + 배포** — skeleton → 전체 구현
+  - `POST /internal/queue-event`: policy.candidate_ready → hitl_review_needed, skill.packaged → skill_ready
+  - `GET /notifications?userId=...`: 목록 조회 (status/type/limit/offset 필터)
+  - `PATCH /notifications/:id/read`: 읽음 처리
+  - 16 tests, 96.72% Stmts coverage
+  - 재배포 완료: https://svc-notification.sinclair-account.workers.dev
+
+**검증**
+- typecheck: svc-notification pass
+- test: 16/16 pass (96.72% coverage)
+- deployment: Pages HTTP 200, svc-notification /health HTTP 200
+
 ## 세션 012 — 2026-02-28
 
 - ✅ **H-01: Unit test 인프라 + 테스트 작성** — 132 tests, 60%+ coverage 달성
