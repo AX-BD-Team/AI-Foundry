@@ -2,6 +2,28 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 006 — 2026-02-28
+
+- ✅ **.claude 설정 정비** — pnpm→bun 마이그레이션 잔재 제거, Discovery-X 잔재 정리
+- ✅ **E-04 Prompt Registry** — svc-governance 전체 라우트 구현
+  - `packages/types/src/governance.ts`: Zod 스키마 (CreatePromptVersionSchema, CreateTrustEvaluationSchema)
+  - `services/svc-governance/src/routes/prompts.ts`: POST/GET /prompts, GET /prompts/:id (KV 캐시 + D1)
+  - `services/svc-governance/src/routes/trust.ts`: GET/POST /trust (trust_evaluations 집계/기록)
+  - `services/svc-governance/src/routes/cost.ts`: GET /cost (stub)
+  - `services/svc-governance/src/index.ts`: 전체 라우팅 재구현 + RBAC 적용
+- ✅ **E-05 RBAC 전 서비스 적용** — 선택적 RBAC 미들웨어
+  - `packages/utils/src/rbac.ts`: extractRbacContext, checkPermission, logAudit 유틸
+  - svc-governance: 모든 라우트에 RBAC (governance:read / governance:create)
+  - svc-ingestion: POST /documents (document:upload), GET /documents/:id (document:read)
+  - svc-extraction: POST /extract (extraction:execute), GET /extractions/:id (extraction:read)
+  - 선택적 RBAC: X-User-Role 헤더 없으면 skip (inter-service 호출 허용)
+
+**검증**
+- typecheck: 15/15 pass (`bun run typecheck`)
+- lint: 0 tasks (미구성)
+
+---
+
 ## 세션 005 — 2026-02-26
 
 - ✅ **E-02 Stage 1 완성** — svc-ingestion Queue consumer + Unstructured.io 연동

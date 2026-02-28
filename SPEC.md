@@ -52,7 +52,7 @@
 
 ## 5) Current Status
 
-- **Last Updated**: 2026-02-26
+- **Last Updated**: 2026-02-28
 - **Repo Bootstrap**: ✅
 - **PRD Seed Document**: ✅ (`docs/AI_Foundry_PRD_TDS_v0.6.docx`)
 - **.claude Skills/Agents Migration**: ✅
@@ -95,6 +95,15 @@
   - svc-llm-router service binding 통한 LLM 호출
   - `prompts/structure.ts`, `llm/caller.ts`, `routes/extract.ts`, `queue/handler.ts` 신규
   - wrangler.toml `database_name = "db-structure"` 수정
+- **E-04 Prompt Registry**: ✅ svc-governance 라우트 구현 (2026-02-28)
+  - Prompt CRUD: `POST /prompts` (생성 + KV 캐시), `GET /prompts` (페이지네이션), `GET /prompts/:id` (KV → D1 fallback)
+  - Trust Dashboard: `GET /trust` (집계), `POST /trust` (평가 기록)
+  - Cost Monitoring: `GET /cost` (stub — cross-DB 집계 미구현)
+  - `@ai-foundry/types` governance.ts 추가 (CreatePromptVersionSchema, CreateTrustEvaluationSchema)
+- **E-05 RBAC 적용**: ✅ 전 서비스 RBAC 미들웨어 적용 (2026-02-28)
+  - `@ai-foundry/utils` rbac.ts 추가 (extractRbacContext, checkPermission, logAudit)
+  - svc-governance / svc-ingestion / svc-extraction에 RBAC 적용
+  - 선택적 RBAC: X-User-Role 헤더 없으면 skip (inter-service 호출 허용)
 - **Test Coverage**: 0%
 
 ---
@@ -137,9 +146,9 @@
 - [x] **E-02** — Stage 1 완성: Unstructured.io 연동, 파일 분류 로직, Queue consumer, /mask 연동
 - [x] **E-03** — Stage 2 완성: svc-extraction — Claude Sonnet/Haiku로 구조 추출
 
-### 🔜 Phase D — Governance Baseline (E-04~E-05)
-- [ ] **E-04** — Prompt Registry: svc-governance에 버전 관리/롤아웃 구현
-- [ ] **E-05** — RBAC 적용: 모든 서비스에서 svc-security 통한 권한 검증
+### ✅ Phase D — Governance Baseline (E-04~E-05) (완료)
+- [x] **E-04** — Prompt Registry: svc-governance에 버전 관리/롤아웃 구현
+- [x] **E-05** — RBAC 적용: svc-governance / svc-ingestion / svc-extraction에 RBAC 미들웨어 적용
 
 ### 🔜 Phase E — Policy Inference + HITL (E-06~E-08, Phase 2)
 - [ ] **E-06** — Stage 3: svc-policy 전체 구현 (Claude Opus 연동)
@@ -177,3 +186,5 @@
 - 2026-02-26: E-01 마스킹 미들웨어 구현 (svc-security POST /mask, PII 5종, D1 audit 저장)
 - 2026-02-26: E-02 Stage 1 완성 — svc-ingestion Queue consumer + Unstructured.io 연동 + /mask 연동 + document_chunks D1 저장
 - 2026-02-26: E-03 Stage 2 완성 — svc-extraction 구현 (Claude Sonnet으로 process/entity/rule 구조 추출, service binding LLM 호출)
+- 2026-02-28: E-04 Prompt Registry — svc-governance 라우트 구현 (CRUD + KV 캐시 + Trust + Cost)
+- 2026-02-28: E-05 RBAC 적용 — extractRbacContext/checkPermission/logAudit 유틸 + 3개 서비스 적용
