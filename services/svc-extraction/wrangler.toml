@@ -18,7 +18,15 @@ service = "svc-security"
 binding = "LLM_ROUTER"
 service = "svc-llm-router"
 
-# Queue consumer removed — svc-queue-router is the sole consumer
+# Pipeline event bus producer (to emit extraction.completed)
+[[queues.producers]]
+binding = "QUEUE_PIPELINE"
+queue = "ai-foundry-pipeline"
+
+# Service binding to svc-ingestion for fetching parsed chunks
+[[services]]
+binding = "SVC_INGESTION"
+service = "svc-ingestion"
 
 [vars]
 ENVIRONMENT = "development"

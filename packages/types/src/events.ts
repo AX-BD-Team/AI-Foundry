@@ -22,6 +22,18 @@ export const DocumentUploadedEventSchema = BaseEventSchema.extend({
   }),
 });
 
+// Stage 1 → Stage 2 (after ingestion completes parsing)
+export const IngestionCompletedEventSchema = BaseEventSchema.extend({
+  type: z.literal("ingestion.completed"),
+  payload: z.object({
+    documentId: z.string(),
+    organizationId: z.string(),
+    chunkCount: z.number().int(),
+    classification: z.string(),
+    r2Key: z.string(),
+  }),
+});
+
 // Stage 2 → Stage 3
 export const ExtractionCompletedEventSchema = BaseEventSchema.extend({
   type: z.literal("extraction.completed"),
@@ -83,6 +95,7 @@ export const SkillPackagedEventSchema = BaseEventSchema.extend({
 
 export const PipelineEventSchema = z.discriminatedUnion("type", [
   DocumentUploadedEventSchema,
+  IngestionCompletedEventSchema,
   ExtractionCompletedEventSchema,
   PolicyCandidateReadyEventSchema,
   PolicyApprovedEventSchema,
@@ -91,6 +104,7 @@ export const PipelineEventSchema = z.discriminatedUnion("type", [
 ]);
 
 export type DocumentUploadedEvent = z.infer<typeof DocumentUploadedEventSchema>;
+export type IngestionCompletedEvent = z.infer<typeof IngestionCompletedEventSchema>;
 export type ExtractionCompletedEvent = z.infer<typeof ExtractionCompletedEventSchema>;
 export type PolicyCandidateReadyEvent = z.infer<typeof PolicyCandidateReadyEventSchema>;
 export type PolicyApprovedEvent = z.infer<typeof PolicyApprovedEventSchema>;

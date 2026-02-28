@@ -24,7 +24,7 @@ const MAX_ELEMENTS = 50;
  * Parses the body with PipelineEventSchema, processes document.uploaded events,
  * and returns a Response.
  */
-export async function processQueueEvent(body: unknown, env: Env): Promise<Response> {
+export async function processQueueEvent(body: unknown, env: Env, ctx: ExecutionContext): Promise<Response> {
   const logger = createLogger("svc-ingestion");
 
   const parsed = PipelineEventSchema.safeParse(body);
@@ -117,6 +117,22 @@ export async function processQueueEvent(body: unknown, env: Env): Promise<Respon
     )
       .bind(documentId)
       .run();
+
+    // 6. Publish ingestion.completed → triggers svc-extraction via queue router
+    ctx.waitUntil(
+      env.QUEUE_PIPELINE.send({
+        eventId: crypto.randomUUID(),
+        occurredAt: new Date().toISOString(),
+        type: "ingestion.completed",
+        payload: {
+          documentId,
+          organizationId,
+          chunkCount: chunkIndex,
+          classification: classification.category,
+          r2Key,
+        },
+      }),
+    );
 
     logger.info("Document parsed", {
       documentId,

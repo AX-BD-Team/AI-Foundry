@@ -27,7 +27,7 @@ export default {
       // POST /internal/queue-event — queue router delivers events here
       if (method === "POST" && path === "/internal/queue-event") {
         const body: unknown = await request.json();
-        return await processQueueEvent(body, env);
+        return await processQueueEvent(body, env, ctx);
       }
 
       // POST /documents — upload a new document
@@ -44,6 +44,37 @@ export default {
           }));
         }
         return await handleUpload(request, env, ctx);
+      }
+
+      // GET /documents/:id/chunks — retrieve parsed chunks for a document
+      const chunksMatch = path.match(/^\/documents\/([^/]+)\/chunks$/);
+      if (method === "GET" && chunksMatch) {
+        const rbacCtx = extractRbacContext(request);
+        if (rbacCtx) {
+          const denied = await checkPermission(env, rbacCtx.role, "document", "read");
+          if (denied) return denied;
+        }
+        const documentId = chunksMatch[1];
+        if (!documentId) {
+          return new Response("Not Found", { status: 404 });
+        }
+        const { results } = await env.DB_INGESTION.prepare(
+          `SELECT chunk_id, chunk_index, element_type, masked_text, classification, word_count
+           FROM document_chunks WHERE document_id = ? ORDER BY chunk_index`,
+        )
+          .bind(documentId)
+          .all<{
+            chunk_id: string;
+            chunk_index: number;
+            element_type: string;
+            masked_text: string;
+            classification: string;
+            word_count: number;
+          }>();
+        return new Response(JSON.stringify({ documentId, chunks: results }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
       }
 
       // GET /documents/:id

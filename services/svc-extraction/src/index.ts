@@ -59,6 +59,44 @@ export default {
         return await handleExtract(request, env, ctx);
       }
 
+      // GET /extractions?documentId=:id — list extractions for a document
+      if (method === "GET" && path === "/extractions") {
+        const rbacCtx = extractRbacContext(request);
+        if (rbacCtx) {
+          const denied = await checkPermission(env, rbacCtx.role, "extraction", "read");
+          if (denied) return denied;
+        }
+        const documentId = url.searchParams.get("documentId");
+        if (!documentId) {
+          return ok({ extractions: [] });
+        }
+        const { results } = await env.DB_EXTRACTION.prepare(
+          `SELECT id, document_id, status, process_node_count, entity_count, created_at, updated_at
+           FROM extractions WHERE document_id = ? ORDER BY created_at DESC`,
+        )
+          .bind(documentId)
+          .all<{
+            id: string;
+            document_id: string;
+            status: string;
+            process_node_count: number | null;
+            entity_count: number | null;
+            created_at: string;
+            updated_at: string | null;
+          }>();
+        return ok({
+          extractions: results.map((r) => ({
+            extractionId: r.id,
+            documentId: r.document_id,
+            status: r.status,
+            processNodeCount: r.process_node_count ?? 0,
+            entityCount: r.entity_count ?? 0,
+            createdAt: r.created_at,
+            updatedAt: r.updated_at,
+          })),
+        });
+      }
+
       // GET /extractions/:id — retrieve extraction result
       const extractionMatch = path.match(/^\/extractions\/([^/]+)$/);
       if (method === "GET" && extractionMatch) {

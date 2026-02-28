@@ -80,6 +80,21 @@ export async function handleExtract(
         .run(),
     );
 
+    // Emit extraction.completed → triggers svc-policy via queue router
+    ctx.waitUntil(
+      env.QUEUE_PIPELINE.send({
+        eventId: crypto.randomUUID(),
+        occurredAt: new Date().toISOString(),
+        type: "extraction.completed",
+        payload: {
+          documentId,
+          extractionId,
+          processNodeCount,
+          entityCount,
+        },
+      }),
+    );
+
     return ok({ extractionId, status: "completed", processNodeCount, entityCount });
   } catch (e) {
     const updatedAt = new Date().toISOString();

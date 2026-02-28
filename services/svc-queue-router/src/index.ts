@@ -20,6 +20,7 @@ interface Env {
 
 type EventType =
   | "document.uploaded"
+  | "ingestion.completed"
   | "extraction.completed"
   | "policy.candidate_ready"
   | "policy.approved"
@@ -31,6 +32,8 @@ function getTargets(type: EventType, env: Env): Fetcher[] {
   switch (type) {
     case "document.uploaded":
       return [env.SVC_INGESTION];
+    case "ingestion.completed":
+      return [env.SVC_EXTRACTION];
     case "extraction.completed":
       return [env.SVC_POLICY];
     case "policy.candidate_ready":

@@ -1,12 +1,13 @@
 /**
- * Queue event handler — processes document.uploaded events dispatched by svc-queue-router.
+ * Queue event handler — processes ingestion.completed events dispatched by svc-queue-router.
  *
  * `processQueueEvent` is the HTTP-callable entrypoint (POST /internal/queue-event).
  * `handleQueueBatch` is retained for backwards compatibility but delegates to the same logic.
  */
 
 import { createLogger } from "@ai-foundry/utils";
-import { DocumentUploadedEventSchema } from "@ai-foundry/types";
+import { PipelineEventSchema } from "@ai-foundry/types";
+import type { IngestionCompletedEvent } from "@ai-foundry/types";
 import { buildExtractionPrompt } from "../prompts/structure.js";
 import { callLlm } from "../llm/caller.js";
 import type { Env } from "../env.js";
@@ -19,15 +20,42 @@ interface ExtractionResult {
 }
 
 /**
- * Core extraction logic for a single document.uploaded event.
+ * Fetch parsed chunks from svc-ingestion via service binding.
+ */
+async function fetchChunks(
+  documentId: string,
+  env: Env,
+): Promise<string[]> {
+  const resp = await env.SVC_INGESTION.fetch(
+    `http://internal/documents/${documentId}/chunks`,
+    {
+      headers: {
+        "X-Internal-Secret": env.INTERNAL_API_SECRET,
+      },
+    },
+  );
+
+  if (!resp.ok) {
+    throw new Error(`Failed to fetch chunks: ${resp.status}`);
+  }
+
+  const data = (await resp.json()) as {
+    chunks: Array<{ masked_text: string }>;
+  };
+
+  return data.chunks.map((c) => c.masked_text);
+}
+
+/**
+ * Core extraction logic for a single ingestion.completed event.
  * Returns { extractionId, processNodeCount, entityCount } on success.
  */
 async function runExtraction(
-  event: { payload: { documentId: string; organizationId: string; originalName: string } },
+  event: IngestionCompletedEvent,
   env: Env,
   ctx: ExecutionContext,
 ): Promise<{ extractionId: string; processNodeCount: number; entityCount: number }> {
-  const { documentId, organizationId, originalName } = event.payload;
+  const { documentId, organizationId } = event.payload;
   const extractionId = crypto.randomUUID();
   const now = new Date().toISOString();
 
@@ -39,12 +67,14 @@ async function runExtraction(
     .bind(extractionId, documentId, now, now)
     .run();
 
-  // Placeholder chunks — real implementation fetches parsed chunks from svc-ingestion
-  const placeholderChunks = [
-    `문서명: ${originalName} | 조직: ${organizationId} | 문서 파싱 진행 중입니다. 실제 청크는 svc-ingestion 연동 후 제공됩니다.`,
-  ];
+  // Fetch real parsed chunks from svc-ingestion
+  const chunks = await fetchChunks(documentId, env);
 
-  const prompt = buildExtractionPrompt(placeholderChunks);
+  if (chunks.length === 0) {
+    throw new Error(`No chunks found for document ${documentId}`);
+  }
+
+  const prompt = buildExtractionPrompt(chunks);
   const rawContent = await callLlm(prompt, "haiku", env.LLM_ROUTER, env.INTERNAL_API_SECRET);
 
   let parsed: ExtractionResult;
@@ -70,6 +100,21 @@ async function runExtraction(
       .run(),
   );
 
+  // Emit extraction.completed → triggers svc-policy via queue router
+  ctx.waitUntil(
+    env.QUEUE_PIPELINE.send({
+      eventId: crypto.randomUUID(),
+      occurredAt: new Date().toISOString(),
+      type: "extraction.completed",
+      payload: {
+        documentId,
+        extractionId,
+        processNodeCount,
+        entityCount,
+      },
+    }),
+  );
+
   return { extractionId, processNodeCount, entityCount };
 }
 
@@ -84,12 +129,15 @@ export async function processQueueEvent(
 ): Promise<Response> {
   const logger = createLogger("svc-extraction:queue");
 
-  const parseResult = DocumentUploadedEventSchema.safeParse(body);
+  const parseResult = PipelineEventSchema.safeParse(body);
   if (!parseResult.success) {
-    logger.warn("Skipping non-DocumentUploadedEvent payload", {
-      error: parseResult.error.message,
-    });
+    logger.warn("Invalid pipeline event", { error: parseResult.error.message });
     return Response.json({ skipped: true }, { status: 200 });
+  }
+
+  if (parseResult.data.type !== "ingestion.completed") {
+    // Not our event type — acknowledge silently
+    return Response.json({ skipped: true, reason: "not_our_event" }, { status: 200 });
   }
 
   const event = parseResult.data;
@@ -101,9 +149,6 @@ export async function processQueueEvent(
     return Response.json({ success: true, ...result }, { status: 200 });
   } catch (e) {
     logger.error("Extraction failed", { documentId, error: String(e) });
-
-    // Best-effort: mark extraction as failed (we may not have the extractionId if INSERT failed)
-    // The error is already logged; return 500 so the queue router knows it failed.
     return Response.json(
       { success: false, error: String(e) },
       { status: 500 },
@@ -123,12 +168,17 @@ export async function handleQueueBatch(
   const logger = createLogger("svc-extraction:queue");
 
   for (const message of batch.messages) {
-    const parseResult = DocumentUploadedEventSchema.safeParse(message.body);
+    const parseResult = PipelineEventSchema.safeParse(message.body);
     if (!parseResult.success) {
-      logger.warn("Skipping non-DocumentUploadedEvent message", {
+      logger.warn("Skipping invalid pipeline event message", {
         id: message.id,
         error: parseResult.error.message,
       });
+      message.ack();
+      continue;
+    }
+
+    if (parseResult.data.type !== "ingestion.completed") {
       message.ack();
       continue;
     }
