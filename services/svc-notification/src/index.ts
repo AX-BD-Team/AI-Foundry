@@ -3,18 +3,19 @@
  * Notification: Queue-based review alerts
  *
  * Queue events: delivered by svc-queue-router via POST /internal/queue-event.
+ * Routes:
+ *   POST /internal/queue-event     — process pipeline events (policy.candidate_ready, skill.packaged)
+ *   GET  /notifications?userId=... — list notifications for a user
+ *   PATCH /notifications/:id/read  — mark a notification as read
  */
 
-import { createLogger, unauthorized } from "@ai-foundry/utils";
+import { createLogger, unauthorized, notFound } from "@ai-foundry/utils";
+import { processQueueEvent } from "./routes/queue.js";
+import { handleListNotifications, handleMarkRead } from "./routes/notifications.js";
 import type { Env } from "./env.js";
 
-const NOT_IMPLEMENTED = JSON.stringify({
-  success: false,
-  error: { code: "NOT_IMPLEMENTED", message: "Not implemented" },
-});
-
 export default {
-  async fetch(request: Request, env: Env, _ctx: ExecutionContext): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const logger = createLogger("svc-notification");
     const url = new URL(request.url);
     const method = request.method;
@@ -40,23 +41,23 @@ export default {
     }
 
     try {
-      // POST /internal/queue-event — queue router delivers events here
+      // POST /internal/queue-event
       if (method === "POST" && path === "/internal/queue-event") {
-        const body: unknown = await request.json();
-        logger.info("Processing notification event", { body });
-        return new Response(
-          JSON.stringify({ status: "processed" }),
-          { status: 200, headers: { "Content-Type": "application/json" } },
-        );
+        return processQueueEvent(request, env, ctx);
       }
 
-      // TODO: implement notification routes
-      // POST /notify       — send a notification directly (internal use)
-      // GET  /notifications — list recent notification records
-      return new Response(NOT_IMPLEMENTED, {
-        status: 501,
-        headers: { "Content-Type": "application/json" },
-      });
+      // GET /notifications?userId=...
+      if (method === "GET" && path === "/notifications") {
+        return handleListNotifications(request, env);
+      }
+
+      // PATCH /notifications/:id/read
+      const readMatch = path.match(/^\/notifications\/([^/]+)\/read$/);
+      if (method === "PATCH" && readMatch?.[1]) {
+        return handleMarkRead(request, env, readMatch[1]);
+      }
+
+      return notFound("route", path);
     } catch (e) {
       logger.error("Unhandled error", { error: String(e), path, method });
       return new Response("Internal Server Error", { status: 500 });
