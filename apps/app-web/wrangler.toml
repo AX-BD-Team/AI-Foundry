@@ -6,9 +6,9 @@ compatibility_date = "2025-01-01"
 ENVIRONMENT = "development"
 
 # ---------------------------------------------------------------------------
-# Staging environment
+# Preview environment (Pages uses "preview" instead of "staging")
 # ---------------------------------------------------------------------------
-[env.staging]
+[env.preview]
 vars = { ENVIRONMENT = "staging" }
 
 # ---------------------------------------------------------------------------
