@@ -9,7 +9,7 @@
  *   PATCH /notifications/:id/read  — mark a notification as read
  */
 
-import { createLogger, unauthorized, notFound } from "@ai-foundry/utils";
+import { createLogger, unauthorized, notFound, extractRbacContext, checkPermission, logAudit } from "@ai-foundry/utils";
 import { processQueueEvent } from "./routes/queue.js";
 import { handleListNotifications, handleMarkRead } from "./routes/notifications.js";
 import type { Env } from "./env.js";
@@ -48,12 +48,35 @@ export default {
 
       // GET /notifications?userId=...
       if (method === "GET" && path === "/notifications") {
+        const rbacCtx = extractRbacContext(request);
+        if (rbacCtx) {
+          const denied = await checkPermission(env, rbacCtx.role, "notification", "read");
+          if (denied) return denied;
+          ctx.waitUntil(logAudit(env, {
+            userId: rbacCtx.userId,
+            organizationId: rbacCtx.organizationId,
+            action: "read",
+            resource: "notification",
+          }));
+        }
         return handleListNotifications(request, env);
       }
 
       // PATCH /notifications/:id/read
       const readMatch = path.match(/^\/notifications\/([^/]+)\/read$/);
       if (method === "PATCH" && readMatch?.[1]) {
+        const rbacCtx = extractRbacContext(request);
+        if (rbacCtx) {
+          const denied = await checkPermission(env, rbacCtx.role, "notification", "update");
+          if (denied) return denied;
+          ctx.waitUntil(logAudit(env, {
+            userId: rbacCtx.userId,
+            organizationId: rbacCtx.organizationId,
+            action: "update",
+            resource: "notification",
+            resourceId: readMatch[1],
+          }));
+        }
         return handleMarkRead(request, env, readMatch[1]);
       }
 

@@ -20,6 +20,7 @@ export const ResourceSchema = z.enum([
   "audit",
   "governance",
   "analytics",
+  "notification",
   "user",
 ]);
 
@@ -62,6 +63,7 @@ export const PERMISSIONS: Record<Role, Partial<Record<Resource, Action[]>>> = {
     audit: ["create", "read"],
     governance: ["create", "read", "update"],
     analytics: ["read"],
+    notification: ["read", "update", "delete"],
     user: ["create", "read", "update", "delete"],
   },
   Analyst: {
@@ -71,6 +73,7 @@ export const PERMISSIONS: Record<Role, Partial<Record<Resource, Action[]>>> = {
     ontology: ["read"],
     skill: ["read", "download"],
     analytics: ["read"],
+    notification: ["read", "update"],
   },
   Reviewer: {
     document: ["read"],
@@ -78,6 +81,7 @@ export const PERMISSIONS: Record<Role, Partial<Record<Resource, Action[]>>> = {
     policy: ["read", "approve", "reject", "update"],
     ontology: ["read"],
     skill: ["read"],
+    notification: ["read", "update"],
   },
   Developer: {
     document: ["read"],
@@ -85,6 +89,7 @@ export const PERMISSIONS: Record<Role, Partial<Record<Resource, Action[]>>> = {
     policy: ["read"],
     ontology: ["read"],
     skill: ["read", "download"],
+    notification: ["read", "update"],
   },
   Client: {
     document: ["read"],
@@ -93,12 +98,14 @@ export const PERMISSIONS: Record<Role, Partial<Record<Resource, Action[]>>> = {
     skill: ["read"],
     audit: ["read"],
     analytics: ["read"],
+    notification: ["read"],
   },
   Executive: {
     governance: ["read"],
     analytics: ["read"],
     skill: ["read"],
     audit: ["read"],
+    notification: ["read"],
   },
 };
 

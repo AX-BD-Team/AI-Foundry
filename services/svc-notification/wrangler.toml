@@ -10,6 +10,11 @@ database_id = "1a6ef6a4-6087-4637-b4d8-4abc7ab2e1bf"
 
 # Queue consumer removed — svc-queue-router is the sole consumer
 
+# Service binding to svc-security for RBAC + audit logging
+[[services]]
+binding = "SECURITY"
+service = "svc-security"
+
 # Queue producer — re-emit or forward events as needed
 [[queues.producers]]
 binding = "QUEUE_PIPELINE"
@@ -33,6 +38,10 @@ binding = "DB_NOTIFICATION"
 database_name = "db-notification-staging"
 database_id = "placeholder-staging-id"
 
+[[env.staging.services]]
+binding = "SECURITY"
+service = "svc-security"
+
 [[env.staging.queues.producers]]
 binding = "QUEUE_PIPELINE"
 queue = "ai-foundry-pipeline-staging"
@@ -42,6 +51,10 @@ queue = "ai-foundry-pipeline-staging"
 # ---------------------------------------------------------------------------
 [env.production]
 vars = { ENVIRONMENT = "production", SERVICE_NAME = "svc-notification" }
+
+[[env.production.services]]
+binding = "SECURITY"
+service = "svc-security"
 
 [[env.production.d1_databases]]
 binding = "DB_NOTIFICATION"

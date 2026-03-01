@@ -9,7 +9,7 @@
  *   GET  /dashboards           — combined dashboard (pipeline + cost + usage)
  */
 
-import { createLogger, unauthorized, notFound } from "@ai-foundry/utils";
+import { createLogger, unauthorized, notFound, extractRbacContext, checkPermission, logAudit } from "@ai-foundry/utils";
 import { processQueueEvent } from "./routes/queue.js";
 import { handleGetKpi, handleGetCost, handleGetDashboard } from "./routes/kpi.js";
 import type { Env } from "./env.js";
@@ -48,16 +48,37 @@ export default {
 
       // GET /kpi
       if (method === "GET" && path === "/kpi") {
+        const rbacCtx = extractRbacContext(request);
+        if (rbacCtx) {
+          const denied = await checkPermission(env, rbacCtx.role, "analytics", "read");
+          if (denied) return denied;
+        }
         return handleGetKpi(request, env);
       }
 
       // GET /cost
       if (method === "GET" && path === "/cost") {
+        const rbacCtx = extractRbacContext(request);
+        if (rbacCtx) {
+          const denied = await checkPermission(env, rbacCtx.role, "analytics", "read");
+          if (denied) return denied;
+        }
         return handleGetCost(request, env);
       }
 
       // GET /dashboards
       if (method === "GET" && path === "/dashboards") {
+        const rbacCtx = extractRbacContext(request);
+        if (rbacCtx) {
+          const denied = await checkPermission(env, rbacCtx.role, "analytics", "read");
+          if (denied) return denied;
+          ctx.waitUntil(logAudit(env, {
+            userId: rbacCtx.userId,
+            organizationId: rbacCtx.organizationId,
+            action: "read",
+            resource: "analytics",
+          }));
+        }
         return handleGetDashboard(request, env);
       }
 
