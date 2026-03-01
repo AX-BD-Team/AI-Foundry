@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Full product requirements and technical design are in `docs/AI_Foundry_PRD_TDS_v0.6.docx`. This is the authoritative reference for all design decisions.
 
-> **Status**: Phase 1 진행 중. 모노레포 스캐폴딩 완료 (2026-02-26). SVC-01/06/07 전체 구현, 나머지 스켈레톤. 다음 단계: Cloudflare 인프라 프로비저닝 → Stage 1/2 전체 구현.
+> **Status**: Phase 1 완료. 11 Workers 전체 구현+배포, 709 tests, staging/production 환경 분리 완료. 다음 단계: Phase 2 — 실제 퇴직연금 문서 투입 파일럿.
 
 ---
 
@@ -55,7 +55,8 @@ res-ai-foundry/
 │   ├── svc-security/          # SVC-07  Security (Access, RBAC, masking)
 │   ├── svc-governance/        # SVC-08  Governance (Prompt Registry, cost)
 │   ├── svc-notification/      # SVC-09  Notification (Queue alerts)
-│   └── svc-analytics/         # SVC-10  Analytics (KPI, dashboards)
+│   ├── svc-analytics/         # SVC-10  Analytics (KPI, dashboards)
+│   └── svc-queue-router/      # Queue Router (pipeline event bus, fan-out)
 ├── docs/                      # PRD, CHANGELOG
 ├── infra/                     # Infrastructure config
 ├── turbo.json                 # Turborepo task config
@@ -239,11 +240,22 @@ Plugin 스킬 (session-toolkit, 범용):
 - `/deploy` — Cloudflare Workers 배포 (CI/CD + DB migration 체크 + health check)
 - `/sync` — SPEC.md ↔ GitHub 이슈 상태 동기화
 - `/db-migrate` — D1 마이그레이션 생성→적용→검증
+- `/secrets-check` — 전 서비스 wrangler secrets 상태 환경별 검증
+- `/e2e-pipeline` — 5-Stage 파이프라인 E2E 테스트 실행+결과 요약
 
 에이전트:
 - `security-reviewer`
 - `migration-checker`
 - `status-transition-reviewer`
+- `wrangler-config-reviewer` — 11개 서비스 wrangler.toml 일관성 검증
+
+### MCP Servers
+- `.mcp.json` (repo root, git 커밋) — 팀 공유 MCP: context7 (라이브러리 문서 조회)
+- `settings.local.json` — 개인 MCP: Cloudflare Developer Platform (API 토큰 필요)
+
+### Hooks (자동 실행)
+- **PreToolUse (Edit|Write)**: `.env`/`.dev.vars` 편집 차단 + 시크릿 하드코딩 차단
+- **PostToolUse (Edit|Write)**: typecheck+lint 자동 실행 + migration 파일 변경 알림
 
 ### Project Management Rules
 1. SPEC.md를 SSOT로 유지

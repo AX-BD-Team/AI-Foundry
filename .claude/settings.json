@@ -16,17 +16,6 @@
     ]
   },
   "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Edit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bun run typecheck 2>&1 | tail -20; bun run lint 2>&1 | tail -20"
-          }
-        ]
-      }
-    ],
     "PreToolUse": [
       {
         "matcher": "Edit|Write",
@@ -34,6 +23,25 @@
           {
             "type": "command",
             "command": "if echo \"$CLAUDE_TOOL_INPUT\" | grep -qE '\\.dev\\.vars|\\.env'; then echo 'BLOCKED: 민감 파일(.dev.vars/.env) 편집이 차단되었습니다'; exit 2; fi"
+          },
+          {
+            "type": "command",
+            "command": "if echo \"$CLAUDE_TOOL_INPUT\" | grep -qE '(ANTHROPIC_API_KEY|INTERNAL_API_SECRET|NEO4J_PASSWORD|NEO4J_URI|NEO4J_USER|UNSTRUCTURED_API_KEY|CF_AI_GATEWAY_TOKEN)\\s*=\\s*\"[^\"]+\"'; then echo 'BLOCKED: 시크릿 값을 코드에 하드코딩하지 마세요. wrangler secret put을 사용하세요'; exit 2; fi"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun run typecheck 2>&1 | tail -20; bun run lint 2>&1 | tail -20"
+          },
+          {
+            "type": "command",
+            "command": "if echo \"$CLAUDE_TOOL_INPUT\" | grep -q 'migrations/'; then echo '⚠️ Migration 변경 감지 — migration-checker 에이전트 실행을 권장합니다'; fi"
           }
         ]
       }
