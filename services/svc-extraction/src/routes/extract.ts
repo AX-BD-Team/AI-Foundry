@@ -58,9 +58,15 @@ export async function handleExtract(
     const prompt = buildExtractionPrompt(chunks);
     const rawContent = await callLlm(prompt, tier, env.LLM_ROUTER, env.INTERNAL_API_SECRET);
 
+    // Strip markdown code fences (```json ... ```) that LLMs often add
+    const jsonContent = rawContent
+      .replace(/^```(?:json)?\s*\n?/i, "")
+      .replace(/\n?```\s*$/i, "")
+      .trim();
+
     let parsed: ExtractionResult;
     try {
-      parsed = JSON.parse(rawContent) as ExtractionResult;
+      parsed = JSON.parse(jsonContent) as ExtractionResult;
     } catch {
       // LLM returned non-JSON — store raw and treat as partial result
       parsed = { processes: [], entities: [], relationships: [], rules: [] };

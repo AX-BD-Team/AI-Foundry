@@ -77,9 +77,15 @@ async function runExtraction(
   const prompt = buildExtractionPrompt(chunks);
   const rawContent = await callLlm(prompt, "haiku", env.LLM_ROUTER, env.INTERNAL_API_SECRET);
 
+  // Strip markdown code fences (```json ... ```) that LLMs often add
+  const jsonContent = rawContent
+    .replace(/^```(?:json)?\s*\n?/i, "")
+    .replace(/\n?```\s*$/i, "")
+    .trim();
+
   let parsed: ExtractionResult;
   try {
-    parsed = JSON.parse(rawContent) as ExtractionResult;
+    parsed = JSON.parse(jsonContent) as ExtractionResult;
   } catch {
     parsed = { processes: [], entities: [], relationships: [], rules: [] };
   }
