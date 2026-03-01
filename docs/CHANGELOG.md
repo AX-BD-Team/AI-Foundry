@@ -2,6 +2,23 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 022 — 2026-03-01
+
+**큐 핸들러 3개 구현 + 자동 파이프라인 검증**:
+- ✅ Staging ANTHROPIC_API_KEY 실값 설정 → LLM Haiku/Sonnet 호출 E2E 검증
+- ✅ Staging Neo4j secrets 설정 → svc-ontology 그래프 쿼리 검증 (HTTPS URI 필수)
+- ✅ svc-policy 큐 핸들러 구현 — `extraction.completed` → Opus LLM 정책 추론 + HITL 생성
+- ✅ svc-ontology 큐 핸들러 구현 — `policy.approved` → 한국어 도메인 용어 추출 + D1/Neo4j
+- ✅ svc-skill 큐 핸들러 구현 — `ontology.normalized` → .skill.json 자동 패키징 + R2
+- ✅ 서비스 바인딩 추가 — SVC_EXTRACTION, SVC_POLICY, SVC_ONTOLOGY (wrangler.toml + env.ts)
+- ✅ 3개 서비스 staging 배포 + E2E 8/8 PASS
+- ✅ **자동 파이프라인 검증** — approve → queue → ontology(10 terms) → queue → skill(auto) 확인
+
+**검증**:
+- ✅ TypeScript typecheck PASS (svc-policy, svc-ontology, svc-skill)
+- ✅ Staging E2E 8/8 PASS
+- ✅ Queue auto-pipeline: policy approve → auto ontology + auto skill 생성 확인
+
 ## 세션 021 — 2026-03-01
 
 **Claude Code 자동화 구축 + CLAUDE.md 갱신**:
