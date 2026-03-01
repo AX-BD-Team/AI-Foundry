@@ -47,4 +47,15 @@ describe("buildPolicyInferencePrompt", () => {
     expect(result.userContent).toContain('{"key": "value"}');
     expect(result.userContent).toContain("line1\nline2");
   });
+
+  it("uses custom startingSeq in user prompt", () => {
+    const result = buildPolicyInferencePrompt(["test chunk"], 42);
+    expect(result.userContent).toContain("042");
+    expect(result.userContent).toContain("SEQ 시작 번호: 042");
+  });
+
+  it("defaults startingSeq to 001", () => {
+    const result = buildPolicyInferencePrompt(["test chunk"]);
+    expect(result.userContent).toContain("SEQ 시작 번호: 001");
+  });
 });

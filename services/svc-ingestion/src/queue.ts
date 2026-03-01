@@ -17,7 +17,7 @@ const MIME_MAP: Record<string, string> = {
   jpeg: "image/jpeg",
 };
 
-const MAX_ELEMENTS = 50;
+const MAX_ELEMENTS = 200;
 
 /**
  * Process a single queue event delivered via HTTP from the queue router.
@@ -73,7 +73,7 @@ export async function processQueueEvent(body: unknown, env: Env, ctx: ExecutionC
     // 3. Classify
     const classification = classifyDocument(elements, fileType);
 
-    // 4. Insert chunks (max 50, skip blank text)
+    // 4. Insert chunks (max 200, skip blank text)
     let chunkIndex = 0;
     for (const element of elements.slice(0, MAX_ELEMENTS)) {
       const text = element.text.trim();

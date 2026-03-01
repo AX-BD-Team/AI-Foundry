@@ -40,6 +40,7 @@ export const ExtractionCompletedEventSchema = BaseEventSchema.extend({
   payload: z.object({
     documentId: z.string(),
     extractionId: z.string(),
+    organizationId: z.string(),
     processNodeCount: z.number().int(),
     entityCount: z.number().int(),
     neo4jGraphId: z.string().optional(),

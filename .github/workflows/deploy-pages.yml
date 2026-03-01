@@ -93,7 +93,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: "pages deploy dist --project-name=ai-foundry-app-web --branch=staging"
+          command: "pages deploy dist --project-name=ai-foundry-web --branch=staging"
           workingDirectory: apps/app-web
 
       - name: Deploy to Cloudflare Pages (production)
@@ -102,5 +102,5 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: "pages deploy dist --project-name=ai-foundry-app-web --branch=main"
+          command: "pages deploy dist --project-name=ai-foundry-web --branch=main"
           workingDirectory: apps/app-web

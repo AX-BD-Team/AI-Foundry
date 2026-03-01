@@ -220,6 +220,7 @@ describe("processQueueEvent", () => {
       payload: {
         documentId: "doc-1",
         extractionId: "ext-1",
+        organizationId: "org-1",
         processNodeCount: 5,
         entityCount: 3,
       },

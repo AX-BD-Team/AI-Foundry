@@ -109,6 +109,7 @@ async function runExtraction(
       payload: {
         documentId,
         extractionId,
+        organizationId,
         processNodeCount,
         entityCount,
       },

@@ -53,6 +53,7 @@ function mockEnv(): Env {
       prepare: vi.fn().mockReturnValue({
         bind: vi.fn().mockReturnValue({
           run: vi.fn().mockResolvedValue({ success: true }),
+          first: vi.fn().mockResolvedValue(null),
         }),
       }),
     } as unknown as D1Database,
@@ -127,6 +128,7 @@ describe("processQueueEvent (svc-policy)", () => {
       payload: {
         documentId: "doc-1",
         extractionId: "ext-1",
+        organizationId: "org-1",
         processNodeCount: 5,
         entityCount: 10,
       },
@@ -155,6 +157,7 @@ describe("processQueueEvent (svc-policy)", () => {
       payload: {
         documentId: "doc-1",
         extractionId: "ext-1",
+        organizationId: "org-1",
         processNodeCount: 5,
         entityCount: 10,
       },
@@ -179,6 +182,7 @@ describe("processQueueEvent (svc-policy)", () => {
       payload: {
         documentId: "doc-1",
         extractionId: "ext-1",
+        organizationId: "org-1",
         processNodeCount: 5,
         entityCount: 10,
       },

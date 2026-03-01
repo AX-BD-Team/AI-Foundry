@@ -69,12 +69,12 @@ export async function processQueueEvent(
     );
   }
 
-  const { extractionId, documentId } = event.payload;
-  logger.info("Processing extraction.completed event", { extractionId, documentId });
+  const { extractionId, documentId, organizationId: eventOrgId } = event.payload;
+  const organizationId = eventOrgId ?? "system";
+  logger.info("Processing extraction.completed event", { extractionId, documentId, organizationId });
 
   // 1. Fetch extraction result from svc-extraction
   let extractionResult: ExtractionApiResponse["data"]["result"];
-  let organizationId = "system";
   try {
     const resp = await env.SVC_EXTRACTION.fetch(
       `http://internal/extractions/${extractionId}`,
@@ -134,8 +134,15 @@ export async function processQueueEvent(
     );
   }
 
-  // 3. Call Opus LLM for policy inference
-  const { system, userContent } = buildPolicyInferencePrompt(chunks);
+  // 3. Determine starting SEQ to avoid duplicates
+  const maxSeqRow = await env.DB_POLICY.prepare(
+    `SELECT MAX(CAST(SUBSTR(policy_code, -3) AS INTEGER)) as max_seq
+     FROM policies WHERE organization_id = ?`,
+  ).bind(organizationId).first<{ max_seq: number | null }>();
+  const startingSeq = (maxSeqRow?.max_seq ?? 0) + 1;
+
+  // 4. Call Opus LLM for policy inference
+  const { system, userContent } = buildPolicyInferencePrompt(chunks, startingSeq);
 
   let rawContent: string;
   try {

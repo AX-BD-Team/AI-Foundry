@@ -66,6 +66,7 @@ function makeEvent(
     "extraction.completed": {
       documentId: "doc-1",
       extractionId: "ext-1",
+      organizationId: "org-1",
       processNodeCount: 3,
       entityCount: 7,
     },

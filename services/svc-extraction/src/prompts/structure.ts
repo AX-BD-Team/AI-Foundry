@@ -3,8 +3,8 @@
  * 퇴직연금 도메인 문서에서 프로세스, 엔티티, 관계, 규칙을 추출한다.
  */
 
-const MAX_CHUNK_CHARS = 3000;
-const MAX_CHUNKS = 5;
+const MAX_CHUNK_CHARS = 4000;
+const MAX_CHUNKS = 20;
 
 /**
  * 문서 청크 배열로부터 Claude용 구조 추출 프롬프트를 생성한다.

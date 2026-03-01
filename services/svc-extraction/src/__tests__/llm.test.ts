@@ -137,24 +137,24 @@ describe("buildExtractionPrompt", () => {
     expect(prompt).toContain("rules");
   });
 
-  it("limits chunks to MAX_CHUNKS (5)", () => {
-    const chunks = Array.from({ length: 10 }, (_, i) => `UNIQUE_CHUNK_${i}`);
+  it("limits chunks to MAX_CHUNKS (20)", () => {
+    const chunks = Array.from({ length: 25 }, (_, i) => `UNIQUE_CHUNK_${i}`);
     const prompt = buildExtractionPrompt(chunks);
-    // First 5 should be present
+    // First 20 should be present
     expect(prompt).toContain("UNIQUE_CHUNK_0");
-    expect(prompt).toContain("UNIQUE_CHUNK_4");
-    // 6th and beyond should not be present
-    expect(prompt).not.toContain("UNIQUE_CHUNK_5");
-    expect(prompt).not.toContain("UNIQUE_CHUNK_9");
+    expect(prompt).toContain("UNIQUE_CHUNK_19");
+    // 21st and beyond should not be present
+    expect(prompt).not.toContain("UNIQUE_CHUNK_20");
+    expect(prompt).not.toContain("UNIQUE_CHUNK_24");
   });
 
-  it("truncates individual chunks to MAX_CHUNK_CHARS (3000)", () => {
-    const longText = "X".repeat(5000);
+  it("truncates individual chunks to MAX_CHUNK_CHARS (4000)", () => {
+    const longText = "X".repeat(6000);
     const prompt = buildExtractionPrompt([longText]);
-    // The prompt should not contain the full 5000 chars of X
-    // The chunk is truncated to 3000 chars max
+    // The prompt should not contain the full 6000 chars of X
+    // The chunk is truncated to 4000 chars max
     const xCount = (prompt.match(/X/g) ?? []).length;
-    expect(xCount).toBeLessThanOrEqual(3000);
+    expect(xCount).toBeLessThanOrEqual(4000);
   });
 
   it("handles empty chunk array", () => {

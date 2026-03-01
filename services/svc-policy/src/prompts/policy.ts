@@ -27,7 +27,7 @@ Where TYPE is one of:
 - NF: Notification (통보/알림)
 - EX: Exception (예외)
 
-SEQ is a 3-digit zero-padded number starting from 001.
+SEQ is a 3-digit zero-padded number. The starting SEQ will be provided in the user message.
 
 Output requirements:
 1. Return ONLY a JSON array of policy objects — no markdown fences, no surrounding text.
@@ -51,7 +51,7 @@ CRITICAL RULES:
 - Do NOT wrap the JSON in \`\`\`json\`\`\` blocks.
 - If you cannot infer any policies, return an empty array: []`;
 
-export function buildPolicyInferencePrompt(chunks: string[]): {
+export function buildPolicyInferencePrompt(chunks: string[], startingSeq = 1): {
   system: string;
   userContent: string;
 } {
@@ -59,7 +59,11 @@ export function buildPolicyInferencePrompt(chunks: string[]): {
     .map((chunk, i) => `--- 청크 ${String(i + 1)} ---\n${chunk}`)
     .join("\n\n");
 
+  const seqStr = String(startingSeq).padStart(3, "0");
+
   const userContent = `다음은 SI 프로젝트 산출물에서 추출한 구조화된 데이터입니다. 이 데이터를 분석하여 퇴직연금 도메인의 비즈니스 정책을 condition-criteria-outcome 트리플 형태로 추론해 주세요.
+
+SEQ 시작 번호: ${seqStr} (이 번호부터 순서대로 부여하세요)
 
 ${joined}
 

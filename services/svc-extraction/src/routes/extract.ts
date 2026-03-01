@@ -90,6 +90,7 @@ export async function handleExtract(
         payload: {
           documentId,
           extractionId,
+          organizationId,
           processNodeCount,
           entityCount,
         },
