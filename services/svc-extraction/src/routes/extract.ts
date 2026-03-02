@@ -10,7 +10,7 @@ import type { Env } from "../env.js";
 
 interface ExtractRequestBody {
   documentId: string;
-  organizationId?: string;
+  organizationId: string;
   chunks: string[];
   tier?: "sonnet" | "haiku";
 }
@@ -34,10 +34,13 @@ export async function handleExtract(
     return badRequest("Request body must be valid JSON");
   }
 
-  const { documentId, organizationId = "default", chunks, tier = "sonnet" } = body;
+  const { documentId, organizationId, chunks, tier = "sonnet" } = body;
 
   if (!documentId || typeof documentId !== "string") {
     return badRequest("documentId is required");
+  }
+  if (!organizationId || typeof organizationId !== "string") {
+    return badRequest("organizationId is required");
   }
   if (!Array.isArray(chunks) || chunks.length === 0) {
     return badRequest("chunks must be a non-empty array");

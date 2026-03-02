@@ -42,10 +42,11 @@ async function fetchChunks(
   }
 
   const data = (await resp.json()) as {
-    chunks: Array<{ masked_text: string }>;
+    success: boolean;
+    data: { documentId: string; chunks: Array<{ masked_text: string }> };
   };
 
-  return data.chunks.map((c) => c.masked_text);
+  return data.data.chunks.map((c) => c.masked_text);
 }
 
 function selectTier(chunks: string[]): "sonnet" | "haiku" {
@@ -75,72 +76,85 @@ async function runExtraction(
     .bind(extractionId, documentId, organizationId, now, now)
     .run();
 
-  // Fetch real parsed chunks from svc-ingestion
-  const chunks = await fetchChunks(documentId, env);
-
-  if (chunks.length === 0) {
-    throw new Error(`No chunks found for document ${documentId}`);
-  }
-
-  const prompt = buildExtractionPrompt(chunks);
-  const tier = selectTier(chunks);
-  const totalChunkLen = chunks.reduce((sum, c) => sum + c.length, 0);
-  logger.info("Selected LLM tier", { tier, totalChunkLen, chunkCount: chunks.length });
-  const rawContent = await callLlm(prompt, tier, env.LLM_ROUTER, env.INTERNAL_API_SECRET);
-
-  // Strip markdown code fences (```json ... ```) that LLMs often add
-  const jsonContent = rawContent
-    .replace(/^```(?:json)?\s*\n?/i, "")
-    .replace(/\n?```\s*$/i, "")
-    .trim();
-
-  let parsed: ExtractionResult;
   try {
-    parsed = JSON.parse(jsonContent) as ExtractionResult;
-  } catch {
-    logger.warn("LLM response JSON parse failed, falling back to empty result", {
-      documentId,
-      rawContentLength: jsonContent.length,
-      rawContentPreview: jsonContent.slice(0, 300),
+    // Fetch real parsed chunks from svc-ingestion
+    const chunks = await fetchChunks(documentId, env);
+
+    if (chunks.length === 0) {
+      throw new Error(`No chunks found for document ${documentId}`);
+    }
+
+    const prompt = buildExtractionPrompt(chunks);
+    const tier = selectTier(chunks);
+    const totalChunkLen = chunks.reduce((sum, c) => sum + c.length, 0);
+    logger.info("Selected LLM tier", { tier, totalChunkLen, chunkCount: chunks.length });
+    const rawContent = await callLlm(prompt, tier, env.LLM_ROUTER, env.INTERNAL_API_SECRET);
+
+    // Strip markdown code fences (```json ... ```) that LLMs often add
+    const jsonContent = rawContent
+      .replace(/^```(?:json)?\s*\n?/i, "")
+      .replace(/\n?```\s*$/i, "")
+      .trim();
+
+    let parsed: ExtractionResult;
+    try {
+      parsed = JSON.parse(jsonContent) as ExtractionResult;
+    } catch {
+      logger.warn("LLM response JSON parse failed, falling back to empty result", {
+        documentId,
+        rawContentLength: jsonContent.length,
+        rawContentPreview: jsonContent.slice(0, 300),
+      });
+      parsed = { processes: [], entities: [], relationships: [], rules: [] };
+    }
+
+    const processNodeCount =
+      (parsed.processes?.length ?? 0) + (parsed.relationships?.length ?? 0);
+    const entityCount = parsed.entities?.length ?? 0;
+    const ruleCount = parsed.rules?.length ?? 0;
+    const updatedAt = new Date().toISOString();
+
+    await env.DB_EXTRACTION.prepare(
+      `UPDATE extractions
+       SET status = 'completed', result_json = ?, process_node_count = ?,
+           entity_count = ?, updated_at = ?
+       WHERE id = ?`,
+    )
+      .bind(JSON.stringify(parsed), processNodeCount, entityCount, updatedAt, extractionId)
+      .run();
+
+    // Emit extraction.completed → triggers svc-policy via queue router
+    // Must be awaited — ctx.waitUntil() can silently drop if Worker terminates early
+    await env.QUEUE_PIPELINE.send({
+      eventId: crypto.randomUUID(),
+      occurredAt: new Date().toISOString(),
+      type: "extraction.completed",
+      payload: {
+        documentId,
+        extractionId,
+        organizationId,
+        processNodeCount,
+        entityCount,
+        processDurationMs: Date.now() - extractStart,
+        ruleCount,
+      },
     });
-    parsed = { processes: [], entities: [], relationships: [], rules: [] };
+
+    logger.info("Emitted extraction.completed event", { extractionId, documentId, organizationId });
+
+    return { extractionId, processNodeCount, entityCount };
+  } catch (e) {
+    // Mark extraction as failed so it doesn't stay permanently pending
+    const failedAt = new Date().toISOString();
+    ctx.waitUntil(
+      env.DB_EXTRACTION.prepare(
+        `UPDATE extractions SET status = 'failed', updated_at = ? WHERE id = ?`,
+      )
+        .bind(failedAt, extractionId)
+        .run(),
+    );
+    throw e;
   }
-
-  const processNodeCount =
-    (parsed.processes?.length ?? 0) + (parsed.relationships?.length ?? 0);
-  const entityCount = parsed.entities?.length ?? 0;
-  const ruleCount = parsed.rules?.length ?? 0;
-  const updatedAt = new Date().toISOString();
-
-  await env.DB_EXTRACTION.prepare(
-    `UPDATE extractions
-     SET status = 'completed', result_json = ?, process_node_count = ?,
-         entity_count = ?, updated_at = ?
-     WHERE id = ?`,
-  )
-    .bind(JSON.stringify(parsed), processNodeCount, entityCount, updatedAt, extractionId)
-    .run();
-
-  // Emit extraction.completed → triggers svc-policy via queue router
-  // Must be awaited — ctx.waitUntil() can silently drop if Worker terminates early
-  await env.QUEUE_PIPELINE.send({
-    eventId: crypto.randomUUID(),
-    occurredAt: new Date().toISOString(),
-    type: "extraction.completed",
-    payload: {
-      documentId,
-      extractionId,
-      organizationId,
-      processNodeCount,
-      entityCount,
-      processDurationMs: Date.now() - extractStart,
-      ruleCount,
-    },
-  });
-
-  logger.info("Emitted extraction.completed event", { extractionId, documentId, organizationId });
-
-  return { extractionId, processNodeCount, entityCount };
 }
 
 /**

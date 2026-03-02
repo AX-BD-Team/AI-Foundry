@@ -47,10 +47,14 @@ function mockEnv(): Env {
       fetch: vi.fn().mockResolvedValue(
         new Response(
           JSON.stringify({
-            chunks: [
-              { masked_text: "퇴직연금 가입 조건 및 절차" },
-              { masked_text: "중도인출 요건" },
-            ],
+            success: true,
+            data: {
+              documentId: "doc-1",
+              chunks: [
+                { masked_text: "퇴직연금 가입 조건 및 절차" },
+                { masked_text: "중도인출 요건" },
+              ],
+            },
           }),
           { status: 200 },
         ),
@@ -181,7 +185,7 @@ describe("processQueueEvent", () => {
   it("returns 500 when no chunks are returned", async () => {
     const emptyEnv = mockEnv();
     (emptyEnv.SVC_INGESTION.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce(
-      new Response(JSON.stringify({ chunks: [] }), { status: 200 }),
+      new Response(JSON.stringify({ success: true, data: { documentId: "doc-1", chunks: [] } }), { status: 200 }),
     );
     const res = await processQueueEvent(validIngestionCompletedEvent, emptyEnv, ctx);
     expect(res.status).toBe(500);
@@ -206,10 +210,14 @@ describe("processQueueEvent", () => {
     (largeChunkEnv.SVC_INGESTION.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce(
       new Response(
         JSON.stringify({
-          chunks: [
-            { masked_text: "A".repeat(6000) },
-            { masked_text: "B".repeat(6000) },
-          ],
+          success: true,
+          data: {
+            documentId: "doc-1",
+            chunks: [
+              { masked_text: "A".repeat(6000) },
+              { masked_text: "B".repeat(6000) },
+            ],
+          },
         }),
         { status: 200 },
       ),

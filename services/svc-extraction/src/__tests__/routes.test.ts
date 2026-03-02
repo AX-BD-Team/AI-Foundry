@@ -123,9 +123,20 @@ describe("handleExtract", () => {
     expect(body.error.message).toContain("documentId");
   });
 
+  it("returns 400 when organizationId is missing", async () => {
+    const res = await handleExtract(
+      jsonReq({ documentId: "doc-1", chunks: ["text"] }),
+      env,
+      ctx,
+    );
+    expect(res.status).toBe(400);
+    const body = await res.json() as { error: { message: string } };
+    expect(body.error.message).toContain("organizationId");
+  });
+
   it("returns 400 when chunks is empty", async () => {
     const res = await handleExtract(
-      jsonReq({ documentId: "doc-1", chunks: [] }),
+      jsonReq({ documentId: "doc-1", organizationId: "org-1", chunks: [] }),
       env,
       ctx,
     );
@@ -136,7 +147,7 @@ describe("handleExtract", () => {
 
   it("returns 400 when chunks is not an array", async () => {
     const res = await handleExtract(
-      jsonReq({ documentId: "doc-1", chunks: "not-array" }),
+      jsonReq({ documentId: "doc-1", organizationId: "org-1", chunks: "not-array" }),
       env,
       ctx,
     );
@@ -171,7 +182,7 @@ describe("handleExtract", () => {
 
   it("inserts pending record before extraction", async () => {
     await handleExtract(
-      jsonReq({ documentId: "doc-1", chunks: ["text"] }),
+      jsonReq({ documentId: "doc-1", organizationId: "org-1", chunks: ["text"] }),
       env,
       ctx,
     );
@@ -184,7 +195,7 @@ describe("handleExtract", () => {
 
   it("emits extraction.completed event via queue send", async () => {
     await handleExtract(
-      jsonReq({ documentId: "doc-1", chunks: ["text"] }),
+      jsonReq({ documentId: "doc-1", organizationId: "org-1", chunks: ["text"] }),
       env,
       ctx,
     );
@@ -197,7 +208,7 @@ describe("handleExtract", () => {
   it("uses default tier of sonnet", async () => {
     const { callLlm } = await import("../llm/caller.js");
     await handleExtract(
-      jsonReq({ documentId: "doc-1", chunks: ["text"] }),
+      jsonReq({ documentId: "doc-1", organizationId: "org-1", chunks: ["text"] }),
       env,
       ctx,
     );
@@ -212,7 +223,7 @@ describe("handleExtract", () => {
   it("respects tier override from request", async () => {
     const { callLlm } = await import("../llm/caller.js");
     await handleExtract(
-      jsonReq({ documentId: "doc-1", chunks: ["text"], tier: "haiku" }),
+      jsonReq({ documentId: "doc-1", organizationId: "org-1", chunks: ["text"], tier: "haiku" }),
       env,
       ctx,
     );
@@ -224,22 +235,12 @@ describe("handleExtract", () => {
     );
   });
 
-  it("uses default organizationId when not provided", async () => {
-    await handleExtract(
-      jsonReq({ documentId: "doc-1", chunks: ["text"] }),
-      env,
-      ctx,
-    );
-    const prepareMock = env.DB_EXTRACTION.prepare as ReturnType<typeof vi.fn>;
-    expect(prepareMock.mock.calls.length).toBeGreaterThan(0);
-  });
-
   it("handles non-JSON LLM response gracefully", async () => {
     const { callLlm } = await import("../llm/caller.js");
     (callLlm as ReturnType<typeof vi.fn>).mockResolvedValueOnce("not valid json at all");
 
     const res = await handleExtract(
-      jsonReq({ documentId: "doc-1", chunks: ["text"] }),
+      jsonReq({ documentId: "doc-1", organizationId: "org-1", chunks: ["text"] }),
       env,
       ctx,
     );
@@ -259,7 +260,7 @@ describe("handleExtract", () => {
     (callLlm as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error("LLM timeout"));
 
     const res = await handleExtract(
-      jsonReq({ documentId: "doc-1", chunks: ["text"] }),
+      jsonReq({ documentId: "doc-1", organizationId: "org-1", chunks: ["text"] }),
       env,
       ctx,
     );
