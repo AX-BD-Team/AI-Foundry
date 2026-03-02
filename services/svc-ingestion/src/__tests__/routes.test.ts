@@ -197,7 +197,7 @@ describe("handleUpload", () => {
     const file = new File(["content"], "doc.pdf", { type: "application/pdf" });
     const req = createMultipartRequest(file);
     await handleUpload(req, env, ctx);
-    expect(ctx.waitUntil).toHaveBeenCalled();
+    expect(env.QUEUE_PIPELINE.send).toHaveBeenCalled();
   });
 
   it("handles all supported MIME types", async () => {
