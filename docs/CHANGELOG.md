@@ -2,6 +2,21 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 040 — 2026-03-02
+**org ID "default" 고정 이슈 심층 조사 — /team 병렬 분석**:
+- 조사: D1 Production DB 실데이터 조회 (db-policy, db-analytics, quality_metrics)
+- 조사: 7개 서비스 "default" organizationId 소스 전수 추적
+- 조사: 배포된 svc-extraction, svc-policy 코드 MCP로 검증 — organizationId 정상 처리 확인
+- 조사: svc-queue-router service binding 구조 확인 (production → default env Workers)
+
+**핵심 발견**:
+- policies 테이블: `org-batch-*` = 0건, `"default"` = 30건 (batch 파이프라인에서 org 유실)
+- pipeline_metrics: batch org Stage 1-2 정상, Stage 3-5 = 0 (모두 "default"로 유입)
+- 코드 분석상 큐 경로에서 "default" 유입 가능한 코드 없음 — 역설 미해결
+- 진단 테스트: extraction이 pending 상태에서 진행 안 됨 (LLM 호출 실패 가능성)
+
+**다음 단계**: extraction pending 원인 파악 → svc-extraction/svc-llm-router 디버깅
+
 ## 세션 039 — 2026-03-02
 **svc-policy org ID 이슈 수정 — 품질 대시보드 policy 메트릭 0건 해결**:
 - ✅ svc-analytics: orgId "default" fallback 제거 → event.payload.organizationId 직접 사용 (4개 event case 수정)
