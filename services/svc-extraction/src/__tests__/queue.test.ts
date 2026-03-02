@@ -201,6 +201,38 @@ describe("processQueueEvent", () => {
     expect(body.error).toContain("LLM timeout");
   });
 
+  it("uses sonnet tier for large chunk content", async () => {
+    const largeChunkEnv = mockEnv();
+    (largeChunkEnv.SVC_INGESTION.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          chunks: [
+            { masked_text: "A".repeat(6000) },
+            { masked_text: "B".repeat(6000) },
+          ],
+        }),
+        { status: 200 },
+      ),
+    );
+
+    await processQueueEvent(validIngestionCompletedEvent, largeChunkEnv, ctx);
+
+    const { callLlm } = await import("../llm/caller.js");
+    const callMock = callLlm as ReturnType<typeof vi.fn>;
+    const tierArg = callMock.mock.calls[callMock.mock.calls.length - 1]?.[1];
+    expect(tierArg).toBe("sonnet");
+  });
+
+  it("uses haiku tier for small chunk content", async () => {
+    // Default mock has 2 small chunks
+    await processQueueEvent(validIngestionCompletedEvent, env, ctx);
+
+    const { callLlm } = await import("../llm/caller.js");
+    const callMock = callLlm as ReturnType<typeof vi.fn>;
+    const tierArg = callMock.mock.calls[callMock.mock.calls.length - 1]?.[1];
+    expect(tierArg).toBe("haiku");
+  });
+
   it("handles non-JSON LLM response gracefully", async () => {
     const { callLlm } = await import("../llm/caller.js");
     (callLlm as ReturnType<typeof vi.fn>).mockResolvedValueOnce("not json");

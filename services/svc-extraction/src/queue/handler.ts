@@ -48,6 +48,11 @@ async function fetchChunks(
   return data.chunks.map((c) => c.masked_text);
 }
 
+function selectTier(chunks: string[]): "sonnet" | "haiku" {
+  const totalLen = chunks.reduce((sum, c) => sum + c.length, 0);
+  return totalLen > 10_000 ? "sonnet" : "haiku";
+}
+
 /**
  * Core extraction logic for a single ingestion.completed event.
  * Returns { extractionId, processNodeCount, entityCount } on success.
@@ -78,7 +83,10 @@ async function runExtraction(
   }
 
   const prompt = buildExtractionPrompt(chunks);
-  const rawContent = await callLlm(prompt, "haiku", env.LLM_ROUTER, env.INTERNAL_API_SECRET);
+  const tier = selectTier(chunks);
+  const totalChunkLen = chunks.reduce((sum, c) => sum + c.length, 0);
+  logger.info("Selected LLM tier", { tier, totalChunkLen, chunkCount: chunks.length });
+  const rawContent = await callLlm(prompt, tier, env.LLM_ROUTER, env.INTERNAL_API_SECRET);
 
   // Strip markdown code fences (```json ... ```) that LLMs often add
   const jsonContent = rawContent
@@ -90,6 +98,11 @@ async function runExtraction(
   try {
     parsed = JSON.parse(jsonContent) as ExtractionResult;
   } catch {
+    logger.warn("LLM response JSON parse failed, falling back to empty result", {
+      documentId,
+      rawContentLength: jsonContent.length,
+      rawContentPreview: jsonContent.slice(0, 300),
+    });
     parsed = { processes: [], entities: [], relationships: [], rules: [] };
   }
 

@@ -16,7 +16,7 @@ export const DocumentUploadedEventSchema = BaseEventSchema.extend({
     organizationId: z.string(),
     uploadedBy: z.string(),
     r2Key: z.string(),
-    fileType: z.enum(["pdf", "ppt", "pptx", "docx", "xlsx", "xls", "png", "jpg", "jpeg"]),
+    fileType: z.enum(["pdf", "ppt", "pptx", "docx", "xlsx", "xls", "png", "jpg", "jpeg", "txt"]),
     fileSizeByte: z.number().int(),
     originalName: z.string(),
   }),

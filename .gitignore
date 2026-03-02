@@ -53,3 +53,12 @@ coverage/
 tmp/
 .tmp/
 .team-tmp/
+
+# bkit state (plugin runtime)
+.bkit/
+
+# Test documents (synthetic/pilot — not for version control)
+test-docs/
+
+# Wireframe images (design artifacts)
+wireframe-*.png

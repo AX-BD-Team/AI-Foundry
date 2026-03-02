@@ -75,6 +75,23 @@ fi
 
 SECRET_HEADER="X-Internal-Secret: ${INTERNAL_API_SECRET:-}"
 JSON_HEADER="Content-Type: application/json"
+ORG_ID="org-batch-$(date +%s)"
+
+# MIME type mapping
+mime_type() {
+  case "$1" in
+    pdf)  echo "application/pdf" ;;
+    docx) echo "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ;;
+    xlsx) echo "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ;;
+    pptx) echo "application/vnd.openxmlformats-officedocument.presentationml.presentation" ;;
+    txt)  echo "text/plain" ;;
+    *)    echo "application/octet-stream" ;;
+  esac
+}
+
+# Temp dir for synthetic files
+TMPDIR_BATCH=$(mktemp -d /tmp/batch-e2e-XXXXXX)
+trap 'rm -rf "$TMPDIR_BATCH"' EXIT
 
 echo "================================================================"
 echo "  Batch E2E Test"
@@ -82,6 +99,7 @@ echo "  Phase:        $PHASE"
 echo "  Environment:  $ENV"
 echo "  Documents:    $DOC_DIR"
 echo "  Auto-approve: $AUTO_APPROVE"
+echo "  Org ID:       $ORG_ID"
 echo "  Batch ID:     $BATCH_ID"
 if [[ "$DRY_RUN" == "true" ]]; then
   echo "  Mode:         DRY RUN (no API calls)"
@@ -139,18 +157,17 @@ for i in $(seq 0 $((DOC_COUNT - 1))); do
 
   echo "--- Document $((i+1))/$DOC_COUNT: $DOC_NAME ---"
 
-  # Stage 1: Upload
+  # Stage 1: Upload (multipart/form-data — matches svc-ingestion API)
   echo "  [1/5] Uploading..."
+  DOC_MIME=$(mime_type "$DOC_TYPE")
+  TMPFILE="$TMPDIR_BATCH/$DOC_NAME"
+  echo "$DOC_CONTENT" > "$TMPFILE"
   UPLOAD_RESP=$(curl -s -X POST "$INGESTION_URL/documents" \
     -H "$SECRET_HEADER" \
-    -H "$JSON_HEADER" \
-    -d "{
-      \"organizationId\": \"org-001\",
-      \"uploadedBy\": \"batch-test\",
-      \"fileName\": \"$DOC_NAME\",
-      \"fileType\": \"$DOC_TYPE\",
-      \"content\": \"$DOC_CONTENT\"
-    }" 2>/dev/null || echo '{"success":false}')
+    -H "X-Organization-Id: $ORG_ID" \
+    -H "X-User-Id: batch-test" \
+    -F "file=@${TMPFILE};filename=${DOC_NAME};type=${DOC_MIME}" \
+    2>/dev/null || echo '{"success":false}')
 
   DOC_ID=$(echo "$UPLOAD_RESP" | jq -r '.data.documentId // empty')
   if [[ -z "$DOC_ID" ]]; then
@@ -163,22 +180,30 @@ for i in $(seq 0 $((DOC_COUNT - 1))); do
   fi
   echo "  OK: documentId=$DOC_ID"
 
-  # Wait for pipeline
-  echo "  [2-4/5] Waiting for pipeline..."
-  sleep 8
+  # Wait for queue-driven pipeline (Stage 1→2→3)
+  echo "  [2-4/5] Waiting for pipeline (15s)..."
+  sleep 15
 
-  # Check policies
-  POLICIES_RESP=$(curl -s "$POLICY_URL/policies?documentId=$DOC_ID" \
-    -H "$SECRET_HEADER" 2>/dev/null || echo '{"success":false}')
-  POLICY_COUNT=$(echo "$POLICIES_RESP" | jq '.data | length // 0')
+  # Check policies (poll a few times — async pipeline may still be running)
+  POLICY_COUNT=0
+  POLICIES_RESP='{"success":false}'
+  for attempt in 1 2 3; do
+    POLICIES_RESP=$(curl -s "$POLICY_URL/policies?documentId=$DOC_ID" \
+      -H "$SECRET_HEADER" 2>/dev/null || echo '{"success":false}')
+    POLICY_COUNT=$(echo "$POLICIES_RESP" | jq '.data.policies | length // 0' 2>/dev/null || echo 0)
+    if [[ "$POLICY_COUNT" -gt 0 ]]; then
+      break
+    fi
+    sleep 5
+  done
   echo "  Policies generated: $POLICY_COUNT"
 
   # Auto-approve
   if [[ "$AUTO_APPROVE" == "true" && "$POLICY_COUNT" -gt 0 ]]; then
     echo "  [3/5] Auto-approving..."
     for j in $(seq 0 $((POLICY_COUNT - 1))); do
-      POLICY_ID=$(echo "$POLICIES_RESP" | jq -r ".data[$j].policyId // empty")
-      POLICY_STATUS=$(echo "$POLICIES_RESP" | jq -r ".data[$j].status // empty")
+      POLICY_ID=$(echo "$POLICIES_RESP" | jq -r ".data.policies[$j].policyId // empty")
+      POLICY_STATUS=$(echo "$POLICIES_RESP" | jq -r ".data.policies[$j].status // empty")
       if [[ "$POLICY_STATUS" == "candidate" || "$POLICY_STATUS" == "in_review" ]]; then
         curl -s -X POST "$POLICY_URL/policies/$POLICY_ID/approve" \
           -H "$SECRET_HEADER" \
@@ -188,7 +213,8 @@ for i in $(seq 0 $((DOC_COUNT - 1))); do
         echo "    Approved: $POLICY_ID"
       fi
     done
-    sleep 5
+    # Wait for Stage 4→5 after approval
+    sleep 8
   fi
 
   echo "  [5/5] Done"
@@ -204,7 +230,7 @@ done
 # --- Quality metrics ---
 echo "================================================================"
 echo "Fetching quality metrics..."
-QUALITY=$(curl -s "$ANALYTICS_URL/quality?organizationId=org-001" \
+QUALITY=$(curl -s "$ANALYTICS_URL/quality?organizationId=$ORG_ID" \
   -H "$SECRET_HEADER" 2>/dev/null || echo '{"success":false}')
 
 QUALITY_SUCCESS=$(echo "$QUALITY" | jq -r '.success // false')

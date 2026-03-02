@@ -3,19 +3,29 @@
  * 퇴직연금 도메인 문서에서 프로세스, 엔티티, 관계, 규칙을 추출한다.
  */
 
-const MAX_CHUNK_CHARS = 4000;
+const MAX_CHUNK_CHARS = 10_000;
 const MAX_CHUNKS = 20;
+const MAX_TOTAL_CHARS = 60_000;
 
 /**
  * 문서 청크 배열로부터 Claude용 구조 추출 프롬프트를 생성한다.
- * 총 프롬프트가 4000 토큰 이내에 들어오도록 청크를 잘라낸다.
+ * 각 청크를 MAX_CHUNK_CHARS로 제한하고, 총량이 MAX_TOTAL_CHARS를 초과하면
+ * 비례 축소하여 모든 청크가 골고루 포함되도록 한다.
  */
 export function buildExtractionPrompt(chunks: string[]): string {
-  const limited = chunks
-    .slice(0, MAX_CHUNKS)
-    .map((c) => c.slice(0, MAX_CHUNK_CHARS));
+  const selected = chunks.slice(0, MAX_CHUNKS);
 
-  const chunksText = limited
+  // First pass: truncate each to MAX_CHUNK_CHARS
+  let trimmed = selected.map((c) => c.slice(0, MAX_CHUNK_CHARS));
+
+  // Second pass: if total exceeds budget, proportionally reduce
+  const totalLen = trimmed.reduce((sum, c) => sum + c.length, 0);
+  if (totalLen > MAX_TOTAL_CHARS && trimmed.length > 0) {
+    const ratio = MAX_TOTAL_CHARS / totalLen;
+    trimmed = trimmed.map((c) => c.slice(0, Math.max(500, Math.floor(c.length * ratio))));
+  }
+
+  const chunksText = trimmed
     .map((c, i) => `--- 청크 ${i + 1} ---\n${c}`)
     .join("\n\n");
 

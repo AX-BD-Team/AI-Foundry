@@ -12,6 +12,7 @@ const ALLOWED_TYPES = new Set([
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   "image/png",
   "image/jpeg",
+  "text/plain",
 ]);
 
 const MIME_TO_EXT: Record<string, DocumentUploadedEvent["payload"]["fileType"]> = {
@@ -24,6 +25,7 @@ const MIME_TO_EXT: Record<string, DocumentUploadedEvent["payload"]["fileType"]> 
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "xlsx",
   "image/png": "png",
   "image/jpeg": "jpg",
+  "text/plain": "txt",
 };
 
 export async function handleUpload(

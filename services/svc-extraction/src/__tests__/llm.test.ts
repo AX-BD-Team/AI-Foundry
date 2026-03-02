@@ -148,13 +148,33 @@ describe("buildExtractionPrompt", () => {
     expect(prompt).not.toContain("UNIQUE_CHUNK_24");
   });
 
-  it("truncates individual chunks to MAX_CHUNK_CHARS (4000)", () => {
-    const longText = "X".repeat(6000);
+  it("truncates individual chunks to MAX_CHUNK_CHARS (10000)", () => {
+    const longText = "X".repeat(15000);
     const prompt = buildExtractionPrompt([longText]);
-    // The prompt should not contain the full 6000 chars of X
-    // The chunk is truncated to 4000 chars max
     const xCount = (prompt.match(/X/g) ?? []).length;
-    expect(xCount).toBeLessThanOrEqual(4000);
+    expect(xCount).toBeLessThanOrEqual(10000);
+  });
+
+  it("proportionally reduces chunks when total exceeds MAX_TOTAL_CHARS (60000)", () => {
+    // 10 chunks of 10000 chars = 100000, exceeds 60000 budget
+    const chunks = Array.from({ length: 10 }, (_, i) => `MARKER_${i}_` + "Y".repeat(9990));
+    const prompt = buildExtractionPrompt(chunks);
+    // All 10 markers should still be present (chunks not dropped)
+    for (let i = 0; i < 10; i++) {
+      expect(prompt).toContain(`MARKER_${i}_`);
+    }
+    // Total Y count should be significantly less than 10 * 9990
+    const yCount = (prompt.match(/Y/g) ?? []).length;
+    expect(yCount).toBeLessThan(70000);
+  });
+
+  it("preserves minimum 500 chars per chunk during proportional reduction", () => {
+    // 20 chunks of 10000 chars = 200000, exceeds 60000 budget
+    // ratio = 60000/200000 = 0.3, each gets 3000 chars (> 500 minimum)
+    const chunks = Array.from({ length: 20 }, () => "Z".repeat(10000));
+    const prompt = buildExtractionPrompt(chunks);
+    // Should contain all 20 chunk markers
+    expect(prompt).toContain("청크 20");
   });
 
   it("handles empty chunk array", () => {

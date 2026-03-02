@@ -15,6 +15,7 @@ const MIME_MAP: Record<string, string> = {
   png: "image/png",
   jpg: "image/jpeg",
   jpeg: "image/jpeg",
+  txt: "text/plain",
 };
 
 const MAX_ELEMENTS = 200;
