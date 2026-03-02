@@ -69,8 +69,7 @@ export async function processQueueEvent(
     );
   }
 
-  const { extractionId, documentId, organizationId: eventOrgId } = event.payload;
-  const organizationId = eventOrgId ?? "system";
+  const { extractionId, documentId, organizationId } = event.payload;
   logger.info("Processing extraction.completed event", { extractionId, documentId, organizationId });
 
   // 1. Fetch extraction result from svc-extraction
