@@ -210,6 +210,7 @@ export async function handleNormalize(
     payload: {
       policyId,
       ontologyId,
+      organizationId,
       termCount,
       ...(neo4jGraphId !== null ? { skosGraphId: neo4jGraphId } : {}),
     },

@@ -270,6 +270,7 @@ export async function processQueueEvent(
         extractionId,
         policyId: pid,
         hitlSessionId: sid,
+        organizationId,
         candidateCount: candidates.length,
       },
     };

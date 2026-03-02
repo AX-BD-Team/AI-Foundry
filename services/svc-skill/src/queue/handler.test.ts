@@ -115,6 +115,7 @@ describe("processQueueEvent (svc-skill)", () => {
       payload: {
         policyId: "p-1",
         hitlSessionId: "s-1",
+        organizationId: "org-test",
         approvedBy: "rev-1",
         approvedAt: "2026-02-28T00:00:00.000Z",
         policyCount: 1,
@@ -136,6 +137,7 @@ describe("processQueueEvent (svc-skill)", () => {
       payload: {
         policyId: "p-1",
         ontologyId: "ont-1",
+        organizationId: "org-test",
         termCount: 5,
       },
     };
@@ -164,6 +166,7 @@ describe("processQueueEvent (svc-skill)", () => {
       payload: {
         policyId: "p-1",
         ontologyId: "ont-1",
+        organizationId: "org-test",
         termCount: 5,
       },
     };
@@ -192,6 +195,7 @@ describe("processQueueEvent (svc-skill)", () => {
       payload: {
         policyId: "p-1",
         ontologyId: "ont-1",
+        organizationId: "org-test",
         termCount: 5,
       },
     };

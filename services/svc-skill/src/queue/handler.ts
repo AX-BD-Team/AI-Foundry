@@ -276,6 +276,7 @@ export async function processQueueEvent(
     payload: {
       skillId,
       ontologyId,
+      organizationId: policyData.organizationId,
       r2Key,
       policyCount: 1,
       trustScore: trust.score,

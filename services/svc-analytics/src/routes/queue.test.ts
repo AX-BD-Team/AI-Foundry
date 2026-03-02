@@ -116,6 +116,7 @@ describe("processQueueEvent", () => {
         payload: {
           policyId: "p-1",
           hitlSessionId: "s-1",
+          organizationId: "org-test",
           approvedBy: "rev-1",
           approvedAt: "2026-02-28T00:00:00.000Z",
           policyCount: 3,
@@ -140,6 +141,7 @@ describe("processQueueEvent", () => {
         payload: {
           skillId: "sk-1",
           ontologyId: "ont-1",
+          organizationId: "org-test",
           r2Key: "skill-packages/sk-1.skill.json",
           policyCount: 5,
           trustScore: 0.85,
@@ -163,6 +165,7 @@ describe("processQueueEvent", () => {
         payload: {
           policyId: "p-1",
           ontologyId: "ont-1",
+          organizationId: "org-test",
           termCount: 10,
         },
       }),

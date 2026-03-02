@@ -154,6 +154,7 @@ export async function handleInferPolicies(
         extractionId,
         policyId: pid,
         hitlSessionId: sid,
+        organizationId,
         candidateCount: candidates.length,
       },
     };

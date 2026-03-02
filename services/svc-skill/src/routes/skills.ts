@@ -146,6 +146,7 @@ export async function handleCreateSkill(
   }
 
   // Emit skill.packaged event
+  const organizationId = request.headers.get("X-Organization-Id") ?? "unknown";
   const event: SkillPackagedEvent = {
     eventId: crypto.randomUUID(),
     occurredAt: now,
@@ -153,6 +154,7 @@ export async function handleCreateSkill(
     payload: {
       skillId,
       ontologyId,
+      organizationId,
       r2Key,
       policyCount: policies.length,
       trustScore: trust.score,

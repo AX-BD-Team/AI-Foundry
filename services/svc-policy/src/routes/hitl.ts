@@ -34,7 +34,7 @@ export async function handleApprovePolicy(
 
   // Verify policy exists and is reviewable
   const policy = await env.DB_POLICY.prepare(
-    "SELECT policy_id, status FROM policies WHERE policy_id = ?",
+    "SELECT policy_id, status, organization_id FROM policies WHERE policy_id = ?",
   ).bind(policyId).first();
 
   if (!policy) {
@@ -44,6 +44,7 @@ export async function handleApprovePolicy(
   if (policyStatus !== "candidate" && policyStatus !== "in_review") {
     return badRequest(`Policy status is '${policyStatus}', expected 'candidate' or 'in_review'`);
   }
+  const organizationId = (policy["organization_id"] as string) ?? "unknown";
 
   // Look up HITL session for this policy
   const session = await env.DB_POLICY.prepare(
@@ -114,6 +115,7 @@ export async function handleApprovePolicy(
     payload: {
       policyId,
       hitlSessionId: sessionId,
+      organizationId,
       approvedBy: reviewerId,
       approvedAt: now,
       policyCount: 1,
@@ -161,7 +163,7 @@ export async function handleModifyPolicy(
 
   // Verify policy exists and is reviewable
   const policy = await env.DB_POLICY.prepare(
-    "SELECT policy_id, status FROM policies WHERE policy_id = ?",
+    "SELECT policy_id, status, organization_id FROM policies WHERE policy_id = ?",
   ).bind(policyId).first();
 
   if (!policy) {
@@ -171,6 +173,7 @@ export async function handleModifyPolicy(
   if (policyStatus !== "candidate" && policyStatus !== "in_review") {
     return badRequest(`Policy status is '${policyStatus}', expected 'candidate' or 'in_review'`);
   }
+  const organizationId = (policy["organization_id"] as string) ?? "unknown";
 
   // Look up active HITL session
   const session = await env.DB_POLICY.prepare(
@@ -239,6 +242,7 @@ export async function handleModifyPolicy(
     payload: {
       policyId,
       hitlSessionId: sessionId,
+      organizationId,
       approvedBy: reviewerId,
       approvedAt: now,
       policyCount: 1,

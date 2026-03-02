@@ -89,6 +89,7 @@ function makePolicyApprovedEvent(overrides?: Record<string, unknown>) {
     payload: {
       policyId: "pol-123",
       hitlSessionId: "hitl-456",
+      organizationId: "org-test",
       approvedBy: "reviewer-1",
       approvedAt: "2026-02-01T11:59:00Z",
       policyCount: 3,
@@ -239,6 +240,7 @@ describe("processQueueEvent", () => {
       payload: {
         policyId: "pol-1",
         ontologyId: "ont-1",
+        organizationId: "org-test",
         termCount: 5,
       },
     };
@@ -256,6 +258,7 @@ describe("processQueueEvent", () => {
       payload: {
         skillId: "skill-1",
         ontologyId: "ont-1",
+        organizationId: "org-test",
         r2Key: "skills/skill-1.json",
         policyCount: 3,
         trustScore: 0.85,
@@ -412,6 +415,7 @@ describe("processQueueEvent", () => {
       payload: {
         policyId: "pol-custom-789",
         hitlSessionId: "hitl-456",
+        organizationId: "org-test",
         approvedBy: "reviewer-1",
         approvedAt: "2026-02-01T11:59:00Z",
         policyCount: 5,
@@ -432,6 +436,7 @@ describe("processQueueEvent", () => {
       payload: {
         policyId: "pol-123",
         hitlSessionId: "hitl-456",
+        organizationId: "org-test",
         approvedBy: "reviewer-1",
         approvedAt: "not-a-datetime", // invalid
         policyCount: 3,
@@ -449,6 +454,7 @@ describe("processQueueEvent", () => {
       payload: {
         policyId: "pol-123",
         hitlSessionId: "hitl-456",
+        organizationId: "org-test",
         approvedBy: "reviewer-1",
         approvedAt: "2026-02-01T11:59:00Z",
         policyCount: 3.5, // not an integer

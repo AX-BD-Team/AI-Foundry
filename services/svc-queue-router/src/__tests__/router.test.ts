@@ -74,11 +74,13 @@ function makeEvent(
       extractionId: "ext-1",
       policyId: "pol-1",
       hitlSessionId: "hitl-1",
+      organizationId: "org-1",
       candidateCount: 4,
     },
     "policy.approved": {
       policyId: "pol-1",
       hitlSessionId: "hitl-1",
+      organizationId: "org-1",
       approvedBy: "reviewer-1",
       approvedAt: "2026-01-15T10:00:00.000Z",
       policyCount: 3,
@@ -86,11 +88,13 @@ function makeEvent(
     "ontology.normalized": {
       policyId: "pol-1",
       ontologyId: "onto-1",
+      organizationId: "org-1",
       termCount: 12,
     },
     "skill.packaged": {
       skillId: "skill-1",
       ontologyId: "onto-1",
+      organizationId: "org-1",
       r2Key: "skill-packages/skill-1.skill.json",
       policyCount: 3,
       trustScore: 0.85,

@@ -58,6 +58,7 @@ export const PolicyCandidateReadyEventSchema = BaseEventSchema.extend({
     extractionId: z.string(),
     policyId: z.string(),
     hitlSessionId: z.string(),
+    organizationId: z.string(),
     reviewerId: z.string().optional(),
     candidateCount: z.number().int(),
   }),
@@ -69,6 +70,7 @@ export const PolicyApprovedEventSchema = BaseEventSchema.extend({
   payload: z.object({
     policyId: z.string(),
     hitlSessionId: z.string(),
+    organizationId: z.string(),
     approvedBy: z.string(),
     approvedAt: z.string().datetime(),
     policyCount: z.number().int(),
@@ -83,6 +85,7 @@ export const OntologyNormalizedEventSchema = BaseEventSchema.extend({
   payload: z.object({
     policyId: z.string(),
     ontologyId: z.string(),
+    organizationId: z.string(),
     termCount: z.number().int(),
     skosGraphId: z.string().optional(),
   }),
@@ -94,6 +97,7 @@ export const SkillPackagedEventSchema = BaseEventSchema.extend({
   payload: z.object({
     skillId: z.string(),
     ontologyId: z.string(),
+    organizationId: z.string(),
     r2Key: z.string(),
     policyCount: z.number().int(),
     trustScore: z.number().min(0).max(1),

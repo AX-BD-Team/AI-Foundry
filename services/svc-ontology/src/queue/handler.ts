@@ -254,6 +254,7 @@ export async function processQueueEvent(
     payload: {
       policyId,
       ontologyId,
+      organizationId: policy.organizationId,
       termCount,
       ...(neo4jGraphId !== null ? { skosGraphId: neo4jGraphId } : {}),
     },
