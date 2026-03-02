@@ -39,7 +39,14 @@ export function classifyDocument(
 
   for (const { keywords, category } of KEYWORD_RULES) {
     for (const kw of keywords) {
-      if (combinedText.includes(kw.toLowerCase())) {
+      const lower = kw.toLowerCase();
+      // Short ASCII keywords (UI, UX, API, ERD) need word-boundary matching
+      // to avoid false positives like "requirement" matching "ui"
+      const isShortAscii = /^[a-z]{2,3}$/i.test(kw);
+      const matched = isShortAscii
+        ? new RegExp(`\\b${lower}\\b`).test(combinedText)
+        : combinedText.includes(lower);
+      if (matched) {
         scores[category] += 1;
       }
     }
