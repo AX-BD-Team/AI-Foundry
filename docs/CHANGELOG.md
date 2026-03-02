@@ -3,17 +3,23 @@
 > 세션 히스토리 아카이브 (최신이 상단)
 
 ## 세션 043 — 2026-03-02
-**svc-extraction pending 고착 진단 + Production 재배포**:
-- 진단: D1 쿼리로 5-Stage 전체 상태 확인 — org-001 extraction 16/18 pending 확인
-- 원인: 배포된 Worker가 로컬 코드 미반영 (`data.chunks` → `data.data.chunks` 파싱 불일치)
-- ✅ svc-extraction Production 재배포 (default env = service binding 대상)
-- ✅ 실제 퇴직연금 4건 extraction 완료: 아키텍처정의서(8p/4e), 화면설계서(14p/6e), 개발표준가이드(0/0), 인터페이스목록(0/0)
-- ✅ Stage 3 policy candidate 8건 자동 생성 (org ID 정상 — org-test-redeploy)
-- ✅ E2E 스크립트: manual extraction에 organizationId 추가
+**extraction pending + org ID "default" 두 버그 해결 + Production E2E 8/8 PASS**:
+- ✅ Bug #1 (P0): `fetchChunks` 응답 파싱 `data.chunks` → `data.data.chunks` (mock-reality divergence)
+- ✅ Bug #2 (P1): queue handler에 `status='failed'` 전환 추가 (영구 pending 방지)
+- ✅ Bug #3 (P0): `routes/extract.ts`의 `organizationId = "default"` destructuring default 제거 + 필수 검증
+- ✅ 테스트 mock을 실제 svc-ingestion 응답 구조와 일치하도록 수정
+- ✅ Production 11/11 + Staging 배포 완료 (CI/CD)
+- ✅ E2E 스크립트: organizationId 추가 + extraction polling jq 필터 수정
+
+**Production E2E 실증** (pension-withdrawal.pdf):
+- ✅ Stage 1→2 큐 경로 자동 extraction: 8 processes, 7 entities
+- ✅ Stage 3 policy inference: 5 policies (POL-PENSION-WD-001~005)
+- ✅ Stage 3 HITL approve → Stage 4 ontology (3 terms) → Stage 5 skill.json
 
 **검증 결과**:
-- ✅ extraction 4/4 completed, policy 8건 생성
-- ✅ typecheck PASS
+- ✅ 769/769 tests PASS (45 files, 11 services)
+- ✅ typecheck 16/16 PASS
+- ✅ Production E2E 8/8 PASS (real document, queue-driven)
 
 ## 세션 040 — 2026-03-02
 **org ID "default" 고정 이슈 심층 조사 — /team 병렬 분석**:
