@@ -17,6 +17,9 @@ import { createLogger, unauthorized, extractRbacContext, checkPermission, logAud
 import type { Env } from "./env.js";
 import { handleInferPolicies, handleListPolicies, handleGetPolicy } from "./routes/policies.js";
 import { handleApprovePolicy, handleModifyPolicy, handleRejectPolicy, handleGetSession } from "./routes/hitl.js";
+import { handleGetHitlStats } from "./routes/stats.js";
+import { handleGetQualityTrend } from "./routes/quality-trend.js";
+import { handleGetReasoningAnalysis } from "./routes/reasoning.js";
 import { processQueueEvent } from "./queue/handler.js";
 
 export { HitlSession } from "./hitl-session.js";
@@ -64,6 +67,21 @@ export default {
           }));
         }
         return await handleInferPolicies(request, env, ctx);
+      }
+
+      // GET /policies/hitl/stats — HITL review statistics (Trust Dashboard)
+      if (method === "GET" && path === "/policies/hitl/stats") {
+        return await handleGetHitlStats(request, env);
+      }
+
+      // GET /policies/quality-trend — daily policy quality trend (Trust Dashboard)
+      if (method === "GET" && path === "/policies/quality-trend") {
+        return await handleGetQualityTrend(request, env);
+      }
+
+      // GET /policies/reasoning-analysis — conflict/gap/similarity (Trust Dashboard)
+      if (method === "GET" && path === "/policies/reasoning-analysis") {
+        return await handleGetReasoningAnalysis(request, env);
       }
 
       // GET /policies — list policy candidates

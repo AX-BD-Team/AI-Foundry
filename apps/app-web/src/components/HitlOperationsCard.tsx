@@ -3,24 +3,20 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { CheckCircle, Clock, Edit, XCircle, Award } from 'lucide-react';
+import type { HitlStats } from '@/api/governance';
 
-interface Reviewer {
-  name: string;
-  count: number;
-  avgTime: string;
-  editRate: number;
+interface Props {
+  data?: HitlStats | undefined;
 }
 
-const mockReviewers: Reviewer[] = [
-  { name: '김전문가', count: 12, avgTime: '3분 45초', editRate: 18 },
-  { name: '이분석가', count: 10, avgTime: '5분 12초', editRate: 28 },
-  { name: '박검증원', count: 8, avgTime: '4분 01초', editRate: 21 },
-];
-
-export const HitlOperationsCard: React.FC = () => {
-  const completionRate = 87;
-  const editRate = 23;
-  const rejectionRate = 5;
+export const HitlOperationsCard: React.FC<Props> = ({ data }) => {
+  const completionRate = data?.completionRate ?? 0;
+  const editRate = data?.editRate ?? 0;
+  const rejectionRate = data?.rejectionRate ?? 0;
+  const avgReviewTimeLabel = data?.avgReviewTimeLabel ?? '-';
+  const weeklyCompleted = data?.weeklyCompleted ?? 0;
+  const weeklyTotal = data?.weeklyTotal ?? 0;
+  const reviewers = data?.reviewers ?? [];
 
   return (
     <Card style={{ borderRadius: 'var(--radius-lg)' }}>
@@ -42,7 +38,7 @@ export const HitlOperationsCard: React.FC = () => {
                   {completionRate}%
                 </span>
                 <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-                  (이번 주 34/39건)
+                  (이번 주 {weeklyCompleted}/{weeklyTotal}건)
                 </span>
               </div>
             </div>
@@ -58,7 +54,7 @@ export const HitlOperationsCard: React.FC = () => {
               </span>
             </div>
             <span className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
-              4분 32초
+              {avgReviewTimeLabel}
             </span>
           </div>
 
@@ -110,7 +106,7 @@ export const HitlOperationsCard: React.FC = () => {
             </h4>
           </div>
           <div className="space-y-2">
-            {mockReviewers.map((reviewer, index) => (
+            {reviewers.map((reviewer, index) => (
               <div
                 key={reviewer.name}
                 className="flex items-center gap-3 p-3 rounded-lg"

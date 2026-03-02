@@ -9,6 +9,7 @@ import type { Env } from "./env.js";
 import { handleCreatePrompt, handleListPrompts, handleGetPrompt } from "./routes/prompts.js";
 import { handleGetCost } from "./routes/cost.js";
 import { handleGetTrust, handleCreateTrustEvaluation } from "./routes/trust.js";
+import { handleGetGoldenTests } from "./routes/golden-tests.js";
 
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
@@ -75,6 +76,16 @@ export default {
           if (denied) return denied;
         }
         return await handleGetCost(request, env);
+      }
+
+      // Golden test history
+      if (method === "GET" && path === "/golden-tests") {
+        const rbacCtx = extractRbacContext(request);
+        if (rbacCtx) {
+          const denied = await checkPermission(env, rbacCtx.role, "governance", "read");
+          if (denied) return denied;
+        }
+        return await handleGetGoldenTests(request, env);
       }
 
       // Trust dashboard

@@ -3,28 +3,37 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Area, ComposedChart, ReferenceLine } from 'recharts';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp } from 'lucide-react';
+import type { QualityTrendItem } from '@/api/governance';
 
-const mockData = [
-  { date: '1/27', aiAccuracy: 0.68, hitlAccuracy: 0.82 },
-  { date: '1/28', aiAccuracy: 0.71, hitlAccuracy: 0.84 },
-  { date: '1/29', aiAccuracy: 0.69, hitlAccuracy: 0.83 },
-  { date: '1/30', aiAccuracy: 0.73, hitlAccuracy: 0.86 },
-  { date: '1/31', aiAccuracy: 0.70, hitlAccuracy: 0.85 },
-  { date: '2/1', aiAccuracy: 0.74, hitlAccuracy: 0.87 },
-  { date: '2/2', aiAccuracy: 0.72, hitlAccuracy: 0.86 },
-  { date: '2/3', aiAccuracy: 0.75, hitlAccuracy: 0.88 },
-  { date: '2/4', aiAccuracy: 0.76, hitlAccuracy: 0.89 },
-  { date: '2/5', aiAccuracy: 0.74, hitlAccuracy: 0.87 },
-  { date: '2/6', aiAccuracy: 0.77, hitlAccuracy: 0.90 },
-  { date: '2/7', aiAccuracy: 0.75, hitlAccuracy: 0.88 },
-  { date: '2/8', aiAccuracy: 0.78, hitlAccuracy: 0.91 },
-  { date: '2/9', aiAccuracy: 0.76, hitlAccuracy: 0.89 },
-  { date: '2/10', aiAccuracy: 0.79, hitlAccuracy: 0.92 },
-];
+interface Props {
+  data?: QualityTrendItem[] | undefined;
+}
 
-export const PolicyQualityChart: React.FC = () => {
+export const PolicyQualityChart: React.FC<Props> = ({ data }) => {
+  // Normalize: API returns 0-100, chart expects 0-1
+  const chartData = (data ?? []).map((d) => ({
+    date: d.date.slice(5), // "2026-03-01" → "03-01"
+    aiAccuracy: d.aiAccuracy / 100,
+    hitlAccuracy: d.hitlAccuracy / 100,
+  }));
+
+  if (chartData.length === 0) {
+    return (
+      <Card style={{ borderRadius: 'var(--radius-lg)' }}>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">정책 품질 트렌드 Policy Quality Trend (30일)</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-sm text-center py-8" style={{ color: 'var(--text-secondary)' }}>
+            아직 품질 추이 데이터가 없습니다. 정책 생성 후 누적됩니다.
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   // Calculate average HITL contribution
-  const avgContribution = mockData.reduce((sum, d) => sum + (d.hitlAccuracy - d.aiAccuracy), 0) / mockData.length;
+  const avgContribution = chartData.reduce((sum, d) => sum + (d.hitlAccuracy - d.aiAccuracy), 0) / chartData.length;
 
   return (
     <Card style={{ borderRadius: 'var(--radius-lg)' }}>
@@ -48,7 +57,7 @@ export const PolicyQualityChart: React.FC = () => {
         <ComposedChart
           width={800}
           height={300}
-          data={mockData}
+          data={chartData}
           margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
         >
           <defs>

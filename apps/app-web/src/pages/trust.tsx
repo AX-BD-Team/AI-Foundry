@@ -5,7 +5,18 @@ import { HitlOperationsCard } from '@/components/HitlOperationsCard';
 import { ReasoningEngineCard } from '@/components/ReasoningEngineCard';
 import { GoldenTestCard } from '@/components/GoldenTestCard';
 import { Loader2 } from 'lucide-react';
-import { fetchTrust, type TrustData } from '@/api/governance';
+import {
+  fetchTrust,
+  fetchHitlStats,
+  fetchQualityTrend,
+  fetchGoldenTests,
+  fetchReasoningAnalysis,
+  type TrustData,
+  type HitlStats,
+  type QualityTrendItem,
+  type GoldenTestData,
+  type ReasoningAnalysis,
+} from '@/api/governance';
 
 function extractScore(
   data: TrustData,
@@ -28,6 +39,10 @@ function extractScore(
 
 export default function TrustDashboardPage() {
   const [trustData, setTrustData] = useState<TrustData | null>(null);
+  const [hitlStats, setHitlStats] = useState<HitlStats | null>(null);
+  const [qualityTrend, setQualityTrend] = useState<QualityTrendItem[] | null>(null);
+  const [goldenTests, setGoldenTests] = useState<GoldenTestData | null>(null);
+  const [reasoning, setReasoning] = useState<ReasoningAnalysis | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,19 +51,42 @@ export default function TrustDashboardPage() {
     setLoading(true);
     setError(null);
 
-    fetchTrust()
-      .then((res) => {
+    // Fetch all 5 APIs in parallel
+    Promise.allSettled([
+      fetchTrust(),
+      fetchHitlStats(),
+      fetchQualityTrend(),
+      fetchGoldenTests(),
+      fetchReasoningAnalysis(),
+    ])
+      .then(([trustRes, hitlRes, qualityRes, goldenRes, reasoningRes]) => {
         if (cancelled) return;
-        if (res.success) {
-          setTrustData(res.data);
+
+        // Trust gauge (critical — show error if this fails)
+        if (trustRes.status === 'fulfilled' && trustRes.value.success) {
+          setTrustData(trustRes.value.data);
         } else {
-          setError(res.error.message);
+          setError('신뢰도 데이터를 불러올 수 없습니다');
+        }
+
+        // Non-critical: gracefully degrade to empty state
+        if (hitlRes.status === 'fulfilled' && hitlRes.value.success) {
+          setHitlStats(hitlRes.value.data);
+        }
+        if (qualityRes.status === 'fulfilled' && qualityRes.value.success) {
+          setQualityTrend(qualityRes.value.data.trend);
+        }
+        if (goldenRes.status === 'fulfilled' && goldenRes.value.success) {
+          setGoldenTests(goldenRes.value.data);
+        }
+        if (reasoningRes.status === 'fulfilled' && reasoningRes.value.success) {
+          setReasoning(reasoningRes.value.data);
         }
       })
       .catch((e: unknown) => {
         if (cancelled) return;
-        console.error('Failed to fetch trust data', e);
-        setError('신뢰도 데이터를 불러올 수 없습니다');
+        console.error('Failed to fetch trust dashboard data', e);
+        setError('대시보드 데이터를 불러올 수 없습니다');
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -92,16 +130,14 @@ export default function TrustDashboardPage() {
             <TrustGaugeCard level="L3" title="시스템 신뢰도" description="전체 파이프라인 안정성" score={l3Score ?? 0} />
           </div>
 
-          {/* TODO: PolicyQualityChart, HitlOperationsCard, GoldenTestCard, ReasoningEngineCard
-               현재 하위 컴포넌트 자체 mock 데이터 사용. API 연동 시 trustData에서 추출하여 전달 */}
           <div className="grid grid-cols-[60%_40%] gap-6">
-            <PolicyQualityChart />
-            <HitlOperationsCard />
+            <PolicyQualityChart data={qualityTrend ?? undefined} />
+            <HitlOperationsCard data={hitlStats ?? undefined} />
           </div>
 
           <div className="grid grid-cols-2 gap-6">
-            <ReasoningEngineCard />
-            <GoldenTestCard />
+            <ReasoningEngineCard data={reasoning ?? undefined} />
+            <GoldenTestCard data={goldenTests ?? undefined} />
           </div>
         </>
       )}

@@ -2,32 +2,27 @@ import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, BarChart3 } from 'lucide-react';
+import type { GoldenTestData } from '@/api/governance';
 
-interface TestScore {
-  name: string;
-  score: number;
+interface Props {
+  data?: GoldenTestData | undefined;
 }
 
-const testScores: TestScore[] = [
-  { name: '구조', score: 0.92 },
-  { name: '필드', score: 0.85 },
-  { name: '값', score: 0.88 },
-  { name: '신뢰도', score: 0.81 },
-  { name: '비회귀', score: 0.90 },
-];
-
-const recentRuns = [0.85, 0.83, 0.86, 0.84, 0.87];
-
-export const GoldenTestCard: React.FC = () => {
-  const latestScore = 0.87;
-  const isPassed = latestScore >= 0.85;
+export const GoldenTestCard: React.FC<Props> = ({ data }) => {
+  const latestScore = data?.latestScore ?? 0;
+  const isPassed = data?.passed ?? false;
+  const recentRuns = data?.recentRuns ?? [];
+  const testScores = data?.breakdown ?? [];
+  const latestRunAt = data?.latestRunAt;
 
   // Simple sparkline SVG
-  const sparklinePoints = recentRuns.map((score, i) => {
-    const x = (i / (recentRuns.length - 1)) * 100;
-    const y = 100 - ((score - 0.80) / 0.10) * 100; // Scale between 0.80 and 0.90
-    return `${x},${y}`;
-  }).join(' ');
+  const sparklinePoints = recentRuns.length > 1
+    ? recentRuns.map((score, i) => {
+        const x = (i / (recentRuns.length - 1)) * 100;
+        const y = 100 - ((score - 0.80) / 0.10) * 100; // Scale between 0.80 and 0.90
+        return `${x},${y}`;
+      }).join(' ')
+    : '';
 
   return (
     <Card style={{ borderRadius: 'var(--radius-lg)' }}>
@@ -48,7 +43,7 @@ export const GoldenTestCard: React.FC = () => {
                 Latest Run
               </div>
               <div className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
-                2026-02-26 02:00
+                {latestRunAt ?? '-'}
               </div>
             </div>
             <Badge

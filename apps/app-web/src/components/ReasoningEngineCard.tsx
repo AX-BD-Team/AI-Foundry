@@ -2,12 +2,28 @@ import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AlertTriangle, AlertCircle, GitMerge } from 'lucide-react';
+import type { ReasoningAnalysis } from '@/api/governance';
 
-export const ReasoningEngineCard: React.FC = () => {
+interface Props {
+  data?: ReasoningAnalysis | undefined;
+}
+
+export const ReasoningEngineCard: React.FC<Props> = ({ data }) => {
+  const conflicts = data?.conflicts ?? [];
+  const gaps = data?.gaps ?? [];
+  const similarGroups = data?.similarGroups ?? [];
+
   return (
     <Card style={{ borderRadius: 'var(--radius-lg)' }}>
       <CardHeader className="pb-3">
-        <CardTitle className="text-base">Reasoning Engine 분석 결과</CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-base">Reasoning Engine 분석 결과</CardTitle>
+          {data && (
+            <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+              {data.totalPoliciesAnalyzed}건 분석
+            </span>
+          )}
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Conflict Detection */}
@@ -32,43 +48,36 @@ export const ReasoningEngineCard: React.FC = () => {
                     border: 'none',
                   }}
                 >
-                  2건 발견
+                  {conflicts.length}건 발견
                 </Badge>
               </div>
-              <div className="space-y-2">
-                <div
-                  className="p-3 rounded text-sm font-mono"
-                  style={{
-                    backgroundColor: 'var(--surface)',
-                    color: 'var(--text-primary)',
-                  }}
-                >
-                  <div className="flex items-center gap-2">
-                    <code style={{ color: '#3B82F6' }}>POLICY-WD-003</code>
-                    <span style={{ color: 'var(--text-secondary)' }}>↔</span>
-                    <code style={{ color: '#3B82F6' }}>POLICY-WD-012</code>
-                  </div>
-                  <div className="mt-1 text-xs" style={{ color: 'var(--text-secondary)' }}>
-                    조건 유사 / 결과 상반
-                  </div>
+              {conflicts.length > 0 ? (
+                <div className="space-y-2">
+                  {conflicts.map((c, i) => (
+                    <div
+                      key={i}
+                      className="p-3 rounded text-sm font-mono"
+                      style={{
+                        backgroundColor: 'var(--surface)',
+                        color: 'var(--text-primary)',
+                      }}
+                    >
+                      <div className="flex items-center gap-2">
+                        <code style={{ color: '#3B82F6' }}>{c.policyA}</code>
+                        <span style={{ color: 'var(--text-secondary)' }}>↔</span>
+                        <code style={{ color: '#3B82F6' }}>{c.policyB}</code>
+                      </div>
+                      <div className="mt-1 text-xs" style={{ color: 'var(--text-secondary)' }}>
+                        {c.reason}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div
-                  className="p-3 rounded text-sm font-mono"
-                  style={{
-                    backgroundColor: 'var(--surface)',
-                    color: 'var(--text-primary)',
-                  }}
-                >
-                  <div className="flex items-center gap-2">
-                    <code style={{ color: '#3B82F6' }}>POLICY-INS-008</code>
-                    <span style={{ color: 'var(--text-secondary)' }}>↔</span>
-                    <code style={{ color: '#3B82F6' }}>POLICY-INS-015</code>
-                  </div>
-                  <div className="mt-1 text-xs" style={{ color: 'var(--text-secondary)' }}>
-                    적용 범위 중복
-                  </div>
+              ) : (
+                <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                  충돌 없음
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
@@ -95,23 +104,23 @@ export const ReasoningEngineCard: React.FC = () => {
                     border: 'none',
                   }}
                 >
-                  3건
+                  {gaps.length}건
                 </Badge>
               </div>
-              <div className="space-y-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
-                <div className="flex items-start gap-2">
-                  <span className="mt-1">•</span>
-                  <span>미정의 예외 사유: "천재지변 &gt; 지진" 세부 케이스</span>
+              {gaps.length > 0 ? (
+                <div className="space-y-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
+                  {gaps.map((g, i) => (
+                    <div key={i} className="flex items-start gap-2">
+                      <span className="mt-1">•</span>
+                      <span>{g.description}</span>
+                    </div>
+                  ))}
                 </div>
-                <div className="flex items-start gap-2">
-                  <span className="mt-1">•</span>
-                  <span>가입 기간 9년 6개월 ~ 10년 미만 처리 규칙 누락</span>
+              ) : (
+                <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                  누락된 정책 영역 없음
                 </div>
-                <div className="flex items-start gap-2">
-                  <span className="mt-1">•</span>
-                  <span>외화 적립금 환산 기준 미명시</span>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
@@ -138,29 +147,35 @@ export const ReasoningEngineCard: React.FC = () => {
                     border: 'none',
                   }}
                 >
-                  5건 신규 발견
+                  {similarGroups.length}건 발견
                 </Badge>
               </div>
-              <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                금융사 간 중도인출 정책 유사도 분석 완료
-              </div>
-              <div className="mt-2 flex flex-wrap gap-1">
-                {['A금융사 ↔ B금융사', 'B금융사 ↔ C금융사', 'A금융사 ↔ D금융사', '+2 more'].map(
-                  (mapping) => (
-                    <Badge
-                      key={mapping}
-                      variant="outline"
-                      className="text-xs"
-                      style={{
-                        borderColor: 'var(--success)',
-                        color: 'var(--success)',
-                      }}
-                    >
-                      {mapping}
-                    </Badge>
-                  )
-                )}
-              </div>
+              {similarGroups.length > 0 ? (
+                <>
+                  <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                    키워드 기반 유사 정책 그룹 분석
+                  </div>
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    {similarGroups.map((g) => (
+                      <Badge
+                        key={g.keyword}
+                        variant="outline"
+                        className="text-xs"
+                        style={{
+                          borderColor: 'var(--success)',
+                          color: 'var(--success)',
+                        }}
+                      >
+                        {g.keyword} ({g.policies.length})
+                      </Badge>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                  유사 정책 그룹 없음
+                </div>
+              )}
             </div>
           </div>
         </div>
