@@ -20,7 +20,7 @@ export interface DocumentRow {
   file_type: string;
   file_size_byte: number;
   original_name: string;
-  status: "pending" | "processing" | "completed" | "failed";
+  status: "pending" | "processing" | "parsed" | "completed" | "failed";
   uploaded_at: string;
 }
 

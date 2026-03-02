@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Search, FileText, ExternalLink, CheckCircle, AlertCircle } from 'lucide-react';
+import { toast } from 'sonner';
 import { fetchDocuments, fetchDocumentChunks } from '@/api/ingestion';
 import type { DocumentRow, DocumentChunk } from '@/api/ingestion';
 
@@ -14,6 +15,7 @@ export default function AnalysisPage() {
   const [chunks, setChunks] = useState<DocumentChunk[]>([]);
   const [selectedChunk, setSelectedChunk] = useState<DocumentChunk | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     void fetchDocuments().then((res) => {
@@ -21,18 +23,32 @@ export default function AnalysisPage() {
         setDocuments(res.data.documents);
         const first = res.data.documents[0];
         if (first) setSelectedDoc(first);
+      } else {
+        toast.error('문서 목록을 불러오지 못했습니다: ' + res.error.message);
       }
+    }).catch(() => {
+      toast.error('문서 목록 API 호출 실패');
     });
   }, []);
 
   useEffect(() => {
     if (!selectedDoc) return;
+    setLoading(true);
+    setSelectedChunk(null);
     void fetchDocumentChunks(selectedDoc.document_id).then((res) => {
       if (res.success) {
         setChunks(res.data.chunks);
         const first = res.data.chunks[0];
         if (first) setSelectedChunk(first);
+      } else {
+        setChunks([]);
+        toast.error('청크를 불러오지 못했습니다');
       }
+    }).catch(() => {
+      setChunks([]);
+      toast.error('청크 API 호출 실패');
+    }).finally(() => {
+      setLoading(false);
     });
   }, [selectedDoc]);
 
@@ -81,9 +97,11 @@ export default function AnalysisPage() {
                           {doc.document_id.slice(0, 8)} | {new Date(doc.uploaded_at).toLocaleDateString('ko-KR')}
                         </div>
                       </div>
-                      {doc.status === 'completed'
+                      {doc.status === 'parsed' || doc.status === 'completed'
                         ? <CheckCircle className="w-5 h-5" style={{ color: 'var(--success)' }} />
-                        : <AlertCircle className="w-5 h-5" style={{ color: 'var(--accent)' }} />
+                        : doc.status === 'failed'
+                          ? <AlertCircle className="w-5 h-5" style={{ color: '#EF4444' }} />
+                          : <AlertCircle className="w-5 h-5" style={{ color: 'var(--accent)' }} />
                       }
                     </div>
                     <div className="flex items-center gap-3 text-xs" style={{ color: 'var(--text-secondary)' }}>
@@ -100,6 +118,7 @@ export default function AnalysisPage() {
             </TabsContent>
 
             <TabsContent value="chunks" className="mt-4 space-y-2 overflow-auto max-h-[calc(100vh-20rem)]">
+              {loading && <p className="text-sm text-center py-4" style={{ color: 'var(--text-secondary)' }}>청크 로딩 중...</p>}
               {chunks.map((chunk) => (
                 <Card
                   key={chunk.chunk_id}
@@ -147,8 +166,8 @@ export default function AnalysisPage() {
                 </div>
                 <div className="p-3 rounded-lg" style={{ backgroundColor: 'rgba(56, 161, 105, 0.1)' }}>
                   <div className="text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>상태</div>
-                  <Badge style={{ backgroundColor: selectedDoc.status === 'completed' ? 'var(--success)' : 'var(--accent)', color: '#fff' }}>
-                    {selectedDoc.status === 'completed' ? '완료' : selectedDoc.status}
+                  <Badge style={{ backgroundColor: selectedDoc.status === 'parsed' || selectedDoc.status === 'completed' ? 'var(--success)' : selectedDoc.status === 'failed' ? '#EF4444' : 'var(--accent)', color: '#fff' }}>
+                    {selectedDoc.status === 'parsed' ? '파싱 완료' : selectedDoc.status === 'completed' ? '완료' : selectedDoc.status === 'failed' ? '실패' : selectedDoc.status === 'pending' ? '대기중' : selectedDoc.status}
                   </Badge>
                 </div>
               </div>
