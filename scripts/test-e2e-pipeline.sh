@@ -189,9 +189,9 @@ step 3 "Structure extraction"
 if [ "$WAIT_QUEUE" = true ] && [ -n "$REAL_DOC_PATH" ]; then
   echo "  Waiting for queue-driven extraction (real document mode)..."
   EXT_LIST_RESP=$(poll_until "$EXTRACTION_BASE/extractions?documentId=$DOC_ID" \
-    '.data[0].extractionId // .extractions[0].extractionId' \
+    '.data.extractions[0].extractionId' \
     "queue-driven extraction") || true
-  EXTRACTION_ID=$(echo "$EXT_LIST_RESP" | jqr '.data[0].extractionId // .extractions[0].extractionId')
+  EXTRACTION_ID=$(echo "$EXT_LIST_RESP" | jqr '.data.extractions[0].extractionId')
 else
   warn "Using manual extraction (deterministic test mode)"
   MANUAL_RESP=$(api -X POST "$EXTRACTION_BASE/extract" \
