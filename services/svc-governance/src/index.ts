@@ -10,6 +10,7 @@ import { handleCreatePrompt, handleListPrompts, handleGetPrompt } from "./routes
 import { handleGetCost } from "./routes/cost.js";
 import { handleGetTrust, handleCreateTrustEvaluation } from "./routes/trust.js";
 import { handleGetGoldenTests } from "./routes/golden-tests.js";
+import { handleCreateQualityEvaluation, handleListQualityEvaluations, handleQualityEvaluationsSummary } from "./routes/quality-evaluations.js";
 
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
@@ -110,6 +111,38 @@ export default {
           }));
         }
         return await handleCreateTrustEvaluation(request, env);
+      }
+
+      // Quality Evaluations
+      if (method === "GET" && path === "/quality-evaluations/summary") {
+        const rbacCtx = extractRbacContext(request);
+        if (rbacCtx) {
+          const denied = await checkPermission(env, rbacCtx.role, "governance", "read");
+          if (denied) return denied;
+        }
+        return await handleQualityEvaluationsSummary(request, env);
+      }
+      if (method === "GET" && path === "/quality-evaluations") {
+        const rbacCtx = extractRbacContext(request);
+        if (rbacCtx) {
+          const denied = await checkPermission(env, rbacCtx.role, "governance", "read");
+          if (denied) return denied;
+        }
+        return await handleListQualityEvaluations(request, env);
+      }
+      if (method === "POST" && path === "/quality-evaluations") {
+        const rbacCtx = extractRbacContext(request);
+        if (rbacCtx) {
+          const denied = await checkPermission(env, rbacCtx.role, "governance", "create");
+          if (denied) return denied;
+          ctx.waitUntil(logAudit(env, {
+            userId: rbacCtx.userId,
+            organizationId: rbacCtx.organizationId,
+            action: "create",
+            resource: "governance",
+          }));
+        }
+        return await handleCreateQualityEvaluation(request, env);
       }
 
       return new Response("Not Found", { status: 404 });

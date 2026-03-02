@@ -104,6 +104,57 @@ export async function upsertSkillUsage(
     .run();
 }
 
+/**
+ * Upsert quality_metrics: accumulate quality data for the given org+date.
+ */
+export async function upsertQualityMetric(
+  db: D1Database,
+  organizationId: string,
+  updates: Record<string, number>,
+): Promise<void> {
+  const date = today();
+  const now = new Date().toISOString();
+
+  await db
+    .prepare(
+      `INSERT OR IGNORE INTO quality_metrics (metric_id, organization_id, date, created_at)
+       VALUES (?, ?, ?, ?)`,
+    )
+    .bind(generateId(), organizationId, date, now)
+    .run();
+
+  for (const [column, value] of Object.entries(updates)) {
+    await db
+      .prepare(
+        `UPDATE quality_metrics SET ${column} = COALESCE(${column}, 0) + ?
+         WHERE organization_id = ? AND date = ?`,
+      )
+      .bind(value, organizationId, date)
+      .run();
+  }
+}
+
+/**
+ * Insert a single stage latency record.
+ */
+export async function insertStageLatency(
+  db: D1Database,
+  documentId: string,
+  organizationId: string,
+  stage: string,
+  durationMs: number,
+): Promise<void> {
+  const date = today();
+  const now = new Date().toISOString();
+  await db
+    .prepare(
+      `INSERT INTO stage_latency (latency_id, document_id, organization_id, stage, duration_ms, date, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    )
+    .bind(`lat-${crypto.randomUUID().slice(0, 8)}`, documentId, organizationId, stage, durationMs, date, now)
+    .run();
+}
+
 export async function processQueueEvent(
   req: Request,
   env: Env,
@@ -134,24 +185,66 @@ export async function processQueueEvent(
         case "document.uploaded":
           await upsertPipelineMetric(env.DB_ANALYTICS, event.payload.organizationId, "documents_uploaded");
           break;
-        case "ingestion.completed":
+        case "ingestion.completed": {
           await upsertPipelineMetric(env.DB_ANALYTICS, event.payload.organizationId, "extractions_completed");
+          const ingPayload = event.payload as Record<string, unknown>;
+          const parseDuration = ingPayload["parseDurationMs"] as number | undefined;
+          const chunksValid = ingPayload["chunksValid"] as number | undefined;
+          const qIngUpdates: Record<string, number> = {
+            ingestion_count: 1,
+            total_chunks: event.payload.chunkCount,
+          };
+          if (chunksValid !== undefined) qIngUpdates["total_valid_chunks"] = chunksValid;
+          if (parseDuration !== undefined) qIngUpdates["total_parse_duration_ms"] = parseDuration;
+          await upsertQualityMetric(env.DB_ANALYTICS, event.payload.organizationId, qIngUpdates);
+          if (parseDuration !== undefined) {
+            await insertStageLatency(env.DB_ANALYTICS, event.payload.documentId, event.payload.organizationId, "ingestion", parseDuration);
+          }
           break;
-        case "extraction.completed":
+        }
+        case "extraction.completed": {
           await upsertPipelineMetric(env.DB_ANALYTICS, orgId, "extractions_completed");
+          const extPayload = event.payload as Record<string, unknown>;
+          const processDuration = extPayload["processDurationMs"] as number | undefined;
+          const ruleCount = extPayload["ruleCount"] as number | undefined;
+          const qExtUpdates: Record<string, number> = { extraction_count: 1 };
+          if (ruleCount !== undefined) qExtUpdates["total_rule_count"] = ruleCount;
+          if (processDuration !== undefined) qExtUpdates["total_extract_duration_ms"] = processDuration;
+          await upsertQualityMetric(env.DB_ANALYTICS, orgId, qExtUpdates);
+          if (processDuration !== undefined) {
+            await insertStageLatency(env.DB_ANALYTICS, event.payload.documentId, orgId, "extraction", processDuration);
+          }
           break;
+        }
         case "policy.candidate_ready":
           await upsertPipelineMetric(env.DB_ANALYTICS, orgId, "policies_generated");
+          await upsertQualityMetric(env.DB_ANALYTICS, orgId, { policy_candidate_count: 1 });
           break;
-        case "policy.approved":
+        case "policy.approved": {
           await upsertPipelineMetric(env.DB_ANALYTICS, orgId, "policies_approved");
+          const polPayload = event.payload as Record<string, unknown>;
+          const trustScore = polPayload["trustScore"] as number | undefined;
+          const wasModified = polPayload["wasModified"] as boolean | undefined;
+          const qPolUpdates: Record<string, number> = { policy_approved_count: 1 };
+          if (wasModified === true) qPolUpdates["policy_modified_count"] = 1;
+          if (trustScore !== undefined) qPolUpdates["total_trust_score"] = trustScore;
+          await upsertQualityMetric(env.DB_ANALYTICS, orgId, qPolUpdates);
           break;
-        case "skill.packaged":
+        }
+        case "skill.packaged": {
           await upsertPipelineMetric(env.DB_ANALYTICS, orgId, "skills_packaged");
           await upsertSkillUsage(env.DB_ANALYTICS, event.payload.skillId, "skill.json");
+          const skillPayload = event.payload as Record<string, unknown>;
+          const termCount = skillPayload["termCount"] as number | undefined;
+          const qSkillUpdates: Record<string, number> = {
+            skill_count: 1,
+            total_skill_trust_score: event.payload.trustScore,
+          };
+          if (termCount !== undefined) qSkillUpdates["total_skill_term_count"] = termCount;
+          await upsertQualityMetric(env.DB_ANALYTICS, orgId, qSkillUpdates);
           break;
+        }
         case "ontology.normalized":
-          // No specific metric column for ontology normalization
           break;
       }
       logger.info("Metric recorded", { type: event.type, eventId: event.eventId });

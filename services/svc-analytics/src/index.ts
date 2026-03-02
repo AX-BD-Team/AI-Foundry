@@ -7,11 +7,13 @@
  *   GET  /kpi                  — KPI summary (pipeline metrics)
  *   GET  /cost                 — LLM cost breakdown by tier
  *   GET  /dashboards           — combined dashboard (pipeline + cost + usage)
+ *   GET  /quality              — quality metrics (parsing, extraction, policy, skill)
  */
 
 import { createLogger, unauthorized, notFound, extractRbacContext, checkPermission, logAudit } from "@ai-foundry/utils";
 import { processQueueEvent } from "./routes/queue.js";
 import { handleGetKpi, handleGetCost, handleGetDashboard } from "./routes/kpi.js";
+import { handleGetQuality } from "./routes/quality.js";
 import type { Env } from "./env.js";
 
 export default {
@@ -80,6 +82,16 @@ export default {
           }));
         }
         return handleGetDashboard(request, env);
+      }
+
+      // GET /quality
+      if (method === "GET" && path === "/quality") {
+        const rbacCtx = extractRbacContext(request);
+        if (rbacCtx) {
+          const denied = await checkPermission(env, rbacCtx.role, "analytics", "read");
+          if (denied) return denied;
+        }
+        return handleGetQuality(request, env);
       }
 
       return notFound("route", path);
