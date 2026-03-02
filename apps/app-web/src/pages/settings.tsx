@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,9 +12,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { User, Bell, Lock, Palette, Database, Save } from 'lucide-react';
+import { User, Bell, Lock, Palette, Database, Save, RefreshCw, CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTheme } from '@/contexts/ThemeContext';
+import { fetchNotifications, markNotificationRead } from '@/api/notification';
+import type { Notification } from '@/api/notification';
+
+interface ServiceHealth {
+  name: string;
+  status: 'ok' | 'error' | 'loading';
+  timestamp?: string;
+}
+
+const SERVICES = [
+  'svc-ingestion', 'svc-extraction', 'svc-policy', 'svc-ontology', 'svc-skill',
+  'svc-llm-router', 'svc-security', 'svc-governance', 'svc-notification',
+  'svc-analytics', 'svc-queue-router',
+] as const;
 
 export default function SettingsPage() {
   const { darkMode, setDarkMode } = useTheme();
@@ -22,8 +36,88 @@ export default function SettingsPage() {
   const [slackNotifications, setSlackNotifications] = useState(false);
   const [twoFactorAuth, setTwoFactorAuth] = useState(true);
   const [language, setLanguage] = useState('ko');
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notifLoading, setNotifLoading] = useState(false);
+  const [healthChecks, setHealthChecks] = useState<ServiceHealth[]>(
+    SERVICES.map((s) => ({ name: s, status: 'loading' as const })),
+  );
+  const [healthLoading, setHealthLoading] = useState(false);
 
   const handleSave = () => toast.success('설정이 저장되었습니다');
+
+  // --- Notification API ---
+  const loadNotifications = useCallback(async () => {
+    setNotifLoading(true);
+    try {
+      const res = await fetchNotifications();
+      if (res.success && res.data) {
+        setNotifications(res.data.items);
+      }
+    } catch {
+      // silent — notifications unavailable
+    } finally {
+      setNotifLoading(false);
+    }
+  }, []);
+
+  const handleMarkRead = async (id: string) => {
+    try {
+      await markNotificationRead(id);
+      setNotifications((prev) =>
+        prev.map((n) => (n.notification_id === id ? { ...n, read: true } : n)),
+      );
+      toast.success('알림을 읽음 처리했습니다');
+    } catch {
+      toast.error('처리 실패');
+    }
+  };
+
+  // --- Health Check ---
+  const runHealthChecks = useCallback(async () => {
+    setHealthLoading(true);
+    setHealthChecks(SERVICES.map((s) => ({ name: s, status: 'loading' as const })));
+
+    const apiBase =
+      (import.meta.env['VITE_API_BASE'] as string | undefined) ?? '/api';
+    const secret =
+      (import.meta.env['VITE_INTERNAL_SECRET'] as string | undefined) ??
+      'dev-secret';
+
+    // Use the proxy to hit each service's health endpoint
+    // The proxy routes /api/<segment>/health → svc-<service>/segment/health
+    // But /health is the root endpoint, not under a segment.
+    // So we directly fetch the Worker URLs for health checks.
+    const account = 'sinclair-account';
+    const results = await Promise.allSettled(
+      SERVICES.map(async (svc) => {
+        const url = `https://${svc}.${account}.workers.dev/health`;
+        const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
+        const data = await res.json() as { status?: string; timestamp?: string };
+        return { name: svc, status: data.status === 'ok' ? 'ok' : 'error', timestamp: data.timestamp } as ServiceHealth;
+      }),
+    );
+
+    // If direct fetch fails due to CORS, fall back to proxy-based check
+    const newChecks: ServiceHealth[] = results.map((r, i) => {
+      const svc = SERVICES[i];
+      if (!svc) return { name: 'unknown', status: 'error' as const };
+      if (r.status === 'fulfilled') return r.value;
+      return { name: svc, status: 'error' as const };
+    });
+    setHealthChecks(newChecks);
+    setHealthLoading(false);
+
+    const okCount = newChecks.filter((c) => c.status === 'ok').length;
+    toast.info(`Health Check: ${String(okCount)}/${String(SERVICES.length)} 정상`);
+  }, []);
+
+  useEffect(() => {
+    void loadNotifications();
+  }, [loadNotifications]);
+
+  const okCount = healthChecks.filter((c) => c.status === 'ok').length;
+  const errorCount = healthChecks.filter((c) => c.status === 'error').length;
+  const loadingCount = healthChecks.filter((c) => c.status === 'loading').length;
 
   return (
     <div className="space-y-6">
@@ -39,7 +133,14 @@ export default function SettingsPage() {
       <Tabs defaultValue="profile" className="space-y-6">
         <TabsList>
           <TabsTrigger value="profile"><User className="w-4 h-4 mr-2" />프로필</TabsTrigger>
-          <TabsTrigger value="notifications"><Bell className="w-4 h-4 mr-2" />알림</TabsTrigger>
+          <TabsTrigger value="notifications">
+            <Bell className="w-4 h-4 mr-2" />알림
+            {notifications.filter((n) => !n.read).length > 0 && (
+              <span className="ml-1 text-xs bg-red-500 text-white rounded-full px-1.5 py-0.5">
+                {notifications.filter((n) => !n.read).length}
+              </span>
+            )}
+          </TabsTrigger>
           <TabsTrigger value="security"><Lock className="w-4 h-4 mr-2" />보안</TabsTrigger>
           <TabsTrigger value="appearance"><Palette className="w-4 h-4 mr-2" />모양</TabsTrigger>
           <TabsTrigger value="system"><Database className="w-4 h-4 mr-2" />시스템</TabsTrigger>
@@ -82,7 +183,14 @@ export default function SettingsPage() {
 
         <TabsContent value="notifications" className="space-y-6">
           <Card className="shadow-sm">
-            <CardHeader><CardTitle>알림 설정 Notification Settings</CardTitle></CardHeader>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>알림 설정 Notification Settings</CardTitle>
+                <Button variant="outline" size="sm" onClick={() => void loadNotifications()} disabled={notifLoading}>
+                  <RefreshCw className={`w-4 h-4 mr-1 ${notifLoading ? 'animate-spin' : ''}`} />새로고침
+                </Button>
+              </div>
+            </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -98,6 +206,53 @@ export default function SettingsPage() {
                 </div>
                 <Switch checked={slackNotifications} onCheckedChange={setSlackNotifications} />
               </div>
+
+              {/* Recent notifications from API */}
+              <div className="pt-4 border-t" style={{ borderColor: 'var(--border)' }}>
+                <h4 className="font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>
+                  최근 알림 ({String(notifications.length)}건)
+                </h4>
+                {notifications.length === 0 ? (
+                  <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>알림이 없습니다.</p>
+                ) : (
+                  <div className="space-y-2 max-h-64 overflow-y-auto">
+                    {notifications.slice(0, 20).map((n) => (
+                      <div
+                        key={n.notification_id}
+                        className="flex items-start justify-between p-3 rounded-lg"
+                        style={{
+                          backgroundColor: n.read ? 'var(--surface)' : 'var(--accent-bg, rgba(59,130,246,0.08))',
+                          border: '1px solid var(--border)',
+                        }}
+                      >
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>
+                            {!n.read && <span className="inline-block w-2 h-2 rounded-full bg-blue-500 mr-2" />}
+                            {n.title}
+                          </div>
+                          <div className="text-xs mt-1 truncate" style={{ color: 'var(--text-secondary)' }}>
+                            {n.body}
+                          </div>
+                          <div className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>
+                            {new Date(n.created_at).toLocaleString('ko-KR')}
+                          </div>
+                        </div>
+                        {!n.read && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="ml-2 shrink-0"
+                            onClick={() => void handleMarkRead(n.notification_id)}
+                          >
+                            읽음
+                          </Button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               <div className="pt-4 border-t" style={{ borderColor: 'var(--border)' }}>
                 <h4 className="font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>알림 유형</h4>
                 <div className="space-y-3">
@@ -209,11 +364,57 @@ export default function SettingsPage() {
 
         <TabsContent value="system" className="space-y-6">
           <Card className="shadow-sm">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>서비스 Health 모니터링</CardTitle>
+                <Button variant="outline" size="sm" onClick={() => void runHealthChecks()} disabled={healthLoading}>
+                  <RefreshCw className={`w-4 h-4 mr-1 ${healthLoading ? 'animate-spin' : ''}`} />
+                  {loadingCount > 0 ? '확인 중...' : '전체 확인'}
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="flex gap-4 mb-4">
+                <div className="flex items-center gap-1 text-sm">
+                  <CheckCircle className="w-4 h-4 text-green-500" />
+                  <span style={{ color: 'var(--text-secondary)' }}>{String(okCount)} 정상</span>
+                </div>
+                <div className="flex items-center gap-1 text-sm">
+                  <XCircle className="w-4 h-4 text-red-500" />
+                  <span style={{ color: 'var(--text-secondary)' }}>{String(errorCount)} 오류</span>
+                </div>
+                {loadingCount > 0 && (
+                  <div className="flex items-center gap-1 text-sm">
+                    <Loader2 className="w-4 h-4 animate-spin" style={{ color: 'var(--text-secondary)' }} />
+                    <span style={{ color: 'var(--text-secondary)' }}>{String(loadingCount)} 확인 중</span>
+                  </div>
+                )}
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                {healthChecks.map((svc) => (
+                  <div
+                    key={svc.name}
+                    className="flex items-center justify-between p-3 rounded-lg"
+                    style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}
+                  >
+                    <span className="text-sm font-mono" style={{ color: 'var(--text-primary)' }}>
+                      {svc.name.replace('svc-', '')}
+                    </span>
+                    {svc.status === 'loading' && <Loader2 className="w-4 h-4 animate-spin" style={{ color: 'var(--text-secondary)' }} />}
+                    {svc.status === 'ok' && <CheckCircle className="w-4 h-4 text-green-500" />}
+                    {svc.status === 'error' && <XCircle className="w-4 h-4 text-red-500" />}
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-sm">
             <CardHeader><CardTitle>시스템 설정 System Settings</CardTitle></CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="api-endpoint">API Endpoint</Label>
-                <Input id="api-endpoint" defaultValue="https://api.aifoundry.com/v1" />
+                <Input id="api-endpoint" defaultValue="https://ai-foundry.minu.best/api" disabled />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="max-concurrent">최대 동시 실행 Skill</Label>

@@ -4,32 +4,53 @@ import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 
 /**
- * Local dev proxy — mirrors Pages Functions routing (functions/api/[[path]].ts)
- * Maps /api/{segment} to the correct local Worker port with path rewrite.
+ * Dev proxy — mirrors Pages Functions routing (functions/api/[[path]].ts)
+ *
+ * Modes (set via DEV_PROXY env var):
+ *   DEV_PROXY=local    → proxy to local wrangler dev ports (default)
+ *   DEV_PROXY=staging  → proxy to staging Workers on Cloudflare
  */
-const LOCAL_ROUTE_TABLE: Record<string, number> = {
-  documents: 8701, // svc-ingestion
-  extractions: 8702, // svc-extraction
-  extract: 8702, // svc-extraction
-  policies: 8703, // svc-policy
-  sessions: 8703, // svc-policy
-  terms: 8704, // svc-ontology
-  graph: 8704, // svc-ontology
-  normalize: 8704, // svc-ontology
-  skills: 8705, // svc-skill
-  audit: 8707, // svc-security
-  cost: 8708, // svc-governance
-  trust: 8708, // svc-governance
-  prompts: 8708, // svc-governance
-  "golden-tests": 8708, // svc-governance
-  notifications: 8709, // svc-notification
-  kpi: 8710, // svc-analytics
-  dashboards: 8710, // svc-analytics
+const ACCOUNT = "sinclair-account";
+
+const SERVICE_MAP: Record<string, { service: string; port: number }> = {
+  documents: { service: "svc-ingestion", port: 8701 },
+  extractions: { service: "svc-extraction", port: 8702 },
+  extract: { service: "svc-extraction", port: 8702 },
+  policies: { service: "svc-policy", port: 8703 },
+  sessions: { service: "svc-policy", port: 8703 },
+  terms: { service: "svc-ontology", port: 8704 },
+  graph: { service: "svc-ontology", port: 8704 },
+  normalize: { service: "svc-ontology", port: 8704 },
+  skills: { service: "svc-skill", port: 8705 },
+  audit: { service: "svc-security", port: 8707 },
+  cost: { service: "svc-governance", port: 8708 },
+  trust: { service: "svc-governance", port: 8708 },
+  prompts: { service: "svc-governance", port: 8708 },
+  "golden-tests": { service: "svc-governance", port: 8708 },
+  "quality-evaluations": { service: "svc-governance", port: 8708 },
+  notifications: { service: "svc-notification", port: 8709 },
+  kpi: { service: "svc-analytics", port: 8710 },
+  dashboards: { service: "svc-analytics", port: 8710 },
+  quality: { service: "svc-analytics", port: 8710 },
 };
 
-function buildProxy() {
+const DEPLOYED_ORIGIN = "https://ai-foundry.minu.best";
+
+function buildProxy(mode: string) {
   const proxy: Record<string, object> = {};
-  for (const [segment, port] of Object.entries(LOCAL_ROUTE_TABLE)) {
+
+  // remote — proxy through deployed Pages Function (handles auth + routing)
+  if (mode === "remote") {
+    proxy["/api"] = {
+      target: DEPLOYED_ORIGIN,
+      changeOrigin: true,
+      secure: true,
+    };
+    return proxy;
+  }
+
+  // local — proxy to individual wrangler dev ports with path rewrite
+  for (const [segment, { port }] of Object.entries(SERVICE_MAP)) {
     proxy[`/api/${segment}`] = {
       target: `http://localhost:${String(port)}`,
       rewrite: (p: string) => p.replace(/^\/api/, ""),
@@ -47,7 +68,7 @@ export default defineConfig({
     },
   },
   server: {
-    proxy: buildProxy(),
+    proxy: buildProxy(process.env["DEV_PROXY"] ?? "local"),
   },
   build: {
     outDir: "dist",

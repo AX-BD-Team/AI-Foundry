@@ -24,7 +24,7 @@
  */
 
 interface ProxyEnv {
-  ENVIRONMENT: string;
+  DEPLOY_ENV: string;
   INTERNAL_API_SECRET: string;
 }
 
@@ -44,9 +44,11 @@ const ROUTE_TABLE: Record<string, string> = {
   trust: "svc-governance",
   prompts: "svc-governance",
   "golden-tests": "svc-governance",
+  "quality-evaluations": "svc-governance",
   notifications: "svc-notification",
   kpi: "svc-analytics",
   dashboards: "svc-analytics",
+  quality: "svc-analytics",
 };
 
 const ACCOUNT_SUBDOMAIN = "sinclair-account";
@@ -84,7 +86,7 @@ export const onRequest: PagesFunction<ProxyEnv> = async (context) => {
     );
   }
 
-  const environment = env.ENVIRONMENT ?? "staging";
+  const environment = env.DEPLOY_ENV ?? "production";
   const workerBaseUrl = getWorkerUrl(targetService, environment);
 
   // Reconstruct the target path: /documents/doc-123/chunks
