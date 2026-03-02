@@ -60,6 +60,7 @@ async function runExtraction(
   const { documentId, organizationId } = event.payload;
   const extractionId = crypto.randomUUID();
   const now = new Date().toISOString();
+  const extractStart = Date.now();
 
   // Insert pending extraction record
   await env.DB_EXTRACTION.prepare(
@@ -95,6 +96,7 @@ async function runExtraction(
   const processNodeCount =
     (parsed.processes?.length ?? 0) + (parsed.relationships?.length ?? 0);
   const entityCount = parsed.entities?.length ?? 0;
+  const ruleCount = parsed.rules?.length ?? 0;
   const updatedAt = new Date().toISOString();
 
   await env.DB_EXTRACTION.prepare(
@@ -118,6 +120,8 @@ async function runExtraction(
       organizationId,
       processNodeCount,
       entityCount,
+      processDurationMs: Date.now() - extractStart,
+      ruleCount,
     },
   });
 

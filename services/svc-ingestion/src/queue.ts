@@ -49,6 +49,8 @@ export async function processQueueEvent(body: unknown, env: Env, ctx: ExecutionC
   const { documentId, organizationId, r2Key, originalName, fileType } = event.payload;
 
   try {
+    const parseStart = Date.now();
+
     // 1. Fetch file bytes from R2
     const r2Object = await env.R2_DOCUMENTS.get(r2Key);
     if (!r2Object) {
@@ -119,20 +121,20 @@ export async function processQueueEvent(body: unknown, env: Env, ctx: ExecutionC
       .run();
 
     // 6. Publish ingestion.completed → triggers svc-extraction via queue router
-    ctx.waitUntil(
-      env.QUEUE_PIPELINE.send({
-        eventId: crypto.randomUUID(),
-        occurredAt: new Date().toISOString(),
-        type: "ingestion.completed",
-        payload: {
-          documentId,
-          organizationId,
-          chunkCount: chunkIndex,
-          classification: classification.category,
-          r2Key,
-        },
-      }),
-    );
+    await env.QUEUE_PIPELINE.send({
+      eventId: crypto.randomUUID(),
+      occurredAt: new Date().toISOString(),
+      type: "ingestion.completed",
+      payload: {
+        documentId,
+        organizationId,
+        chunkCount: chunkIndex,
+        classification: classification.category,
+        r2Key,
+        parseDurationMs: Date.now() - parseStart,
+        chunksValid: chunkIndex,
+      },
+    });
 
     logger.info("Document parsed", {
       documentId,

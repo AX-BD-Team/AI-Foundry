@@ -100,6 +100,12 @@ export async function handleApprovePolicy(
     ).bind(actionId, sessionId, reviewerId, comment ?? null, now).run(),
   ]);
 
+  // Look up trust score for quality metrics
+  const policyTrustRow = await env.DB_POLICY.prepare(
+    "SELECT trust_score FROM policies WHERE policy_id = ?",
+  ).bind(policyId).first();
+  const trustScoreVal = policyTrustRow?.["trust_score"] as number | null;
+
   // Emit PolicyApprovedEvent — must be awaited for reliable pipeline delivery
   await env.QUEUE_PIPELINE.send({
     eventId: crypto.randomUUID(),
@@ -111,6 +117,8 @@ export async function handleApprovePolicy(
       approvedBy: reviewerId,
       approvedAt: now,
       policyCount: 1,
+      ...(trustScoreVal !== null ? { trustScore: trustScoreVal } : {}),
+      wasModified: false,
     },
   });
 
@@ -217,6 +225,12 @@ export async function handleModifyPolicy(
     ).bind(actionId, sessionId, reviewerId, comment ?? null, JSON.stringify(modifiedFields), now).run(),
   ]);
 
+  // Look up trust score for quality metrics
+  const policyTrustRow = await env.DB_POLICY.prepare(
+    "SELECT trust_score FROM policies WHERE policy_id = ?",
+  ).bind(policyId).first();
+  const trustScoreVal = policyTrustRow?.["trust_score"] as number | null;
+
   // Emit PolicyApprovedEvent (modify = approve with changes)
   await env.QUEUE_PIPELINE.send({
     eventId: crypto.randomUUID(),
@@ -228,6 +242,8 @@ export async function handleModifyPolicy(
       approvedBy: reviewerId,
       approvedAt: now,
       policyCount: 1,
+      ...(trustScoreVal !== null ? { trustScore: trustScoreVal } : {}),
+      wasModified: true,
     },
   });
 

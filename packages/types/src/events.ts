@@ -31,6 +31,8 @@ export const IngestionCompletedEventSchema = BaseEventSchema.extend({
     chunkCount: z.number().int(),
     classification: z.string(),
     r2Key: z.string(),
+    parseDurationMs: z.number().int().optional(),
+    chunksValid: z.number().int().optional(),
   }),
 });
 
@@ -44,6 +46,8 @@ export const ExtractionCompletedEventSchema = BaseEventSchema.extend({
     processNodeCount: z.number().int(),
     entityCount: z.number().int(),
     neo4jGraphId: z.string().optional(),
+    processDurationMs: z.number().int().optional(),
+    ruleCount: z.number().int().optional(),
   }),
 });
 
@@ -68,6 +72,8 @@ export const PolicyApprovedEventSchema = BaseEventSchema.extend({
     approvedBy: z.string(),
     approvedAt: z.string().datetime(),
     policyCount: z.number().int(),
+    trustScore: z.number().min(0).max(1).optional(),
+    wasModified: z.boolean().optional(),
   }),
 });
 
@@ -91,6 +97,7 @@ export const SkillPackagedEventSchema = BaseEventSchema.extend({
     r2Key: z.string(),
     policyCount: z.number().int(),
     trustScore: z.number().min(0).max(1),
+    termCount: z.number().int().optional(),
   }),
 });
 

@@ -42,3 +42,27 @@ export const CreateTrustEvaluationSchema = z.object({
 });
 
 export type CreateTrustEvaluation = z.infer<typeof CreateTrustEvaluationSchema>;
+
+// ── Quality Evaluation ──────────────────────────────────────────
+
+export const QualityDimensionSchema = z.enum([
+  "parsing_accuracy",
+  "extraction_completeness",
+  "policy_correctness",
+  "term_coverage",
+  "skill_usability",
+]);
+
+export type QualityDimension = z.infer<typeof QualityDimensionSchema>;
+
+export const CreateQualityEvaluationSchema = z.object({
+  batchId: z.string().optional(),
+  targetType: z.enum(["document", "extraction", "policy", "skill"]),
+  targetId: z.string().min(1),
+  dimension: QualityDimensionSchema,
+  score: z.number().min(0).max(1),
+  evaluator: z.string().min(1),
+  notes: z.string().optional(),
+});
+
+export type CreateQualityEvaluation = z.infer<typeof CreateQualityEvaluationSchema>;

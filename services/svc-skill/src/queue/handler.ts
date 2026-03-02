@@ -279,6 +279,7 @@ export async function processQueueEvent(
       r2Key,
       policyCount: 1,
       trustScore: trust.score,
+      termCount: termUris.length,
     },
   };
   await env.QUEUE_PIPELINE.send(outEvent);
