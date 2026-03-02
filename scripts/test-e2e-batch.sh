@@ -163,7 +163,7 @@ for i in $(seq 0 $((DOC_COUNT - 1))); do
   echo "  [1/5] Uploading..."
   TMPFILE="$TMPDIR_BATCH/${DOC_NAME%.${DOC_TYPE}}.txt"
   echo "$DOC_CONTENT" > "$TMPFILE"
-  UPLOAD_RESP=$(curl -s -X POST "$INGESTION_URL/documents" \
+  UPLOAD_RESP=$(curl -s --max-time 30 -X POST "$INGESTION_URL/documents" \
     -H "$SECRET_HEADER" \
     -H "X-Organization-Id: $ORG_ID" \
     -H "X-User-Id: batch-test" \
@@ -189,7 +189,7 @@ for i in $(seq 0 $((DOC_COUNT - 1))); do
   POLICY_COUNT=0
   POLICIES_RESP='{"success":false}'
   for attempt in 1 2 3; do
-    POLICIES_RESP=$(curl -s "$POLICY_URL/policies?documentId=$DOC_ID" \
+    POLICIES_RESP=$(curl -s --max-time 15 "$POLICY_URL/policies?documentId=$DOC_ID" \
       -H "$SECRET_HEADER" 2>/dev/null || echo '{"success":false}')
     POLICY_COUNT=$(echo "$POLICIES_RESP" | jq '.data.policies | length // 0' 2>/dev/null || echo 0)
     if [[ "$POLICY_COUNT" -gt 0 ]]; then
@@ -206,11 +206,11 @@ for i in $(seq 0 $((DOC_COUNT - 1))); do
       POLICY_ID=$(echo "$POLICIES_RESP" | jq -r ".data.policies[$j].policyId // empty")
       POLICY_STATUS=$(echo "$POLICIES_RESP" | jq -r ".data.policies[$j].status // empty")
       if [[ "$POLICY_STATUS" == "candidate" || "$POLICY_STATUS" == "in_review" ]]; then
-        curl -s -X POST "$POLICY_URL/policies/$POLICY_ID/approve" \
+        curl -s --max-time 10 -X POST "$POLICY_URL/policies/$POLICY_ID/approve" \
           -H "$SECRET_HEADER" \
           -H "$JSON_HEADER" \
           -d '{"reviewerId":"batch-auto","comment":"Auto-approved by batch E2E"}' \
-          > /dev/null 2>&1
+          > /dev/null 2>&1 || true
         echo "    Approved: $POLICY_ID"
       fi
     done
@@ -231,7 +231,7 @@ done
 # --- Quality metrics ---
 echo "================================================================"
 echo "Fetching quality metrics..."
-QUALITY=$(curl -s "$ANALYTICS_URL/quality?organizationId=$ORG_ID" \
+QUALITY=$(curl -s --max-time 15 "$ANALYTICS_URL/quality?organizationId=$ORG_ID" \
   -H "$SECRET_HEADER" 2>/dev/null || echo '{"success":false}')
 
 QUALITY_SUCCESS=$(echo "$QUALITY" | jq -r '.success // false')
