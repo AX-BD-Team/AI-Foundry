@@ -2,6 +2,24 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 034 — 2026-03-02
+
+**Phase 2-B 배포 + Settings API 연동 + 실문서 E2E 검증**:
+- ✅ D1 마이그레이션 적용: db-analytics 0002, db-governance 0002 (Production + Staging 모두)
+- ✅ 서비스 6개 Production 배포: svc-analytics, svc-governance, svc-ingestion, svc-extraction, svc-policy, svc-skill
+- ✅ Staging 6개 서비스 동일 배포
+- ✅ Pages 배포: Settings 페이지 API 연동 반영
+- ✅ Settings 페이지: 시스템 Health 모니터링 (11개 서비스) + 알림 목록 API 연동
+- ✅ Pages Function proxy: quality, quality-evaluations 경로 추가
+- ✅ UNSTRUCTURED_API_KEY 시크릿 설정 (Production + Staging)
+- ✅ E2E Pipeline Production 8/8 PASS (synthetic)
+- ✅ 실문서 E2E (pension-withdrawal.pdf) 7/7 PASS
+
+**검증 결과**:
+- ✅ Health Check: Production 12/12, Staging 6/6 배포 확인
+- ✅ E2E Pipeline: synthetic 8/8 + real-doc 7/7 전체 PASS
+- ✅ typecheck + build 통과
+
 ## 세션 033 — 2026-03-02
 
 **Phase 2-B 품질 메트릭 인프라 구현 완료 — DB 마이그레이션, 이벤트 enrichment, API 엔드포인트, 파일럿 대시보드**:
