@@ -4,15 +4,16 @@ compatibility_date = "2025-01-01"
 
 [vars]
 ENVIRONMENT = "development"
+DEPLOY_ENV = "staging"
 
 # ---------------------------------------------------------------------------
 # Preview environment (Pages uses "preview" instead of "staging")
 # ---------------------------------------------------------------------------
 [env.preview]
-vars = { ENVIRONMENT = "staging" }
+vars = { ENVIRONMENT = "staging", DEPLOY_ENV = "staging" }
 
 # ---------------------------------------------------------------------------
 # Production environment
 # ---------------------------------------------------------------------------
 [env.production]
-vars = { ENVIRONMENT = "production" }
+vars = { ENVIRONMENT = "production", DEPLOY_ENV = "production" }

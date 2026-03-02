@@ -54,7 +54,7 @@ const ROUTE_TABLE: Record<string, string> = {
 const ACCOUNT_SUBDOMAIN = "sinclair-account";
 
 function getWorkerUrl(serviceName: string, env: string): string {
-  const suffix = env === "production" ? "" : "-staging";
+  const suffix = env === "production" ? "-production" : "-staging";
   return `https://${serviceName}${suffix}.${ACCOUNT_SUBDOMAIN}.workers.dev`;
 }
 
