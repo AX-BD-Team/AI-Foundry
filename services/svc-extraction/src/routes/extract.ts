@@ -6,12 +6,14 @@
 import { ok, badRequest, errFromUnknown } from "@ai-foundry/utils";
 import { buildExtractionPrompt } from "../prompts/structure.js";
 import { callLlm } from "../llm/caller.js";
+import type { ChunkWithMeta } from "../queue/handler.js";
 import type { Env } from "../env.js";
 
 interface ExtractRequestBody {
   documentId: string;
   organizationId: string;
   chunks: string[];
+  classification?: string;
   tier?: "sonnet" | "haiku";
 }
 
@@ -34,7 +36,7 @@ export async function handleExtract(
     return badRequest("Request body must be valid JSON");
   }
 
-  const { documentId, organizationId, chunks, tier = "sonnet" } = body;
+  const { documentId, organizationId, chunks, classification, tier = "sonnet" } = body;
 
   if (!documentId || typeof documentId !== "string") {
     return badRequest("documentId is required");
@@ -58,7 +60,15 @@ export async function handleExtract(
     .run();
 
   try {
-    const prompt = buildExtractionPrompt(chunks);
+    // Convert raw string chunks to ChunkWithMeta for the prompt builder
+    const chunksWithMeta: ChunkWithMeta[] = chunks.map((text, i) => ({
+      masked_text: text,
+      classification: classification ?? "general",
+      element_type: "NarrativeText",
+      word_count: text.split(/\s+/).length,
+      chunk_index: i,
+    }));
+    const prompt = buildExtractionPrompt(chunksWithMeta, classification);
     const rawContent = await callLlm(prompt, tier, env.LLM_ROUTER, env.INTERNAL_API_SECRET);
 
     // Strip markdown code fences (```json ... ```) that LLMs often add

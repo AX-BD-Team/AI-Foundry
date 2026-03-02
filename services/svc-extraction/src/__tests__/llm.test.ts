@@ -1,6 +1,18 @@
 import { describe, it, expect, vi } from "vitest";
 import { callLlm } from "../llm/caller.js";
 import { buildExtractionPrompt } from "../prompts/structure.js";
+import type { ChunkWithMeta } from "../queue/handler.js";
+
+/** Convert plain strings to ChunkWithMeta for testing */
+function toChunks(texts: string[]): ChunkWithMeta[] {
+  return texts.map((text, i) => ({
+    masked_text: text,
+    classification: "general",
+    element_type: "NarrativeText",
+    word_count: text.split(/\s+/).length,
+    chunk_index: i,
+  }));
+}
 
 // ── callLlm ──────────────────────────────────────────────────────
 
@@ -43,7 +55,7 @@ describe("callLlm", () => {
     const body = JSON.parse(opts.body as string) as Record<string, unknown>;
     expect(body["tier"]).toBe("sonnet");
     expect(body["callerService"]).toBe("svc-extraction");
-    expect(body["maxTokens"]).toBe(2048);
+    expect(body["maxTokens"]).toBe(4096);
     expect(body["messages"]).toEqual([
       { role: "user", content: "test-prompt" },
     ]);
@@ -123,41 +135,41 @@ describe("callLlm", () => {
 
 describe("buildExtractionPrompt", () => {
   it("includes all chunk texts in prompt", () => {
-    const chunks = ["청크 1 내용", "청크 2 내용"];
-    const prompt = buildExtractionPrompt(chunks);
+    const prompt = buildExtractionPrompt(toChunks(["청크 1 내용", "청크 2 내용"]));
     expect(prompt).toContain("청크 1 내용");
     expect(prompt).toContain("청크 2 내용");
   });
 
   it("includes JSON schema description", () => {
-    const prompt = buildExtractionPrompt(["test"]);
+    const prompt = buildExtractionPrompt(toChunks(["test"]));
     expect(prompt).toContain("processes");
     expect(prompt).toContain("entities");
     expect(prompt).toContain("relationships");
     expect(prompt).toContain("rules");
   });
 
-  it("limits chunks to MAX_CHUNKS (20)", () => {
-    const chunks = Array.from({ length: 25 }, (_, i) => `UNIQUE_CHUNK_${i}`);
+  it("limits chunks to MAX_CHUNKS (20) using smart selection", () => {
+    const chunks = toChunks(Array.from({ length: 25 }, (_, i) => `UNIQUE_CHUNK_${i}`));
     const prompt = buildExtractionPrompt(chunks);
-    // First 20 should be present
+    // Head chunks (0-2) should always be present
     expect(prompt).toContain("UNIQUE_CHUNK_0");
-    expect(prompt).toContain("UNIQUE_CHUNK_19");
-    // 21st and beyond should not be present
-    expect(prompt).not.toContain("UNIQUE_CHUNK_20");
-    expect(prompt).not.toContain("UNIQUE_CHUNK_24");
+    expect(prompt).toContain("UNIQUE_CHUNK_1");
+    expect(prompt).toContain("UNIQUE_CHUNK_2");
+    // At most 20 chunks total — some will be dropped
+    const chunkMarkerCount = (prompt.match(/--- 청크/g) ?? []).length;
+    expect(chunkMarkerCount).toBeLessThanOrEqual(20);
   });
 
   it("truncates individual chunks to MAX_CHUNK_CHARS (10000)", () => {
     const longText = "X".repeat(15000);
-    const prompt = buildExtractionPrompt([longText]);
+    const prompt = buildExtractionPrompt(toChunks([longText]));
     const xCount = (prompt.match(/X/g) ?? []).length;
     expect(xCount).toBeLessThanOrEqual(10000);
   });
 
   it("proportionally reduces chunks when total exceeds MAX_TOTAL_CHARS (60000)", () => {
     // 10 chunks of 10000 chars = 100000, exceeds 60000 budget
-    const chunks = Array.from({ length: 10 }, (_, i) => `MARKER_${i}_` + "Y".repeat(9990));
+    const chunks = toChunks(Array.from({ length: 10 }, (_, i) => `MARKER_${i}_` + "Y".repeat(9990)));
     const prompt = buildExtractionPrompt(chunks);
     // All 10 markers should still be present (chunks not dropped)
     for (let i = 0; i < 10; i++) {
@@ -170,11 +182,11 @@ describe("buildExtractionPrompt", () => {
 
   it("preserves minimum 500 chars per chunk during proportional reduction", () => {
     // 20 chunks of 10000 chars = 200000, exceeds 60000 budget
-    // ratio = 60000/200000 = 0.3, each gets 3000 chars (> 500 minimum)
-    const chunks = Array.from({ length: 20 }, () => "Z".repeat(10000));
+    const chunks = toChunks(Array.from({ length: 20 }, () => "Z".repeat(10000)));
     const prompt = buildExtractionPrompt(chunks);
-    // Should contain all 20 chunk markers
-    expect(prompt).toContain("청크 20");
+    // Should contain at least 20 chunk markers
+    const markerCount = (prompt.match(/--- 청크/g) ?? []).length;
+    expect(markerCount).toBe(20);
   });
 
   it("handles empty chunk array", () => {
@@ -185,27 +197,61 @@ describe("buildExtractionPrompt", () => {
   });
 
   it("handles single chunk", () => {
-    const prompt = buildExtractionPrompt(["단일 청크"]);
+    const prompt = buildExtractionPrompt(toChunks(["단일 청크"]));
     expect(prompt).toContain("단일 청크");
     expect(prompt).toContain("청크 1");
   });
 
-  it("numbers chunks sequentially", () => {
-    const chunks = ["first", "second", "third"];
-    const prompt = buildExtractionPrompt(chunks);
+  it("numbers chunks by original chunk_index", () => {
+    const prompt = buildExtractionPrompt(toChunks(["first", "second", "third"]));
     expect(prompt).toContain("청크 1");
     expect(prompt).toContain("청크 2");
     expect(prompt).toContain("청크 3");
   });
 
   it("includes domain-specific context about retirement pension", () => {
-    const prompt = buildExtractionPrompt(["test"]);
+    const prompt = buildExtractionPrompt(toChunks(["test"]));
     expect(prompt).toContain("퇴직연금");
     expect(prompt).toContain("도메인");
   });
 
   it("requests pure JSON output without markdown", () => {
-    const prompt = buildExtractionPrompt(["test"]);
+    const prompt = buildExtractionPrompt(toChunks(["test"]));
     expect(prompt).toContain("JSON만 출력");
+  });
+
+  it("uses adaptive prompt for api_spec classification", () => {
+    const prompt = buildExtractionPrompt(toChunks(["test"]), "api_spec");
+    expect(prompt).toContain("API 명세서/인터페이스 목록");
+    expect(prompt).toContain("interface");
+  });
+
+  it("uses adaptive prompt for general classification", () => {
+    const prompt = buildExtractionPrompt(toChunks(["test"]), "general");
+    expect(prompt).toContain("기술 결정/표준 규칙");
+  });
+
+  it("selects high word_count chunks when more than 20", () => {
+    // Create 30 chunks: indices 20-29 have 1000 words each, rest have 10
+    const chunks: ChunkWithMeta[] = Array.from({ length: 30 }, (_, i) => ({
+      masked_text: i >= 20 ? "big ".repeat(1000) : "small ".repeat(10),
+      classification: "general",
+      element_type: "NarrativeText",
+      word_count: i >= 20 ? 1000 : 10,
+      chunk_index: i,
+    }));
+    const prompt = buildExtractionPrompt(chunks);
+    // High word-count chunks (indices 20-29) should be included
+    expect(prompt).toContain("big ");
+    // Total chunks should be MAX_CHUNKS (20)
+    const markerCount = (prompt.match(/--- 청크/g) ?? []).length;
+    expect(markerCount).toBeLessThanOrEqual(20);
+  });
+
+  it("includes expanded entity types in schema", () => {
+    const prompt = buildExtractionPrompt(toChunks(["test"]));
+    expect(prompt).toContain("system");
+    expect(prompt).toContain("interface");
+    expect(prompt).toContain("table");
   });
 });

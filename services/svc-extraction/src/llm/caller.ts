@@ -15,7 +15,7 @@ export async function callLlm(
     tier,
     messages: [{ role: "user", content: prompt }],
     callerService: "svc-extraction",
-    maxTokens: 2048,
+    maxTokens: 4096,
   };
 
   const response = await llmRouter.fetch("https://svc-llm-router.internal/complete", {

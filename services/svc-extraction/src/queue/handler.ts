@@ -21,13 +21,22 @@ interface ExtractionResult {
   rules: Array<{ condition: string; outcome: string; domain: string }>;
 }
 
+/** Chunk with metadata from svc-ingestion. */
+export interface ChunkWithMeta {
+  masked_text: string;
+  classification: string;
+  element_type: string;
+  word_count: number;
+  chunk_index: number;
+}
+
 /**
- * Fetch parsed chunks from svc-ingestion via service binding.
+ * Fetch parsed chunks (with metadata) from svc-ingestion via service binding.
  */
 async function fetchChunks(
   documentId: string,
   env: Env,
-): Promise<string[]> {
+): Promise<ChunkWithMeta[]> {
   const resp = await env.SVC_INGESTION.fetch(
     `http://internal/documents/${documentId}/chunks`,
     {
@@ -43,14 +52,14 @@ async function fetchChunks(
 
   const data = (await resp.json()) as {
     success: boolean;
-    data: { documentId: string; chunks: Array<{ masked_text: string }> };
+    data: { documentId: string; chunks: ChunkWithMeta[] };
   };
 
-  return data.data.chunks.map((c) => c.masked_text);
+  return data.data.chunks;
 }
 
-function selectTier(chunks: string[]): "sonnet" | "haiku" {
-  const totalLen = chunks.reduce((sum, c) => sum + c.length, 0);
+function selectTier(chunks: ChunkWithMeta[]): "sonnet" | "haiku" {
+  const totalLen = chunks.reduce((sum, c) => sum + c.masked_text.length, 0);
   return totalLen > 10_000 ? "sonnet" : "haiku";
 }
 
@@ -84,10 +93,25 @@ async function runExtraction(
       throw new Error(`No chunks found for document ${documentId}`);
     }
 
-    const prompt = buildExtractionPrompt(chunks);
+    // Detect dominant classification from chunks
+    const classificationCounts = new Map<string, number>();
+    for (const c of chunks) {
+      const cls = c.classification || "general";
+      classificationCounts.set(cls, (classificationCounts.get(cls) ?? 0) + 1);
+    }
+    let dominantClassification = "general";
+    let maxCount = 0;
+    for (const [cls, count] of classificationCounts) {
+      if (count > maxCount) {
+        dominantClassification = cls;
+        maxCount = count;
+      }
+    }
+
+    const prompt = buildExtractionPrompt(chunks, dominantClassification);
     const tier = selectTier(chunks);
-    const totalChunkLen = chunks.reduce((sum, c) => sum + c.length, 0);
-    logger.info("Selected LLM tier", { tier, totalChunkLen, chunkCount: chunks.length });
+    const totalChunkLen = chunks.reduce((sum, c) => sum + c.masked_text.length, 0);
+    logger.info("Selected LLM tier", { tier, totalChunkLen, chunkCount: chunks.length, classification: dominantClassification });
     const rawContent = await callLlm(prompt, tier, env.LLM_ROUTER, env.INTERNAL_API_SECRET);
 
     // Strip markdown code fences (```json ... ```) that LLMs often add
