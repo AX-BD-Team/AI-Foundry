@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { handleGetMcpAdapter } from "./mcp.js";
+import { handleGetOpenApiAdapter } from "./openapi.js";
 import type { Env } from "../env.js";
 
 function mockDb(firstResult?: Record<string, unknown> | null) {
@@ -52,14 +52,14 @@ function mockCtx(): ExecutionContext {
   return { waitUntil: vi.fn() } as unknown as ExecutionContext;
 }
 
-describe("handleGetMcpAdapter", () => {
+describe("handleGetOpenApiAdapter", () => {
   it("returns 404 when skill not in DB", async () => {
     const env = {
       DB_SKILL: mockDb(null),
       R2_SKILL_PACKAGES: { get: vi.fn() },
     } as unknown as Env;
-    const req = new Request("https://test.internal/skills/sk-999/mcp");
-    const res = await handleGetMcpAdapter(req, env, "sk-999", mockCtx());
+    const req = new Request("https://test.internal/skills/sk-999/openapi");
+    const res = await handleGetOpenApiAdapter(req, env, "sk-999", mockCtx());
     expect(res.status).toBe(404);
   });
 
@@ -68,12 +68,12 @@ describe("handleGetMcpAdapter", () => {
       DB_SKILL: mockDb({ r2_key: "skill-packages/sk-001.skill.json" }),
       R2_SKILL_PACKAGES: { get: vi.fn().mockResolvedValue(null) },
     } as unknown as Env;
-    const req = new Request("https://test.internal/skills/sk-001/mcp");
-    const res = await handleGetMcpAdapter(req, env, "sk-001", mockCtx());
+    const req = new Request("https://test.internal/skills/sk-001/openapi");
+    const res = await handleGetOpenApiAdapter(req, env, "sk-001", mockCtx());
     expect(res.status).toBe(404);
   });
 
-  it("returns MCP adapter JSON when found", async () => {
+  it("returns OpenAPI spec JSON when found", async () => {
     const env = {
       DB_SKILL: mockDb({ r2_key: "skill-packages/sk-001.skill.json" }),
       R2_SKILL_PACKAGES: {
@@ -83,26 +83,46 @@ describe("handleGetMcpAdapter", () => {
       },
     } as unknown as Env;
 
-    const req = new Request("https://test.internal/skills/sk-001/mcp");
+    const req = new Request("https://test.internal/skills/sk-001/openapi");
     const ctx = mockCtx();
-    const res = await handleGetMcpAdapter(req, env, "sk-001", ctx);
+    const res = await handleGetOpenApiAdapter(req, env, "sk-001", ctx);
     expect(res.status).toBe(200);
     const body = await res.json() as {
-      name: string;
-      protocolVersion: string;
-      capabilities: { tools: { listChanged: boolean } };
-      serverInfo: { name: string; version: string };
-      instructions: string;
-      tools: Array<{ name: string; annotations: { title: string } }>;
+      openapi: string;
+      info: { title: string; version: string };
+      paths: Record<string, unknown>;
     };
-    expect(body.name).toBe("ai-foundry-skill-퇴직연금");
-    expect(body.protocolVersion).toBe("2024-11-05");
-    expect(body.capabilities).toEqual({ tools: { listChanged: false } });
-    expect(body.serverInfo.name).toBe("ai-foundry-skill-퇴직연금");
-    expect(body.instructions).toContain("퇴직연금");
-    expect(body.tools).toHaveLength(1);
-    expect(body.tools[0]?.name).toBe("pol-pension-wd-001");
-    expect(body.tools[0]?.annotations.title).toBe("중도인출 조건");
+    expect(body.openapi).toBe("3.0.3");
+    expect(body.info.title).toContain("퇴직연금");
+    expect(body.info.version).toBe("1.0.0");
+    expect(body.paths["/evaluate/pol-pension-wd-001"]).toBeDefined();
+  });
+
+  it("records download with adapter_type openapi", async () => {
+    const runMock = vi.fn().mockResolvedValue({ success: true });
+    const bindMock = vi.fn().mockReturnValue({
+      first: vi.fn().mockResolvedValue({ r2_key: "skill-packages/sk-001.skill.json" }),
+      run: runMock,
+    });
+    const prepareMock = vi.fn().mockReturnValue({ bind: bindMock });
+    const env = {
+      DB_SKILL: { prepare: prepareMock } as unknown as D1Database,
+      R2_SKILL_PACKAGES: {
+        get: vi.fn().mockResolvedValue({
+          text: vi.fn().mockResolvedValue(JSON.stringify(sampleSkillPackage)),
+        }),
+      },
+    } as unknown as Env;
+
+    const req = new Request("https://test.internal/skills/sk-001/openapi");
+    const ctx = mockCtx();
+    await handleGetOpenApiAdapter(req, env, "sk-001", ctx);
+
+    // The second prepare call should be the INSERT for downloads
+    expect(prepareMock).toHaveBeenCalledTimes(2);
+    const insertCall = prepareMock.mock.calls[1]?.[0] as string;
+    expect(insertCall).toContain("skill_downloads");
+    expect(insertCall).toContain("openapi");
   });
 
   it("returns 500 for unparseable R2 content", async () => {
@@ -115,8 +135,8 @@ describe("handleGetMcpAdapter", () => {
       },
     } as unknown as Env;
 
-    const req = new Request("https://test.internal/skills/sk-001/mcp");
-    const res = await handleGetMcpAdapter(req, env, "sk-001", mockCtx());
+    const req = new Request("https://test.internal/skills/sk-001/openapi");
+    const res = await handleGetOpenApiAdapter(req, env, "sk-001", mockCtx());
     expect(res.status).toBe(500);
   });
 });

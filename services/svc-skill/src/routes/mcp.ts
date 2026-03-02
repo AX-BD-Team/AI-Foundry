@@ -23,13 +23,29 @@ interface McpToolInputSchema {
   required: string[];
 }
 
+interface McpToolAnnotations {
+  title: string;
+  readOnlyHint: boolean;
+  openWorldHint: boolean;
+}
+
 interface McpTool {
   name: string;
   description: string;
   inputSchema: McpToolInputSchema;
+  annotations: McpToolAnnotations;
 }
 
 interface McpAdapter {
+  protocolVersion: "2024-11-05";
+  capabilities: {
+    tools: { listChanged: boolean };
+  };
+  serverInfo: {
+    name: string;
+    version: string;
+  };
+  instructions: string;
   name: string;
   version: string;
   description: string;
@@ -109,6 +125,8 @@ export function toMcpAdapter(pkg: SkillPackage): McpAdapter {
   const nameSuffix = subdomain
     ? `${metadata.domain}-${subdomain}`
     : metadata.domain;
+  const serverName = `ai-foundry-skill-${nameSuffix}`;
+  const domainLabel = `${metadata.domain}${subdomain ? ` / ${subdomain}` : ""}`;
 
   const tools: McpTool[] = pkg.policies.map((policy) => ({
     name: policy.code.toLowerCase(),
@@ -127,12 +145,26 @@ export function toMcpAdapter(pkg: SkillPackage): McpAdapter {
       },
       required: ["context"],
     },
+    annotations: {
+      title: policy.title,
+      readOnlyHint: true,
+      openWorldHint: true,
+    },
   }));
 
   return {
-    name: `ai-foundry-skill-${nameSuffix}`,
+    protocolVersion: "2024-11-05",
+    capabilities: {
+      tools: { listChanged: false },
+    },
+    serverInfo: {
+      name: serverName,
+      version: metadata.version,
+    },
+    instructions: `AI Foundry Skill for ${domainLabel}. ${pkg.policies.length} policy tool(s) available for evaluation.`,
+    name: serverName,
     version: metadata.version,
-    description: `AI Foundry Skill: ${metadata.domain}${subdomain ? ` / ${subdomain}` : ""}`,
+    description: `AI Foundry Skill: ${domainLabel}`,
     tools,
     metadata: {
       skillId: pkg.skillId,

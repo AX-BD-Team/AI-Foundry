@@ -108,6 +108,36 @@ describe("toMcpAdapter", () => {
     expect(schema?.properties["parameters"]).toBeDefined();
   });
 
+  it("tool has annotations with title and hints", () => {
+    const adapter = toMcpAdapter(makeSkillPackage());
+    const tool = adapter.tools[0];
+    expect(tool?.annotations.title).toBe("중도인출 조건");
+    expect(tool?.annotations.readOnlyHint).toBe(true);
+    expect(tool?.annotations.openWorldHint).toBe(true);
+  });
+
+  it("includes protocolVersion", () => {
+    const adapter = toMcpAdapter(makeSkillPackage());
+    expect(adapter.protocolVersion).toBe("2024-11-05");
+  });
+
+  it("includes capabilities with tools", () => {
+    const adapter = toMcpAdapter(makeSkillPackage());
+    expect(adapter.capabilities).toEqual({ tools: { listChanged: false } });
+  });
+
+  it("includes serverInfo matching name and version", () => {
+    const adapter = toMcpAdapter(makeSkillPackage());
+    expect(adapter.serverInfo.name).toBe(adapter.name);
+    expect(adapter.serverInfo.version).toBe("1.0.0");
+  });
+
+  it("includes instructions with domain info", () => {
+    const adapter = toMcpAdapter(makeSkillPackage());
+    expect(adapter.instructions).toContain("퇴직연금");
+    expect(adapter.instructions).toContain("1 policy tool(s)");
+  });
+
   it("includes skillId in metadata", () => {
     const adapter = toMcpAdapter(makeSkillPackage());
     expect(adapter.metadata.skillId).toBe("sk-test-001");
