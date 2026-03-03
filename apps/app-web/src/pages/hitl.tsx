@@ -10,7 +10,7 @@ import { useOrganization } from '@/contexts/OrganizationContext';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface PolicyItem {
-  id: string;
+  policyId: string;
   policyCode: string;
   title: string;
   condition: string;
@@ -50,7 +50,7 @@ export default function HITLReviewPage() {
   const handleApprove = async () => {
     if (!selectedPolicy) return;
     try {
-      const res = await approvePolicy(organizationId, selectedPolicy.id, { reviewerId: user?.userId ?? 'anonymous', comment });
+      const res = await approvePolicy(organizationId, selectedPolicy.policyId, { reviewerId: user?.userId ?? 'anonymous', comment });
       if (res.success) {
         toast.success(`${selectedPolicy.policyCode} 승인 완료`);
         setComment('');
@@ -64,7 +64,7 @@ export default function HITLReviewPage() {
   const handleReject = async () => {
     if (!selectedPolicy) return;
     try {
-      const res = await rejectPolicy(organizationId, selectedPolicy.id, { reviewerId: user?.userId ?? 'anonymous', comment });
+      const res = await rejectPolicy(organizationId, selectedPolicy.policyId, { reviewerId: user?.userId ?? 'anonymous', comment });
       if (res.success) {
         toast.success(`${selectedPolicy.policyCode} 반려 완료`);
         setComment('');
@@ -109,8 +109,8 @@ export default function HITLReviewPage() {
             </CardContent></Card>
           ) : policies.map((policy) => (
             <Card
-              key={policy.id}
-              className={`cursor-pointer transition-all shadow-sm ${selectedPolicy?.id === policy.id ? 'ring-2 ring-primary' : ''}`}
+              key={policy.policyId}
+              className={`cursor-pointer transition-all shadow-sm ${selectedPolicy?.policyId === policy.policyId ? 'ring-2 ring-primary' : ''}`}
               onClick={() => { setSelectedPolicy(policy); setComment(''); }}
             >
               <CardContent className="p-4">

@@ -17,6 +17,7 @@ import { createLogger, unauthorized, verifyInternalSecret, errFromUnknown, extra
 import type { Env } from "./env.js";
 import { handleInferPolicies, handleListPolicies, handleGetPolicy } from "./routes/policies.js";
 import { handleApprovePolicy, handleModifyPolicy, handleRejectPolicy, handleGetSession, handleListExpiredSessions, handleCleanupExpiredSessions, handleBulkApprovePolicy } from "./routes/hitl.js";
+import { handleReopenPolicies } from "./routes/admin.js";
 import { handleGetHitlStats } from "./routes/stats.js";
 import { handleGetQualityTrend } from "./routes/quality-trend.js";
 import { handleGetReasoningAnalysis } from "./routes/reasoning.js";
@@ -50,6 +51,11 @@ export default {
       if (method === "POST" && path === "/internal/queue-event") {
         const body: unknown = await request.json();
         return await processQueueEvent(body, env, ctx);
+      }
+
+      // POST /admin/reopen-policies — revert approved policies to candidate
+      if (method === "POST" && path === "/admin/reopen-policies") {
+        return await handleReopenPolicies(request, env);
       }
 
       // POST /policies/infer — trigger policy inference for an extraction result

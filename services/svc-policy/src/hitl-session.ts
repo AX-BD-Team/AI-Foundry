@@ -52,6 +52,9 @@ export class HitlSession implements DurableObject {
     if (method === "POST" && path === "/action") {
       return this.recordAction(request);
     }
+    if (method === "POST" && path === "/reset") {
+      return this.reset();
+    }
     return new Response("Not Found", { status: 404 });
   }
 
@@ -234,6 +237,13 @@ export class HitlSession implements DurableObject {
       status: "completed",
       action: entry,
     });
+  }
+
+  /** POST /reset — clear all storage so session can be re-initialized */
+  private async reset(): Promise<Response> {
+    await this.state.storage.deleteAll();
+    await this.state.storage.deleteAlarm();
+    return json({ reset: true });
   }
 }
 

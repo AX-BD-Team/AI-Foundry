@@ -188,6 +188,20 @@ export async function handleModifyPolicy(
   // Forward to DO
   const doId = env.HITL_SESSION.idFromName(policyId);
   const stub = env.HITL_SESSION.get(doId);
+
+  // Auto-assign reviewer if session is still 'open' (skip explicit assign step)
+  const statusRes = await stub.fetch(new Request("https://hitl.internal/", { method: "GET" }));
+  if (statusRes.ok) {
+    const sessionState = await statusRes.json() as { status?: string };
+    if (sessionState.status === "open") {
+      await stub.fetch(new Request("https://hitl.internal/assign", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reviewerId }),
+      }));
+    }
+  }
+
   const doRes = await stub.fetch(new Request("https://hitl.internal/action", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -302,6 +316,20 @@ export async function handleRejectPolicy(
   // Forward to DO
   const doId = env.HITL_SESSION.idFromName(policyId);
   const stub = env.HITL_SESSION.get(doId);
+
+  // Auto-assign reviewer if session is still 'open' (skip explicit assign step)
+  const statusRes = await stub.fetch(new Request("https://hitl.internal/", { method: "GET" }));
+  if (statusRes.ok) {
+    const sessionState = await statusRes.json() as { status?: string };
+    if (sessionState.status === "open") {
+      await stub.fetch(new Request("https://hitl.internal/assign", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reviewerId }),
+      }));
+    }
+  }
+
   const doRes = await stub.fetch(new Request("https://hitl.internal/action", {
     method: "POST",
     headers: { "Content-Type": "application/json" },

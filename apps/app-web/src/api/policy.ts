@@ -9,7 +9,7 @@ function headers(organizationId: string): Record<string, string> {
 }
 
 export interface PolicyRow {
-  id: string;
+  policyId: string;
   extractionId: string;
   policyCode: string;
   title: string;
