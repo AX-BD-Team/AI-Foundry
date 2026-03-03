@@ -48,7 +48,7 @@ export async function handleApprovePolicy(
 
   // Look up HITL session for this policy
   const session = await env.DB_POLICY.prepare(
-    "SELECT session_id FROM hitl_sessions WHERE policy_id = ? AND status != 'completed' LIMIT 1",
+    "SELECT session_id FROM hitl_sessions WHERE policy_id = ? AND status NOT IN ('completed', 'expired') LIMIT 1",
   ).bind(policyId).first();
 
   if (!session) {
@@ -177,7 +177,7 @@ export async function handleModifyPolicy(
 
   // Look up active HITL session
   const session = await env.DB_POLICY.prepare(
-    "SELECT session_id FROM hitl_sessions WHERE policy_id = ? AND status != 'completed' LIMIT 1",
+    "SELECT session_id FROM hitl_sessions WHERE policy_id = ? AND status NOT IN ('completed', 'expired') LIMIT 1",
   ).bind(policyId).first();
 
   if (!session) {
@@ -291,7 +291,7 @@ export async function handleRejectPolicy(
 
   // Look up active HITL session
   const session = await env.DB_POLICY.prepare(
-    "SELECT session_id FROM hitl_sessions WHERE policy_id = ? AND status != 'completed' LIMIT 1",
+    "SELECT session_id FROM hitl_sessions WHERE policy_id = ? AND status NOT IN ('completed', 'expired') LIMIT 1",
   ).bind(policyId).first();
 
   if (!session) {
@@ -360,4 +360,34 @@ export async function handleGetSession(
     status: doRes.status,
     headers: { "Content-Type": "application/json" },
   });
+}
+
+// ── GET /hitl/expired ──────────────────────────────────────────────
+
+export async function handleListExpiredSessions(
+  _request: Request,
+  env: Env,
+): Promise<Response> {
+  const rows = await env.DB_POLICY.prepare(
+    "SELECT session_id, policy_id, status, created_at FROM hitl_sessions WHERE status NOT IN ('completed', 'expired') AND created_at < datetime('now', '-7 days') ORDER BY created_at ASC LIMIT 100",
+  ).all();
+
+  return ok({
+    expiredCandidates: rows.results,
+    count: rows.results.length,
+  });
+}
+
+// ── POST /hitl/cleanup ─────────────────────────────────────────────
+
+export async function handleCleanupExpiredSessions(
+  _request: Request,
+  env: Env,
+): Promise<Response> {
+  const result = await env.DB_POLICY.prepare(
+    "UPDATE hitl_sessions SET status = 'expired' WHERE status NOT IN ('completed', 'expired') AND created_at < datetime('now', '-7 days')",
+  ).run();
+
+  logger.info("Expired sessions cleaned up", { changes: result.meta.changes });
+  return ok({ cleaned: result.meta.changes });
 }

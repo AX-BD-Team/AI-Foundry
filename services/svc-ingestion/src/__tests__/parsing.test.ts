@@ -223,9 +223,9 @@ describe("parseDocument", () => {
     ];
 
     const originalFetch = globalThis.fetch;
-    globalThis.fetch = vi.fn().mockResolvedValue(
+    globalThis.fetch = vi.fn().mockImplementation(() => Promise.resolve(
       new Response(JSON.stringify(mockResponse), { status: 200 }),
-    );
+    ));
 
     try {
       const env = {
@@ -254,9 +254,9 @@ describe("parseDocument", () => {
 
   it("throws when Unstructured API returns error", async () => {
     const originalFetch = globalThis.fetch;
-    globalThis.fetch = vi.fn().mockResolvedValue(
+    globalThis.fetch = vi.fn().mockImplementation(() => Promise.resolve(
       new Response("Bad Request", { status: 400 }),
-    );
+    ));
 
     try {
       const env = {
@@ -280,9 +280,9 @@ describe("parseDocument", () => {
     ];
 
     const originalFetch = globalThis.fetch;
-    globalThis.fetch = vi.fn().mockResolvedValue(
+    globalThis.fetch = vi.fn().mockImplementation(() => Promise.resolve(
       new Response(JSON.stringify(mockResponse), { status: 200 }),
-    );
+    ));
 
     try {
       const env = {

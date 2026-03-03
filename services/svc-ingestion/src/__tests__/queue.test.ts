@@ -1,22 +1,23 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { processQueueEvent } from "../queue.js";
 import type { Env } from "../env.js";
 
-// ── Mocks ────────────────────────────────────────────────────────
+// ── Magic bytes for valid file formats ──────────────────────────
 
-vi.mock("../parsing/unstructured.js", () => ({
-  parseDocument: vi.fn().mockResolvedValue([
-    { type: "Title", text: "퇴직연금 설계서" },
-    { type: "NarrativeText", text: "요구사항 정의 문서입니다." },
-    { type: "Text", text: "" }, // blank — should be skipped
-  ]),
-}));
+// PDF magic bytes: %PDF-1.7\n%
+const PDF_MAGIC = new Uint8Array([0x25, 0x50, 0x44, 0x46, 0x2d, 0x31, 0x2e, 0x37, 0x0a, 0x25]);
+// OOXML (ZIP/PK) magic bytes for xlsx/docx/pptx
+const OOXML_MAGIC = new Uint8Array([0x50, 0x4b, 0x03, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
-vi.mock("../parsing/masking.js", () => ({
-  maskText: vi.fn().mockImplementation(
-    (_docId: string, text: string) => Promise.resolve(`[MASKED]${text}`),
-  ),
-}));
+// ── Mock response for Unstructured.io API ───────────────────────
+
+const unstructuredElements = [
+  { type: "Title", text: "퇴직연금 설계서" },
+  { type: "NarrativeText", text: "요구사항 정의 문서입니다." },
+  { type: "Text", text: "" }, // blank — should be skipped
+];
+
+// ── Helpers ─────────────────────────────────────────────────────
 
 function mockDb() {
   return {
@@ -28,8 +29,8 @@ function mockDb() {
   } as unknown as D1Database;
 }
 
-function mockR2(objectExists = true): R2Bucket {
-  const body = new ArrayBuffer(10);
+function mockR2(objectExists = true, magic: Uint8Array = PDF_MAGIC): R2Bucket {
+  const body = magic.buffer;
   return {
     get: vi.fn().mockResolvedValue(
       objectExists
@@ -45,10 +46,10 @@ function mockR2(objectExists = true): R2Bucket {
   } as unknown as R2Bucket;
 }
 
-function mockEnv(r2Exists = true): Env {
+function mockEnv(r2Exists = true, magic: Uint8Array = PDF_MAGIC): Env {
   return {
     DB_INGESTION: mockDb(),
-    R2_DOCUMENTS: mockR2(r2Exists),
+    R2_DOCUMENTS: mockR2(r2Exists, magic),
     QUEUE_PIPELINE: { send: vi.fn().mockResolvedValue(undefined) } as unknown as Queue,
     SECURITY: {
       fetch: vi.fn().mockResolvedValue(
@@ -60,7 +61,7 @@ function mockEnv(r2Exists = true): Env {
     MAX_FILE_SIZE_MB: "50",
     INTERNAL_API_SECRET: "test-secret",
     UNSTRUCTURED_API_URL: "https://api.unstructured.io",
-    UNSTRUCTURED_API_KEY: "",
+    UNSTRUCTURED_API_KEY: "test-key",
   };
 }
 
@@ -88,11 +89,21 @@ const validDocumentUploadedEvent = {
 describe("processQueueEvent", () => {
   let env: Env;
   let ctx: ExecutionContext;
+  let originalFetch: typeof globalThis.fetch;
 
   beforeEach(() => {
     env = mockEnv();
     ctx = mockCtx();
+    originalFetch = globalThis.fetch;
+    // Mock globalThis.fetch for Unstructured.io API calls
+    globalThis.fetch = vi.fn().mockImplementation(() => Promise.resolve(
+      new Response(JSON.stringify(unstructuredElements), { status: 200 }),
+    ));
     vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    globalThis.fetch = originalFetch;
   });
 
   it("returns 200 with skipped=true for invalid pipeline event", async () => {
@@ -155,7 +166,6 @@ describe("processQueueEvent", () => {
 
   it("updates document status to parsed on success", async () => {
     await processQueueEvent(validDocumentUploadedEvent, env, ctx);
-    // The DB should have been called with UPDATE ... status = 'parsed'
     const prepareMock = env.DB_INGESTION.prepare as ReturnType<typeof vi.fn>;
     const prepareCalls = prepareMock.mock.calls as Array<[string]>;
     const updateCalls = prepareCalls.filter(
@@ -188,6 +198,7 @@ describe("processQueueEvent", () => {
   });
 
   it("uses correct MIME mapping for file types", async () => {
+    const xlsxEnv = mockEnv(true, OOXML_MAGIC);
     const xlsxEvent = {
       ...validDocumentUploadedEvent,
       payload: {
@@ -196,20 +207,28 @@ describe("processQueueEvent", () => {
         originalName: "data.xlsx",
       },
     };
-    const res = await processQueueEvent(xlsxEvent, env, ctx);
+    const res = await processQueueEvent(xlsxEvent, xlsxEnv, ctx);
     expect(res.status).toBe(200);
   });
 
   it("marks document as failed when processing throws", async () => {
-    // Make parseDocument throw by re-mocking
-    const unstructured = await import("../parsing/unstructured.js");
-    const parseDocMock = unstructured.parseDocument as ReturnType<typeof vi.fn>;
-    parseDocMock.mockRejectedValueOnce(new Error("Parse failed"));
+    // Make fetch throw to simulate parse failure
+    globalThis.fetch = vi.fn().mockRejectedValue(new Error("Parse failed"));
 
     const res = await processQueueEvent(validDocumentUploadedEvent, env, ctx);
     expect(res.status).toBe(500);
     const body = await res.json() as { ok: boolean; error: string };
     expect(body.ok).toBe(false);
     expect(body.error).toContain("Parse failed");
+  });
+
+  it("returns format_invalid for non-standard file format", async () => {
+    // SCDSA002 header (non-standard)
+    const badMagic = new Uint8Array([0x53, 0x43, 0x44, 0x53, 0x41, 0x30, 0x30, 0x32, 0x00, 0x00]);
+    const badEnv = mockEnv(true, badMagic);
+    const res = await processQueueEvent(validDocumentUploadedEvent, badEnv, ctx);
+    expect(res.status).toBe(500);
+    const body = await res.json() as { ok: boolean; error: string };
+    expect(body.error).toBe("format_invalid");
   });
 });

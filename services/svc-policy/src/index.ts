@@ -16,7 +16,7 @@
 import { createLogger, unauthorized, extractRbacContext, checkPermission, logAudit } from "@ai-foundry/utils";
 import type { Env } from "./env.js";
 import { handleInferPolicies, handleListPolicies, handleGetPolicy } from "./routes/policies.js";
-import { handleApprovePolicy, handleModifyPolicy, handleRejectPolicy, handleGetSession } from "./routes/hitl.js";
+import { handleApprovePolicy, handleModifyPolicy, handleRejectPolicy, handleGetSession, handleListExpiredSessions, handleCleanupExpiredSessions } from "./routes/hitl.js";
 import { handleGetHitlStats } from "./routes/stats.js";
 import { handleGetQualityTrend } from "./routes/quality-trend.js";
 import { handleGetReasoningAnalysis } from "./routes/reasoning.js";
@@ -92,6 +92,16 @@ export default {
           if (denied) return denied;
         }
         return await handleListPolicies(request, env);
+      }
+
+      // GET /hitl/expired — list expired session candidates
+      if (method === "GET" && path === "/hitl/expired") {
+        return await handleListExpiredSessions(request, env);
+      }
+
+      // POST /hitl/cleanup — bulk-expire stale sessions
+      if (method === "POST" && path === "/hitl/cleanup") {
+        return await handleCleanupExpiredSessions(request, env);
       }
 
       // Match /policies/:id and /policies/:id/action

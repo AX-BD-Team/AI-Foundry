@@ -6,11 +6,13 @@
  * Session state (status, reviewer assignment, timestamps) is persisted via
  * the Durable Object storage API.
  *
- * State machine: open → in_progress → completed
+ * State machine: open → in_progress → completed | expired
  *
  * Sessions are addressed by policy candidate ID:
  *   const id = env.HITL_SESSION.idFromName(policyId);
  *   const stub = env.HITL_SESSION.get(id);
+ *
+ * TTL: Sessions auto-expire after 7 days via DO alarm().
  */
 
 interface HitlActionEntry {
@@ -22,7 +24,9 @@ interface HitlActionEntry {
   actedAt: string;
 }
 
-type SessionStatus = "open" | "in_progress" | "completed";
+type SessionStatus = "open" | "in_progress" | "completed" | "expired";
+
+const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 export class HitlSession implements DurableObject {
   private readonly state: DurableObjectState;
@@ -49,6 +53,18 @@ export class HitlSession implements DurableObject {
       return this.recordAction(request);
     }
     return new Response("Not Found", { status: 404 });
+  }
+
+  /** DO alarm handler — auto-expire stale sessions */
+  async alarm(): Promise<void> {
+    const status = await this.state.storage.get<string>("status");
+    if (status === "completed" || status === "expired") {
+      return;
+    }
+    await this.state.storage.put({
+      status: "expired" as const satisfies SessionStatus,
+      expiredAt: new Date().toISOString(),
+    });
   }
 
   /** POST /init — initialize session with policyId (called once at creation) */
@@ -78,7 +94,11 @@ export class HitlSession implements DurableObject {
       actions: [] as HitlActionEntry[],
       openedAt: now,
       completedAt: null,
+      expiredAt: null,
     });
+
+    // Set TTL alarm
+    await this.state.storage.setAlarm(Date.now() + SESSION_TTL_MS);
 
     return json({
       sessionId: this.state.id.toString(),
@@ -95,12 +115,13 @@ export class HitlSession implements DurableObject {
       return json({ error: "Session not initialized" }, 404);
     }
 
-    const [policyId, reviewerId, actions, openedAt, completedAt] = await Promise.all([
+    const [policyId, reviewerId, actions, openedAt, completedAt, expiredAt] = await Promise.all([
       this.state.storage.get<string>("policyId"),
       this.state.storage.get<string | null>("reviewerId"),
       this.state.storage.get<HitlActionEntry[]>("actions"),
       this.state.storage.get<string>("openedAt"),
       this.state.storage.get<string | null>("completedAt"),
+      this.state.storage.get<string | null>("expiredAt"),
     ]);
 
     return json({
@@ -111,12 +132,16 @@ export class HitlSession implements DurableObject {
       actions: actions ?? [],
       openedAt,
       completedAt: completedAt ?? null,
+      expiredAt: expiredAt ?? null,
     });
   }
 
   /** POST /assign — assign reviewer, open → in_progress */
   private async assign(request: Request): Promise<Response> {
     const status = await this.state.storage.get<string>("status");
+    if (status === "expired") {
+      return json({ error: "Session has expired" }, 410);
+    }
     if (status !== "open") {
       return json(
         { error: `Cannot assign reviewer: session is '${status ?? "uninitialized"}', expected 'open'` },
@@ -151,6 +176,9 @@ export class HitlSession implements DurableObject {
   /** POST /action — approve/reject/modify, in_progress → completed */
   private async recordAction(request: Request): Promise<Response> {
     const status = await this.state.storage.get<string>("status");
+    if (status === "expired") {
+      return json({ error: "Session has expired" }, 410);
+    }
     if (status !== "in_progress") {
       return json(
         { error: `Cannot record action: session is '${status ?? "uninitialized"}', expected 'in_progress'` },
@@ -197,6 +225,9 @@ export class HitlSession implements DurableObject {
       actions,
       completedAt: now,
     });
+
+    // Cancel the expiry alarm since session is now completed
+    await this.state.storage.deleteAlarm();
 
     return json({
       sessionId: this.state.id.toString(),

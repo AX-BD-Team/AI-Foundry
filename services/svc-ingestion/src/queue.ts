@@ -4,6 +4,7 @@ import type { Env } from "./env.js";
 import { parseDocument } from "./parsing/unstructured.js";
 import { classifyDocument } from "./parsing/classifier.js";
 import { maskText } from "./parsing/masking.js";
+import { validateFileFormat, classifyParseError, type ErrorType } from "./parsing/validator.js";
 
 const MIME_MAP: Record<string, string> = {
   pdf: "application/pdf",
@@ -39,7 +40,6 @@ export async function processQueueEvent(body: unknown, env: Env, _ctx: Execution
   }
 
   if (parsed.data.type !== "document.uploaded") {
-    // Not our event type — acknowledge silently
     return new Response(JSON.stringify({ ok: true, skipped: true, reason: "not_our_event" }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
@@ -70,13 +70,33 @@ export async function processQueueEvent(body: unknown, env: Env, _ctx: Execution
     const fileBytes = await r2Object.arrayBuffer();
     const mimeType = MIME_MAP[fileType] ?? "application/octet-stream";
 
-    // 2. Parse with Unstructured.io
+    // 2. Validate file format via magic bytes
+    const validation = validateFileFormat(fileBytes, fileType);
+    if (!validation.valid) {
+      logger.warn("File format invalid", { documentId, fileType, error: validation.error });
+      const errType: ErrorType = "format_invalid";
+      await env.DB_INGESTION.prepare(
+        "UPDATE documents SET status = 'failed', error_message = ?, error_type = ? WHERE document_id = ?",
+      )
+        .bind(validation.error ?? "Unknown format", errType, documentId)
+        .run();
+      return new Response(
+        JSON.stringify({ ok: false, error: "format_invalid", detail: validation.error }),
+        { status: 500, headers: { "Content-Type": "application/json" } },
+      );
+    }
+
+    if (fileBytes.byteLength > 2 * 1024 * 1024) {
+      logger.info("Large file detected", { documentId, sizeMB: (fileBytes.byteLength / (1024 * 1024)).toFixed(1) });
+    }
+
+    // 3. Parse with Unstructured.io
     const elements = await parseDocument(fileBytes, originalName, mimeType, env);
 
-    // 3. Classify
+    // 4. Classify
     const classification = classifyDocument(elements, fileType);
 
-    // 4. Insert chunks (max 200, skip blank text)
+    // 5. Insert chunks (max 200, skip blank text)
     let chunkIndex = 0;
     for (const element of elements.slice(0, MAX_ELEMENTS)) {
       const text = element.text.trim();
@@ -114,14 +134,14 @@ export async function processQueueEvent(body: unknown, env: Env, _ctx: Execution
       chunkIndex++;
     }
 
-    // 5. Update document status → parsed
+    // 6. Update document status -> parsed
     await env.DB_INGESTION.prepare(
       "UPDATE documents SET status = 'parsed' WHERE document_id = ?",
     )
       .bind(documentId)
       .run();
 
-    // 6. Publish ingestion.completed → triggers svc-extraction via queue router
+    // 7. Publish ingestion.completed
     await env.QUEUE_PIPELINE.send({
       eventId: crypto.randomUUID(),
       occurredAt: new Date().toISOString(),
@@ -149,12 +169,13 @@ export async function processQueueEvent(body: unknown, env: Env, _ctx: Execution
       headers: { "Content-Type": "application/json" },
     });
   } catch (e) {
-    logger.error("Queue event processing failed", { documentId, error: String(e) });
+    const errorType = classifyParseError(e);
+    logger.error("Queue event processing failed", { documentId, error: String(e), errorType });
 
     await env.DB_INGESTION.prepare(
-      "UPDATE documents SET status = 'failed', error_message = ? WHERE document_id = ?",
+      "UPDATE documents SET status = 'failed', error_message = ?, error_type = ? WHERE document_id = ?",
     )
-      .bind(String(e).slice(0, 500), documentId)
+      .bind(String(e).slice(0, 500), errorType, documentId)
       .run();
 
     return new Response(JSON.stringify({ ok: false, error: String(e) }), {
