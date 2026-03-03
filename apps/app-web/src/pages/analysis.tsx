@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -35,6 +35,13 @@ export default function AnalysisPage() {
   // Track documents with an action in progress (reprocess/delete)
   const [actionInProgress, setActionInProgress] = useState<Set<string>>(new Set());
 
+  // Auto-scroll to selected document
+  const selectedDocRef = useCallback((node: HTMLDivElement | null) => {
+    if (node) {
+      node.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, []);
+
   useEffect(() => {
     const targetDocId = searchParams.get('doc');
     void fetchDocuments(organizationId).then((res) => {
@@ -44,7 +51,16 @@ export default function AnalysisPage() {
           ? res.data.documents.find((d) => d.document_id === targetDocId)
           : undefined;
         const fallback = res.data.documents[0];
-        setSelectedDoc(target ?? fallback ?? null);
+        const chosen = target ?? fallback ?? null;
+        setSelectedDoc(chosen);
+
+        // When navigating with ?doc=, collapse all groups except the target's
+        if (targetDocId && chosen) {
+          const targetGroup = getDocType(chosen.original_name);
+          const allGroups = new Set(res.data.documents.map((d) => getDocType(d.original_name)));
+          allGroups.delete(targetGroup);
+          setCollapsedGroups(allGroups);
+        }
       } else {
         toast.error('문서 목록을 불러오지 못했습니다: ' + res.error.message);
       }
@@ -292,6 +308,7 @@ export default function AnalysisPage() {
                         {group.docs.map((doc) => (
                           <div
                             key={doc.document_id}
+                            ref={selectedDoc?.document_id === doc.document_id ? selectedDocRef : undefined}
                             className={`cursor-pointer rounded-lg p-3 transition-all border ${selectedDoc?.document_id === doc.document_id ? 'ring-2 ring-primary' : ''}`}
                             style={{ borderColor: 'var(--border)', backgroundColor: selectedDoc?.document_id === doc.document_id ? 'rgba(26, 54, 93, 0.05)' : 'transparent' }}
                             onClick={() => setSelectedDoc(doc)}
