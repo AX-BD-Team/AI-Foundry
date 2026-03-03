@@ -46,7 +46,7 @@
 
 ### Phase 7: 테스트
 - [x] [P7-1] `packages/types/src/__tests__/analysis.test.ts` + `diagnosis.test.ts` 신규 생성 — 타입 스키마 검증 테스트 12+ 케이스. 정상 입력 파싱, 필수 필드 누락 에러, enum 유효성, 숫자 범위 (importanceScore 0-1), 재귀 타입 (ProcessTreeNode), 빈 배열 허용 여부 등.
-- [ ] [P7-2] `services/svc-extraction/src/__tests__/analysis-routes.test.ts` 신규 생성 — 분석 API 라우트 테스트 10+ 케이스. GET summary/core/findings 정상 응답, 404 없는 문서, HITL review 상태 변경, POST /analyze 트리거 (LLM mock), 인증 없는 요청 401. 기존 `svc-extraction/src/__tests__/` 디렉토리의 테스트 패턴을 따르기.
+- [x] [P7-2] `services/svc-extraction/src/__tests__/analysis-routes.test.ts` 신규 생성 — 분석 API 라우트 테스트 10+ 케이스. GET summary/core/findings 정상 응답, 404 없는 문서, HITL review 상태 변경, POST /analyze 트리거 (LLM mock), 인증 없는 요청 401. 기존 `svc-extraction/src/__tests__/` 디렉토리의 테스트 패턴을 따르기.
 - [x] [P7-3] `services/svc-extraction/src/__tests__/prompts.test.ts` 신규 생성 — 프롬프트 빌더 + 파서 테스트 8+ 케이스. buildScoringPrompt 프롬프트 생성 검증, parseScoringResult 정상 JSON 파싱, parseScoringResult 마크다운 펜스 제거, parseDiagnosisResult 유효한 DiagnosisFinding[] 반환, parseComparisonResult ComparisonItem[] 검증, 빈 입력 처리, 잘못된 JSON 에러 핸들링.
 
 ### Phase 8: 최종 검증
