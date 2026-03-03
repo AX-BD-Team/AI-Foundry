@@ -2,6 +2,36 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 068 — 2026-03-04
+**PDCA Analyze → 코드 리뷰 5건 수정 + 배포 + CI/CD 정비**:
+- ✅ C1: Silent LLM catch 제거 — Pass 1 실패 시 status='partial' (MEMORY 교훈 반영)
+- ✅ C2: LlmProvider를 `@ai-foundry/types`에서 import (로컬 재정의 제거)
+- ✅ I1: `triggerAnalysis` organizationId를 required로 변경 (백엔드 contract 일치)
+- ✅ I2: ReanalysisPopover provider 캐스팅에 VALID_PROVIDERS 검증 추가
+- ✅ I3: 기존 분석(llmInfo=null)에도 재분석 버튼 노출 (summary 기준)
+- ✅ CI/CD: bun 1.3.9 고정 + --frozen-lockfile 제거 (WSL2/CI lockfile 불일치 해결)
+
+**검증**: typecheck 17/17, lint PASS, tests 1,071 (svc-extraction 116/116)
+
+**배포**: Production 12/12 Workers + Pages — 전부 HTTP 200
+
+**산출물**: `4f4f714` fix(analysis), `1d225bf` ci: pin bun, `937092a` chore: lockfile, `3e3e586` ci: remove frozen-lockfile
+
+## 세션 067 — 2026-03-04
+**Phase 3 Sprint 3 — MCP Server Worker (Streamable HTTP)**:
+- ✅ svc-mcp-server 신규: Cloudflare Worker + `@modelcontextprotocol/sdk` (MCP 2025-03-26 spec)
+- ✅ `POST /mcp/:skillId` — McpServer + WebStandardStreamableHTTPServerTransport (stateless per-request)
+- ✅ Dynamic tool registration: svc-skill MCP adapter → MCP tools, tools/call → evaluate delegate
+- ✅ Bearer + X-Internal-Secret 인증, CORS, health check
+- ✅ 12 tests (handler.test.ts), typecheck 17/17, lint 14/14
+- ✅ Staging + Production + Default 3환경 배포 완료 (12/12 Workers healthy)
+- ✅ E2E 검증: initialize → tools/list → tools/call (Claude Sonnet 4.6, APPLICABLE, confidence 0.97)
+- ✅ PDCA Plan 문서 작성 (`docs/01-plan/features/phase-3-sprint-3-mcp-server.plan.md`)
+
+**검증**: typecheck 17/17, lint 14/14, svc-mcp-server tests 12/12
+
+**산출물**: `924d87e` feat(svc-mcp-server)
+
 ## 세션 066 — 2026-03-04
 **분석 리포트 LLM 모델 변경 재분석 기능**:
 - ✅ Backend: `POST /analyze`에 `preferredProvider`/`preferredTier` 파라미터 추가
