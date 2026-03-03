@@ -207,7 +207,7 @@
   - svc-ontology: 100 tests (100% stmts)
   - svc-security: 153 tests (97.14% stmts)
   - svc-queue-router: 43 tests (100% stmts)
-- **Test Coverage**: 934 tests, 12 services (vitest) — svc-llm-router 134, svc-security 153, svc-skill 151, svc-ontology 100, svc-governance 75, svc-policy 68, svc-extraction 60, svc-ingestion 54, svc-queue-router 43, svc-analytics 22, svc-notification 16, svc-mcp-server 12 (+앞선 세션 svc-skill +54)
+- **Test Coverage**: 1,132 tests, 12 services (vitest) — svc-ingestion 175, svc-security 153, svc-skill 151, svc-llm-router 134, svc-ontology 100, svc-governance 75, svc-policy 68, svc-extraction 60, svc-queue-router 43, svc-analytics 22, svc-notification 16, svc-mcp-server 12 (+screen-design-parser 리뷰: svc-ingestion +121)
 - **Frontend**: https://ai-foundry-web.pages.dev (Cloudflare Pages) + https://ai-foundry.minu.best (커스텀 도메인)
   - 10/10 pages real API 연동 완료 (upload, analysis, hitl, audit, skill-catalog, dashboard, ontology, api-console, trust, settings)
 - **E2E 스크립트**: `--staging`, `--real-doc <path>`, `--json`, `--wait-queue` 지원

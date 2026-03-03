@@ -2,6 +2,21 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 071 — 2026-03-04
+**screen-design-parser 코드 리뷰 + 5건 Fix + 테스트 보강**:
+- ✅ PDCA 일괄 정리: 7개 부산물 feature 삭제 → screen-design-parser 단일 활성화
+- ✅ W1 코드 리뷰: Critical 2건 + Important 2건 + Low 1건 발견
+- ✅ W2 테스트 보강: screen-design 10건 + xlsx 5건 추가 (svc-ingestion 54→175)
+- ✅ Fix #1+9: classifier가 XlScreen*/XlProgramMeta 미인식 → 분기 추가
+- ✅ Fix #2: sectionPattern 소수/버전 오탐 → 단일 자릿수 제한
+- ✅ Fix #8: screenId 라벨 감지 includes→정확비교
+- ✅ Fix #5: dataStartRow=5 첫 시트만 적용
+- ✅ Fix #4: docblock 0-based/1-based 혼재 → Excel 1-based 통일
+
+**검증**: typecheck 17/17, lint 14/14, tests 1,132 (svc-ingestion 175/175)
+
+**산출물**: `2cd1d95` fix(svc-ingestion): address code review findings
+
 ## 세션 070 — 2026-03-04
 **xlsx-parser PDCA 완료 (Analyze → Report → Archive)**:
 - ✅ PDCA Analyze: 100% match rate (55/55 항목 PASS), 115 tests 통과
