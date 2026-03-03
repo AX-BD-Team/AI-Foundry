@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS comparison_items (
   name TEXT NOT NULL,
   type TEXT NOT NULL,               -- process | policy | entity | rule
   service_group TEXT NOT NULL,      -- common_standard | org_specific | tacit_knowledge | core_differentiator
-  present_in_orgs TEXT NOT NULL,    -- JSON array of org IDs
+  present_in_orgs TEXT NOT NULL,    -- JSON array of org objects {organizationId, organizationName, documentIds[], variant?}
   classification_reason TEXT NOT NULL,
   standardization_score REAL,
   standardization_note TEXT,
