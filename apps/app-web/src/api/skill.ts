@@ -111,3 +111,12 @@ export async function fetchSkillMcp(
   });
   return res.json() as Promise<McpAdapter>;
 }
+
+export async function fetchSkillOpenApi(
+  id: string,
+): Promise<unknown> {
+  const res = await fetch(`${API_BASE}/skills/${id}/openapi`, {
+    headers: HEADERS,
+  });
+  return res.json() as Promise<unknown>;
+}

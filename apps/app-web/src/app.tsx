@@ -12,6 +12,7 @@ const AnalysisPage = lazy(() => import("./pages/analysis"));
 const HITLReviewPage = lazy(() => import("./pages/hitl"));
 const OntologyPage = lazy(() => import("./pages/ontology"));
 const SkillCatalogPage = lazy(() => import("./pages/skill-catalog"));
+const SkillDetailPage = lazy(() => import("./pages/skill-detail"));
 const ApiConsolePage = lazy(() => import("./pages/api-console"));
 const TrustDashboardPage = lazy(() => import("./pages/trust"));
 const AnalysisReportPage = lazy(() => import("./pages/analysis-report"));
@@ -45,6 +46,7 @@ export function App() {
             <Route path="/hitl" element={<Layout><HITLReviewPage /></Layout>} />
             <Route path="/ontology" element={<Layout><OntologyPage /></Layout>} />
             <Route path="/skills" element={<Layout><SkillCatalogPage /></Layout>} />
+            <Route path="/skills/:id" element={<Layout><SkillDetailPage /></Layout>} />
             <Route path="/api-console" element={<Layout><ApiConsolePage /></Layout>} />
             <Route path="/trust" element={<Layout><TrustDashboardPage /></Layout>} />
             <Route path="/audit" element={<Layout><AuditPage /></Layout>} />
