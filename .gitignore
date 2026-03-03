@@ -58,8 +58,10 @@ tmp/
 ralph-status.json
 ralph-workspace/
 
-# Agent memory (service-level)
+# Agent memory / worktrees (Claude Code runtime)
 services/*/.claude/
+.claude/agent-memory/
+.claude/worktrees/
 
 # Screenshots (temp analysis artifacts)
 analysis-report-*.png
