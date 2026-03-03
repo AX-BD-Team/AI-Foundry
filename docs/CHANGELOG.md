@@ -2,6 +2,19 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 092 — 2026-03-04
+**Skill Marketplace 품질 필터 + 한국어 렌더링 수정**:
+- ✅ Fix: JSX 텍스트 내 `\uXXXX` escape 272개 → UTF-8 한국어 변환 (skill-catalog, skill-detail, ontology)
+- ✅ D1 migration: `ALTER TABLE skills ADD COLUMN content_depth` (production 적용)
+- ✅ Backend: content_depth 계산 (condition+criteria+outcome 문자수), 정렬(depth_desc/asc), 필터(minDepth)
+- ✅ Backend: `/skills/stats` byContentDepth 분포, `/admin/backfill-depth` R2→D1 일괄 계산
+- ✅ Frontend: 품질 필터 (전체/보통 이상/상세만), depth 배지(상세/보통/간략), 5-column stats
+- ✅ Backfill: 3,104건 전체 완료 — Rich 597 (19%) / Medium 1,954 (63%) / Thin 553 (18%)
+- ✅ Fix: backfill-depth offset 버그 수정 (WHERE 결과셋 축소 시 OFFSET 건너뜀 방지)
+
+**검증**: typecheck 17/17 ✅, 프론트엔드 번들 한국어 렌더링 ✅, API 필터 검증 ✅
+**변경 파일**: 10 files — svc-skill 5 (routes/skills, routes/admin, queue/handler, index, test), app-web 4 (api/skill, pages×3)
+
 ## 세션 091 — 2026-03-04
 **분석 리포트 v2 — 도메인 중심 집계 + 문서 선별**:
 - ✅ Types: TriageDocument, TriageResponse, AggregatedProcess, DomainReport (Zod 스키마)
