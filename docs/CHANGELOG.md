@@ -2,14 +2,29 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 079 — 2026-03-04
+**Phase 4 Sprint 2 — Task 1: bulk-approve API 구현**:
+- ✅ `POST /policies/bulk-approve` 엔드포인트 구현 (svc-policy)
+- ✅ `BulkApproveRequestSchema` 추가 (policyIds 1-100, reviewerId, comment)
+- ✅ D1 배치 업데이트 (10건/배치) + Queue `policy.approved` 이벤트 발행
+- ✅ RBAC `policy:approve` + 감사 로그 연동
+- ✅ 13개 테스트 케이스 (bulk-approve.test.ts) — 105 pass, 0 fail
+- ✅ `scripts/batch-approve.sh` 운영 스크립트 (dry-run, batch-size, delay 지원)
+- ✅ Phase 4 Sprint 2 Plan 문서 + Sprint 1 Report 문서 작성
+
+**메트릭**: tests 105 (svc-policy), typecheck 17/17, lint 14/14
+**다음**: svc-policy Production 배포 → 491건 bulk approve 실행 → Stage 4-5 자동 전파 검증
+
 ## 세션 078 — 2026-03-04
-**PDCA Analyze 기반 보안/품질 강화 (P0~P1 수정)**:
+**PDCA Analyze 기반 보안/품질 강화 (P0~P1 수정) + PDCA Report**:
 - ✅ P0: ctx.waitUntil → await 전환 (svc-ontology 4곳 + svc-extraction 1곳) — D1 쓰기 유실 방지
 - ✅ P1: timingSafeEqual 유틸 추가 (`packages/utils/src/auth.ts`) + 11개 서비스 적용 — timing 공격 방어
 - ✅ P1: errFromUnknown 통일 (9개 서비스 top-level catch) — 구조화된 JSON 에러 응답
-- ✅ PDCA Analyze 실행: Code Analyzer 78/100, Gap Detector 95%, Test Coverage 1,291
+- ✅ fix: timingSafeEqual Bun 테스트 호환 fallback (crypto.subtle → XOR)
+- ✅ PDCA Report: architecture-quality-hardening 완료 보고서
+- ✅ PDCA Analyze: Code Analyzer 78/100, Gap Detector 95%, Tests 1,223
 
-**검증**: typecheck 17/17, lint 14/14
+**검증**: typecheck 17/17, lint 14/14, tests 1,223 pass (15/15 suites)
 
 ## 세션 077 — 2026-03-04
 **Queue 정상화 + Batch 3 Stage 3 재전파**:
