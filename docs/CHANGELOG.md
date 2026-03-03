@@ -2,6 +2,21 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 051 — 2026-03-03
+**퇴직연금 프로세스 정밀분석 PRD v0.2 + 설계문서 작성**:
+- ✅ PRD v0.1 검토: 기존 AI Foundry 아키텍처와 대조 분석
+- ✅ PRD v0.2 전면 재작성: UI/UX 중심 3-Layer 분석 출력물 + 조직 간 비교 + 서비스 분석 4그룹
+- ✅ Design v0.2: 타입 설계(analysis.ts, diagnosis.ts), API 9종, D1 4테이블, Neo4j 확장 6노드, 3-Pass LLM 전략
+- ✅ Plan v0.2: Phase 2-E 구현 계획 (5단계, ~11h)
+- ✅ 핵심 설계 결정: Python/FastAPI 대신 기존 CF Workers/TS 스택 통합, finding-evidence-recommendation 트리플, analysisMode 분기
+- ✅ 서비스 분석 4그룹 정의: 공통표준(common_standard) / 조직고유(org_specific) / 암묵지(tacit_knowledge) / 핵심차별(core_differentiator)
+
+**산출물**:
+- `docs/AI_Foundry_퇴직연금_프로세스_정밀분석_PRD_v0.1.md` (초기 기획서)
+- `docs/AI_Foundry_퇴직연금_프로세스_정밀분석_PRD_v0.2.md` (UI 중심 재설계)
+- `docs/01-plan/features/process-diagnosis.plan.md`
+- `docs/02-design/features/process-diagnosis.design.md`
+
 ## 세션 050 — 2026-03-03
 **Pipeline Hardening — 파이프라인 안정성 3대 이슈 해결**:
 - ✅ HITL DO 세션 자동 만료: 7일 TTL 알람 + expired 상태 + 410 Gone + cleanup API
