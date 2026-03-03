@@ -15,7 +15,9 @@ import {
   fetchAnalysisSummary,
   fetchCoreProcesses,
   fetchFindings,
+  triggerAnalysis,
 } from "@/api/analysis";
+import type { LlmProvider, LlmTier } from "@/api/analysis";
 import type {
   ExtractionSummary,
   CoreIdentification,
@@ -25,6 +27,8 @@ import { ExtractionSummaryTab } from "@/components/analysis-report/ExtractionSum
 import { CoreProcessesTab } from "@/components/analysis-report/CoreProcessesTab";
 import { DiagnosticFindingsTab } from "@/components/analysis-report/DiagnosticFindingsTab";
 import { CrossOrgComparisonTab } from "@/components/analysis-report/CrossOrgComparisonTab";
+import { LlmModelBadge } from "@/components/analysis-report/LlmModelBadge";
+import { ReanalysisPopover } from "@/components/analysis-report/ReanalysisPopover";
 
 export default function AnalysisReportPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -46,6 +50,7 @@ export default function AnalysisReportPage() {
   const [loadingSummary, setLoadingSummary] = useState(false);
   const [loadingCore, setLoadingCore] = useState(false);
   const [loadingFindings, setLoadingFindings] = useState(false);
+  const [reanalyzing, setReanalyzing] = useState(false);
 
   // Load document list
   useEffect(() => {
@@ -65,24 +70,16 @@ export default function AnalysisReportPage() {
       .finally(() => setLoadingDocs(false));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Load analysis data when document changes
-  useEffect(() => {
-    if (!selectedDocId) return;
-
-    // Update URL query param
-    setSearchParams({ doc: selectedDocId }, { replace: true });
-
-    // Reset data
+  // Shared data loading function
+  const loadAnalysisData = useCallback((docId: string) => {
     setSummary(null);
     setCoreData(null);
     setDiagnosisData(null);
-
-    // Fetch all 3 layers in parallel
     setLoadingSummary(true);
     setLoadingCore(true);
     setLoadingFindings(true);
 
-    void fetchAnalysisSummary(selectedDocId)
+    void fetchAnalysisSummary(docId)
       .then((res) => {
         if (res.success) {
           setSummary(res.data);
@@ -94,20 +91,56 @@ export default function AnalysisReportPage() {
       .catch(() => {/* silently handle — data just won't show */})
       .finally(() => setLoadingSummary(false));
 
-    void fetchCoreProcesses(selectedDocId)
+    void fetchCoreProcesses(docId)
       .then((res) => {
         if (res.success) setCoreData(res.data);
       })
       .catch(() => {})
       .finally(() => setLoadingCore(false));
 
-    void fetchFindings(selectedDocId)
+    void fetchFindings(docId)
       .then((res) => {
         if (res.success) setDiagnosisData(res.data);
       })
       .catch(() => {})
       .finally(() => setLoadingFindings(false));
-  }, [selectedDocId, setSearchParams]);
+  }, []);
+
+  // Load analysis data when document changes
+  useEffect(() => {
+    if (!selectedDocId) return;
+    setSearchParams({ doc: selectedDocId }, { replace: true });
+    loadAnalysisData(selectedDocId);
+  }, [selectedDocId, setSearchParams, loadAnalysisData]);
+
+  // Re-analysis handler
+  const handleReanalyze = useCallback(async (provider: LlmProvider, tier: LlmTier) => {
+    if (!selectedDocId || !summary) return;
+
+    const extractionId = summary.extractionId;
+    const organizationId = summary.organizationId;
+
+    setReanalyzing(true);
+    try {
+      const res = await triggerAnalysis({
+        documentId: selectedDocId,
+        extractionId,
+        organizationId,
+        preferredProvider: provider,
+        preferredTier: tier,
+      });
+      if (res.success) {
+        toast.success(`재분석 완료 (${provider} / ${tier})`);
+        loadAnalysisData(selectedDocId);
+      } else {
+        toast.error("재분석 실패: " + res.error.message);
+      }
+    } catch {
+      toast.error("재분석 API 호출 실패");
+    } finally {
+      setReanalyzing(false);
+    }
+  }, [selectedDocId, summary, loadAnalysisData]);
 
   const handleProcessClick = useCallback((processName: string) => {
     setTargetProcess(processName);
@@ -133,23 +166,22 @@ export default function AnalysisReportPage() {
           <h1 className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>
             분석 리포트 Analysis Report
           </h1>
-          <div className="flex items-center gap-2 mt-1">
+          <div className="flex items-center gap-2 mt-1.5">
             <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
               문서별 3-Layer 분석 + 조직 간 비교
             </p>
-            {llmInfo && (
-              <span
-                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium"
-                style={{
-                  backgroundColor: llmInfo.provider === "anthropic" ? "rgba(147, 51, 234, 0.1)" : "rgba(16, 163, 127, 0.1)",
-                  color: llmInfo.provider === "anthropic" ? "#9333EA" : "#10A37F",
-                  border: `1px solid ${llmInfo.provider === "anthropic" ? "rgba(147, 51, 234, 0.3)" : "rgba(16, 163, 127, 0.3)"}`,
-                }}
-              >
-                {llmInfo.model}
-              </span>
-            )}
+            <LlmModelBadge provider={llmInfo?.provider ?? null} model={llmInfo?.model ?? null} />
           </div>
+          {activeTab !== "comparison" && llmInfo && (
+            <div className="mt-2">
+              <ReanalysisPopover
+                currentProvider={llmInfo.provider}
+                currentModel={llmInfo.model}
+                onReanalyze={handleReanalyze}
+                disabled={reanalyzing || !summary}
+              />
+            </div>
+          )}
         </div>
         {activeTab !== "comparison" && (
           <div className="w-72">

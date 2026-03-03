@@ -2,7 +2,7 @@
  * LLM Router 호출자 — svc-llm-router /complete 엔드포인트를 service binding으로 호출한다.
  */
 
-import type { LlmResponse } from "@ai-foundry/types";
+import type { LlmResponse, LlmProvider } from "@ai-foundry/types";
 import type { ApiResponse } from "@ai-foundry/types";
 
 export interface LlmCallResult {
@@ -11,14 +11,19 @@ export interface LlmCallResult {
   model: string;
 }
 
+export interface LlmCallOptions {
+  provider?: LlmProvider;
+}
+
 export async function callLlm(
   prompt: string,
   tier: "sonnet" | "haiku",
   llmRouter: Fetcher,
   internalSecret: string,
   maxTokens = 8192,
+  options?: LlmCallOptions,
 ): Promise<string> {
-  const result = await callLlmWithMeta(prompt, tier, llmRouter, internalSecret, maxTokens);
+  const result = await callLlmWithMeta(prompt, tier, llmRouter, internalSecret, maxTokens, options);
   return result.content;
 }
 
@@ -28,13 +33,17 @@ export async function callLlmWithMeta(
   llmRouter: Fetcher,
   internalSecret: string,
   maxTokens = 8192,
+  options?: LlmCallOptions,
 ): Promise<LlmCallResult> {
-  const body = {
+  const body: Record<string, unknown> = {
     tier,
     messages: [{ role: "user", content: prompt }],
     callerService: "svc-extraction",
     maxTokens,
   };
+  if (options?.provider) {
+    body["provider"] = options.provider;
+  }
 
   const response = await llmRouter.fetch("https://svc-llm-router.internal/complete", {
     method: "POST",

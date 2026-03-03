@@ -77,15 +77,20 @@ export async function reviewFinding(
   >;
 }
 
+export type LlmProvider = "anthropic" | "openai" | "google" | "workers-ai";
+export type LlmTier = "sonnet" | "haiku";
+
 export async function triggerAnalysis(body: {
   documentId: string;
   extractionId: string;
   organizationId?: string;
+  preferredProvider?: LlmProvider;
+  preferredTier?: LlmTier;
 }): Promise<ApiResponse<{ analysisId: string; status: string }>> {
   const res = await fetch(`${API_BASE}/analyze`, {
     method: "POST",
     headers: HEADERS,
-    body: JSON.stringify(body),
+    body: JSON.stringify({ ...body, mode: "diagnosis-sync" }),
   });
   return res.json() as Promise<
     ApiResponse<{ analysisId: string; status: string }>

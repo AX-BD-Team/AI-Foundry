@@ -18,6 +18,8 @@ import {
 import { buildScoringPrompt, parseScoringResult, buildCoreSummary } from "../prompts/scoring.js";
 import { buildDiagnosisPrompt, parseDiagnosisResult } from "../prompts/diagnosis.js";
 import { callLlm, callLlmWithMeta } from "../llm/caller.js";
+import type { LlmCallOptions } from "../llm/caller.js";
+import type { LlmProvider } from "@ai-foundry/types";
 import type { Env } from "../env.js";
 
 // ── D1 행 타입 ─────────────────────────────────────────────────────────
@@ -316,6 +318,8 @@ interface AnalyzeBody {
   extractionId: string;
   organizationId: string;
   mode: "standard" | "diagnosis" | "diagnosis-sync";
+  preferredProvider?: LlmProvider;
+  preferredTier?: "sonnet" | "haiku";
 }
 
 async function handleAnalyzeTrigger(
@@ -330,11 +334,14 @@ async function handleAnalyzeTrigger(
     return badRequest("Request body must be valid JSON");
   }
 
-  const { documentId, extractionId, organizationId, mode = "standard" } = body;
+  const { documentId, extractionId, organizationId, mode = "standard", preferredProvider, preferredTier } = body;
 
   if (!documentId || typeof documentId !== "string") return badRequest("documentId is required");
   if (!extractionId || typeof extractionId !== "string") return badRequest("extractionId is required");
   if (!organizationId || typeof organizationId !== "string") return badRequest("organizationId is required");
+
+  const llmOptions: LlmCallOptions = {};
+  if (preferredProvider) llmOptions.provider = preferredProvider;
 
   if (mode !== "diagnosis" && mode !== "diagnosis-sync") {
     return ok({ message: "Standard mode: no diagnosis analysis performed", documentId, extractionId });
@@ -360,16 +367,20 @@ async function handleAnalyzeTrigger(
 
   const analysisId = crypto.randomUUID();
 
+  const passOpts = {
+    analysisId,
+    documentId,
+    extractionId,
+    organizationId,
+    extractionResult,
+    llmOptions,
+    tier: preferredTier ?? "sonnet" as const,
+  };
+
   if (mode === "diagnosis-sync") {
     // 동기 모드: 에러를 응답에 직접 포함
     try {
-      await runAnalysisPasses(env, {
-        analysisId,
-        documentId,
-        extractionId,
-        organizationId,
-        extractionResult,
-      });
+      await runAnalysisPasses(env, passOpts);
       return ok({ analysisId, status: "completed", documentId, extractionId, organizationId });
     } catch (e) {
       return Response.json({
@@ -380,13 +391,7 @@ async function handleAnalyzeTrigger(
   }
 
   // 비동기로 3-Pass 분석 실행 (non-blocking)
-  ctx.waitUntil(runAnalysisPasses(env, {
-    analysisId,
-    documentId,
-    extractionId,
-    organizationId,
-    extractionResult,
-  }));
+  ctx.waitUntil(runAnalysisPasses(env, passOpts));
 
   return ok({ analysisId, status: "processing", documentId, extractionId, organizationId });
 }
@@ -406,9 +411,12 @@ async function runAnalysisPasses(
       rules: Array<{ condition: string; outcome: string }>;
       relationships: Array<{ from: string; to: string; type: string }>;
     };
+    llmOptions?: LlmCallOptions;
+    tier?: "sonnet" | "haiku";
   }
 ): Promise<void> {
-  const { analysisId, documentId, extractionId, organizationId, extractionResult } = opts;
+  const { analysisId, documentId, extractionId, organizationId, extractionResult, llmOptions, tier: requestedTier } = opts;
+  const tier = requestedTier ?? "sonnet";
 
   try {
     // Pass 1: Scoring + Core Identification
@@ -417,7 +425,7 @@ async function runAnalysisPasses(
     let llmProvider = "unknown";
     let llmModel = "unknown";
     try {
-      const scoringMeta = await callLlmWithMeta(scoringPrompt, "sonnet", env.LLM_ROUTER, env.INTERNAL_API_SECRET);
+      const scoringMeta = await callLlmWithMeta(scoringPrompt, tier, env.LLM_ROUTER, env.INTERNAL_API_SECRET, 8192, llmOptions);
       scoringResult = parseScoringResult(scoringMeta.content);
       llmProvider = scoringMeta.provider;
       llmModel = scoringMeta.model;
@@ -487,7 +495,7 @@ async function runAnalysisPasses(
     let findings: ReturnType<typeof parseDiagnosisResult> = [];
     try {
       const diagnosisPrompt = buildDiagnosisPrompt(scoringResult, extractionResult);
-      const rawDiagnosis = await callLlm(diagnosisPrompt, "sonnet", env.LLM_ROUTER, env.INTERNAL_API_SECRET);
+      const rawDiagnosis = await callLlm(diagnosisPrompt, tier, env.LLM_ROUTER, env.INTERNAL_API_SECRET, 8192, llmOptions);
       findings = parseDiagnosisResult(rawDiagnosis);
     } catch (diagErr) {
       console.error("[Pass2 Diagnosis error]", String(diagErr));
