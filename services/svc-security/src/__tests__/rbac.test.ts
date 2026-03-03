@@ -134,11 +134,11 @@ describe("handleCheckPermission", () => {
     expect(body.data.allowed).toBe(false);
   });
 
-  it("Analyst cannot access audit", async () => {
+  it("Analyst can read audit (demo: universal read)", async () => {
     const req = createCheckRequest({ role: "Analyst", resource: "audit", action: "read" });
     const res = await handleCheckPermission(req);
     const body = (await res.json()) as { data: { allowed: boolean } };
-    expect(body.data.allowed).toBe(false);
+    expect(body.data.allowed).toBe(true);
   });
 
   // ── Reviewer role ─────────────────────────────────────────────

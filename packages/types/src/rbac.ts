@@ -52,7 +52,19 @@ export const AuthContextSchema = z.object({
 
 export type AuthContext = z.infer<typeof AuthContextSchema>;
 
+// All resources — used to grant universal read access in demo mode
+const ALL_RESOURCES: Resource[] = [
+  "document", "extraction", "policy", "ontology", "skill",
+  "audit", "governance", "analytics", "notification", "user",
+];
+
+const ALL_READ: Partial<Record<Resource, Action[]>> = Object.fromEntries(
+  ALL_RESOURCES.map((r) => [r, ["read"] as Action[]]),
+);
+
 // RBAC permission matrix
+// NOTE: All roles have universal read access for demo/pilot.
+//       Role-specific write permissions are layered on top.
 export const PERMISSIONS: Record<Role, Partial<Record<Resource, Action[]>>> = {
   Admin: {
     document: ["create", "read", "update", "delete", "upload", "download"],
@@ -67,48 +79,26 @@ export const PERMISSIONS: Record<Role, Partial<Record<Resource, Action[]>>> = {
     user: ["create", "read", "update", "delete"],
   },
   Analyst: {
+    ...ALL_READ,
     document: ["create", "read", "update", "upload", "download"],
     extraction: ["read", "execute"],
-    policy: ["read"],
-    ontology: ["read"],
-    skill: ["read", "download"],
-    analytics: ["read"],
     notification: ["read", "update"],
   },
   Reviewer: {
-    document: ["read"],
-    extraction: ["read"],
+    ...ALL_READ,
     policy: ["read", "approve", "reject", "update"],
-    ontology: ["read"],
-    skill: ["read"],
     notification: ["read", "update"],
   },
   Developer: {
-    document: ["read"],
-    extraction: ["read"],
-    policy: ["read"],
-    ontology: ["read"],
+    ...ALL_READ,
     skill: ["read", "download"],
     notification: ["read", "update"],
   },
   Client: {
-    document: ["read"],
-    extraction: ["read"],
-    policy: ["read"],
-    skill: ["read"],
-    audit: ["read"],
-    analytics: ["read"],
-    notification: ["read"],
+    ...ALL_READ,
   },
   Executive: {
-    document: ["read"],
-    extraction: ["read"],
-    policy: ["read"],
-    governance: ["read"],
-    analytics: ["read"],
-    skill: ["read"],
-    audit: ["read"],
-    notification: ["read"],
+    ...ALL_READ,
   },
 };
 
