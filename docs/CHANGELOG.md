@@ -2,6 +2,15 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 064 — 2026-03-03
+**분석 리포트 LLM 모델 배지 UI 추가**:
+- ✅ 분석 리포트 페이지 헤더에 LLM 모델 배지 표시 (provider별 색상: Anthropic=보라, OpenAI=초록)
+- ✅ `llmInfo` 상태 + `fetchAnalysisSummary` 응답에서 `llmProvider`/`llmModel` 추출
+
+**검증**: typecheck PASS
+
+**산출물**: `da8ce9d` feat(app-web): show LLM model badge on analysis report page header
+
 ## 세션 063 — 2026-03-03
 **Phase 3 — Skill Evaluate Sprint 1 완료 (PDCA Plan→Design→Do→Deploy→E2E)**:
 - ✅ PDCA Plan 문서: `phase-3-mcp-openapi.plan.md` — 3 Sprint, 10 태스크 정의
