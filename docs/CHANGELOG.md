@@ -2,6 +2,20 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 047 — 2026-03-03
+**HITL 승인 + Stage 4-5 OpenAI fallback 파이프라인 검증**:
+- ✅ Neo4j Aura 새 인스턴스 시크릿 업데이트 (c22f7f0f) — production + staging 4개 secrets
+- ✅ HITL 3건 승인: POL-PENSION-MG-001~003 (인터페이스목록 extraction, OpenAI 생성)
+- ✅ Stage 4 Ontology: 3건 completed, 17개 신규 용어 추가 (총 1,245)
+- ✅ Stage 5 Skill: 3건 생성 (총 137)
+- ✅ OpenAI fallback 전 파이프라인 검증: extraction(gpt-4o-mini) → policy(gpt-4o) → ontology → skill
+- ✅ Anthropic 크레딧 없이 전체 파이프라인 정상 동작 확인
+
+**Production 수치**:
+- Policies: 128 approved
+- Terms: 1,245
+- Skills: 137
+
 ## 세션 046 — 2026-03-03
 **멀티 프로바이더 LLM 라우팅 구현 + 배포 + 라이브 검증**:
 - ✅ svc-llm-router 멀티 프로바이더: Anthropic + OpenAI + Google + Workers AI 4개 provider 지원
