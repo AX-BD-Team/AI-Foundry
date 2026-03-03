@@ -2,6 +2,19 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 091 — 2026-03-04
+**분석 리포트 v2 — 도메인 중심 집계 + 문서 선별**:
+- ✅ Types: TriageDocument, TriageResponse, AggregatedProcess, DomainReport (Zod 스키마)
+- ✅ Backend: GET /analysis/triage — 추출 데이터 기반 triage 스코어링 (rules 35%, rel 25%, entity 25%, proc 15%)
+- ✅ Backend: POST /analysis/batch-analyze — Queue 기반 일괄 분석 요청
+- ✅ Backend: GET /analysis/domain-report — 조직별 집계 (카운트, 발견사항 top 30, 프로세스 머지)
+- ✅ Frontend: 3-탭 구조 (문서 선별 / 도메인 리포트 / 문서 상세)
+- ✅ TriageView: 스코어 테이블, High 자동선택, 일괄 분석 실행, 필터/정렬
+- ✅ DomainReportView: 집계 카드 5종, 핵심 발견사항 (필터+펼침), 프로세스 맵, 조직 비교
+
+**검증**: typecheck 17/17 ✅, lint 0 errors ✅
+**변경 파일**: 6 files — packages/types 1, svc-extraction 1, app-web 4 (api, page, 신규 컴포넌트 2)
+
 ## 세션 090 — 2026-03-04
 **온톨로지 Term Type Classification — LLM 기반 3분류 + 시각화**:
 - ✅ D1 migration: `0002_add_term_type.sql` (term_type 컬럼 + 인덱스, staging+production 적용)
