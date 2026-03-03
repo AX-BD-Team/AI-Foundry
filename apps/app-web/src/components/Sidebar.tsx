@@ -34,6 +34,7 @@ interface MenuItem {
 
 const ORGANIZATIONS = [
   { id: 'Miraeasset', label: '미래에셋 퇴직연금', labelEn: 'Miraeasset Pension' },
+  { id: 'org-mirae-pension', label: '미래에셋 (분석)', labelEn: 'Miraeasset (Analyzed)' },
   { id: 'org-001', label: '파일럿', labelEn: 'Pilot' },
 ] as const;
 
