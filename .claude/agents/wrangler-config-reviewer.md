@@ -1,6 +1,6 @@
 ---
 name: wrangler-config-reviewer
-description: 11개 서비스의 wrangler.toml 간 일관성 검증. compatibility_date, service binding 방향, 환경 변수 네이밍, staging/production 환경 분리 확인.
+description: 12개 서비스의 wrangler.toml 간 일관성 검증. compatibility_date, service binding 방향, 환경 변수 네이밍, staging/production 환경 분리 확인.
 ---
 
 # Wrangler Config Reviewer Agent

@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Full product requirements and technical design are in `docs/AI_Foundry_PRD_TDS_v0.6.docx`. This is the authoritative reference for all design decisions.
 
-> **Status**: Phase 2-D 진행중. 11 Workers 전체 구현+배포, 822 tests, staging/production 환경 분리 완료. 퇴직연금 실문서 파일럿: 13/15 문서 파싱, policies 134+, terms 1,441, skills 171. 멀티 프로바이더 LLM (Anthropic/OpenAI/Google/Workers AI) fallback 완비.
+> **Status**: Phase 3 Sprint 3 완료. 12 Workers + Pages 배포, 1,072 tests, staging/production 환경 분리. 퇴직연금 실문서 파일럿: 13/15 문서 파싱, policies 134+, terms 1,441, skills 171. 멀티 프로바이더 LLM (Anthropic/OpenAI/Google/Workers AI) fallback + MCP Server (Streamable HTTP) 완비.
 
 ---
 
@@ -56,7 +56,8 @@ res-ai-foundry/
 │   ├── svc-governance/        # SVC-08  Governance (Prompt Registry, cost)
 │   ├── svc-notification/      # SVC-09  Notification (Queue alerts)
 │   ├── svc-analytics/         # SVC-10  Analytics (KPI, dashboards)
-│   └── svc-queue-router/      # Queue Router (pipeline event bus, fan-out)
+│   ├── svc-queue-router/      # Queue Router (pipeline event bus, fan-out)
+│   └── svc-mcp-server/        # SVC-11  MCP Server (Streamable HTTP, Skill tools)
 ├── docs/                      # PRD, CHANGELOG
 ├── infra/                     # Infrastructure config
 ├── turbo.json                 # Turborepo task config
@@ -104,7 +105,7 @@ Stage 5: Skill Packaging
   Output: .skill.json (AI Foundry Spec) + MCP adapter + OpenAPI adapter
 ```
 
-### MSA — 10 Cloudflare Workers Services
+### MSA — 12 Cloudflare Workers Services
 **Domain (Pipeline):**
 - `SVC-01` Document Ingestion — Workers, R2, Queue
 - `SVC-02` Structure Extraction — Claude, Neo4j
@@ -119,12 +120,16 @@ Stage 5: Skill Packaging
 - `SVC-09` Notification — Queue-based review alerts
 - `SVC-10` Analytics — KPI aggregation, business dashboards
 
+**Infrastructure:**
+- Queue Router — pipeline event bus, fan-out to stages (service bindings)
+- `SVC-11` MCP Server — Streamable HTTP, Skill tools for Claude Desktop
+
 ### Infrastructure (Cloudflare-native)
-- **Compute**: Workers (10 SVCs) + Durable Objects (HITL session state)
+- **Compute**: Workers (12 SVCs) + Durable Objects (HITL session state)
 - **Storage**: D1 (10 separate DBs, one per SVC) + R2 (documents, Skill packages) + KV (cache)
 - **Async**: Cloudflare Queues (pipeline event bus: 6 event types)
 - **Frontend**: Cloudflare Pages (SPA, 13 screens)
-- **LLM gateway**: Cloudflare AI Gateway (logging, caching, rate limiting for all Anthropic calls)
+- **LLM gateway**: Cloudflare AI Gateway (logging, caching, rate limiting for all LLM calls — Anthropic/OpenAI/Google)
 - **Auth**: Cloudflare Access (Zero Trust, SSO with KT DS IdP)
 - **Graph DB**: Neo4j Aura (Free → Pro as needed)
 
@@ -157,7 +162,7 @@ Stage 5: Skill Packaging
 5 roles: `Analyst` (upload/run), `Reviewer` (HITL policy review), `Developer` (Skill integration), `Client` (read-only), `Executive` (dashboards). Details in PRD §18.
 
 ## Development Phases
-Phase 1(현재) → 2 → 3 → 4. 각 Phase 상세는 PRD §44 및 `SPEC.md` 참조.
+Phase 1 ✅ → 2 ✅ → **3 (진행중)** → 4. 각 Phase 상세는 PRD §44 및 `SPEC.md` 참조.
 
 ---
 
@@ -247,7 +252,7 @@ Plugin 스킬 (session-toolkit, 범용):
 - `security-reviewer`
 - `migration-checker`
 - `status-transition-reviewer`
-- `wrangler-config-reviewer` — 11개 서비스 wrangler.toml 일관성 검증
+- `wrangler-config-reviewer` — 12개 서비스 wrangler.toml 일관성 검증
 
 ### MCP Servers
 - `.mcp.json` (repo root, git 커밋) — 팀 공유 MCP: context7 (라이브러리 문서 조회)
