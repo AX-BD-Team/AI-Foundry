@@ -5,17 +5,35 @@
 import type { LlmResponse } from "@ai-foundry/types";
 import type { ApiResponse } from "@ai-foundry/types";
 
+export interface LlmCallResult {
+  content: string;
+  provider: string;
+  model: string;
+}
+
 export async function callLlm(
   prompt: string,
   tier: "sonnet" | "haiku",
   llmRouter: Fetcher,
   internalSecret: string,
+  maxTokens = 8192,
 ): Promise<string> {
+  const result = await callLlmWithMeta(prompt, tier, llmRouter, internalSecret, maxTokens);
+  return result.content;
+}
+
+export async function callLlmWithMeta(
+  prompt: string,
+  tier: "sonnet" | "haiku",
+  llmRouter: Fetcher,
+  internalSecret: string,
+  maxTokens = 8192,
+): Promise<LlmCallResult> {
   const body = {
     tier,
     messages: [{ role: "user", content: prompt }],
     callerService: "svc-extraction",
-    maxTokens: 4096,
+    maxTokens,
   };
 
   const response = await llmRouter.fetch("https://svc-llm-router.internal/complete", {
@@ -37,5 +55,9 @@ export async function callLlm(
     throw new Error(`LLM Router returned failure: ${json.error.message}`);
   }
 
-  return json.data.content;
+  return {
+    content: json.data.content,
+    provider: json.data.provider ?? "unknown",
+    model: json.data.model ?? "unknown",
+  };
 }

@@ -17,7 +17,7 @@ import {
 } from "@ai-foundry/types";
 import { buildScoringPrompt, parseScoringResult, buildCoreSummary } from "../prompts/scoring.js";
 import { buildDiagnosisPrompt, parseDiagnosisResult } from "../prompts/diagnosis.js";
-import { callLlm } from "../llm/caller.js";
+import { callLlm, callLlmWithMeta } from "../llm/caller.js";
 import type { Env } from "../env.js";
 
 // ── D1 행 타입 ─────────────────────────────────────────────────────────
@@ -162,10 +162,10 @@ async function handleGetOrganizations(env: Env): Promise<Response> {
 
 async function handleGetSummary(env: Env, documentId: string): Promise<Response> {
   const row = await env.DB_EXTRACTION.prepare(
-    `SELECT summary_json FROM analyses WHERE document_id = ? ORDER BY created_at DESC LIMIT 1`
+    `SELECT summary_json, llm_provider, llm_model FROM analyses WHERE document_id = ? ORDER BY created_at DESC LIMIT 1`
   )
     .bind(documentId)
-    .first<{ summary_json: string }>();
+    .first<{ summary_json: string; llm_provider: string | null; llm_model: string | null }>();
 
   if (!row) return notFound("analysis", documentId);
 
@@ -178,7 +178,7 @@ async function handleGetSummary(env: Env, documentId: string): Promise<Response>
     });
   }
 
-  return ok(validated.data);
+  return ok({ ...validated.data, llmProvider: row.llm_provider, llmModel: row.llm_model });
 }
 
 // ── GET /analysis/:documentId/core-processes ─────────────────────────
@@ -315,7 +315,7 @@ interface AnalyzeBody {
   documentId: string;
   extractionId: string;
   organizationId: string;
-  mode: "standard" | "diagnosis";
+  mode: "standard" | "diagnosis" | "diagnosis-sync";
 }
 
 async function handleAnalyzeTrigger(
@@ -336,7 +336,7 @@ async function handleAnalyzeTrigger(
   if (!extractionId || typeof extractionId !== "string") return badRequest("extractionId is required");
   if (!organizationId || typeof organizationId !== "string") return badRequest("organizationId is required");
 
-  if (mode !== "diagnosis") {
+  if (mode !== "diagnosis" && mode !== "diagnosis-sync") {
     return ok({ message: "Standard mode: no diagnosis analysis performed", documentId, extractionId });
   }
 
@@ -359,6 +359,25 @@ async function handleAnalyzeTrigger(
   };
 
   const analysisId = crypto.randomUUID();
+
+  if (mode === "diagnosis-sync") {
+    // 동기 모드: 에러를 응답에 직접 포함
+    try {
+      await runAnalysisPasses(env, {
+        analysisId,
+        documentId,
+        extractionId,
+        organizationId,
+        extractionResult,
+      });
+      return ok({ analysisId, status: "completed", documentId, extractionId, organizationId });
+    } catch (e) {
+      return Response.json({
+        success: false,
+        error: { code: "ANALYSIS_ERROR", message: String(e) },
+      }, { status: 500 });
+    }
+  }
 
   // 비동기로 3-Pass 분석 실행 (non-blocking)
   ctx.waitUntil(runAnalysisPasses(env, {
@@ -395,9 +414,13 @@ async function runAnalysisPasses(
     // Pass 1: Scoring + Core Identification
     const scoringPrompt = buildScoringPrompt(extractionResult);
     let scoringResult;
+    let llmProvider = "unknown";
+    let llmModel = "unknown";
     try {
-      const rawScoring = await callLlm(scoringPrompt, "sonnet", env.LLM_ROUTER, env.INTERNAL_API_SECRET);
-      scoringResult = parseScoringResult(rawScoring);
+      const scoringMeta = await callLlmWithMeta(scoringPrompt, "sonnet", env.LLM_ROUTER, env.INTERNAL_API_SECRET);
+      scoringResult = parseScoringResult(scoringMeta.content);
+      llmProvider = scoringMeta.provider;
+      llmModel = scoringMeta.model;
     } catch {
       scoringResult = { scoredProcesses: [], coreJudgments: [], processTree: [] };
     }
@@ -438,8 +461,8 @@ async function runAnalysisPasses(
        (analysis_id, document_id, extraction_id, organization_id,
         process_count, entity_count, rule_count, relationship_count,
         core_process_count, mega_process_count,
-        summary_json, core_identification_json, status, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'completed', ?)`
+        summary_json, core_identification_json, llm_provider, llm_model, status, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'completed', ?)`
     )
       .bind(
         analysisId,
@@ -454,6 +477,8 @@ async function runAnalysisPasses(
         coreSummary.megaProcessCount,
         summaryJson,
         coreIdentificationJson,
+        llmProvider,
+        llmModel,
         now
       )
       .run();
@@ -464,7 +489,8 @@ async function runAnalysisPasses(
       const diagnosisPrompt = buildDiagnosisPrompt(scoringResult, extractionResult);
       const rawDiagnosis = await callLlm(diagnosisPrompt, "sonnet", env.LLM_ROUTER, env.INTERNAL_API_SECRET);
       findings = parseDiagnosisResult(rawDiagnosis);
-    } catch {
+    } catch (diagErr) {
+      console.error("[Pass2 Diagnosis error]", String(diagErr));
       findings = [];
     }
 
