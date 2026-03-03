@@ -31,9 +31,10 @@ import { LlmModelBadge } from "@/components/analysis-report/LlmModelBadge";
 import { ReanalysisPopover } from "@/components/analysis-report/ReanalysisPopover";
 import { TriageView } from "@/components/analysis-report/TriageView";
 import { DomainReportView } from "@/components/analysis-report/DomainReportView";
+import { ProjectStatusTab } from "@/components/analysis-report/ProjectStatusTab";
 import { useOrganization } from "@/contexts/OrganizationContext";
 
-type TopView = "triage" | "report" | "detail";
+type TopView = "triage" | "report" | "detail" | "status";
 
 export default function AnalysisReportPage() {
   const { organizationId } = useOrganization();
@@ -44,6 +45,7 @@ export default function AnalysisReportPage() {
   const topView: TopView =
     rawView === "report" ? "report"
     : rawView === "detail" ? "detail"
+    : rawView === "status" ? "status"
     : "triage";
 
   // Detail view state (legacy doc-level analysis)
@@ -212,6 +214,7 @@ export default function AnalysisReportPage() {
             {topView === "triage" && "문서 선별 · 분석 가치 기반 우선순위"}
             {topView === "report" && "도메인 전체 집계 · 핵심 발견사항"}
             {topView === "detail" && "문서별 3-Layer 분석"}
+            {topView === "status" && "파일럿 진행 현황 · 품질 평가 · 비용 분석"}
           </p>
         </div>
         {topView === "detail" && (
@@ -258,6 +261,7 @@ export default function AnalysisReportPage() {
           <TabsTrigger value="triage">문서 선별</TabsTrigger>
           <TabsTrigger value="report">도메인 리포트</TabsTrigger>
           <TabsTrigger value="detail">문서 상세</TabsTrigger>
+          <TabsTrigger value="status">진행 현황</TabsTrigger>
         </TabsList>
 
         <TabsContent value="triage" className="mt-4">
@@ -308,6 +312,10 @@ export default function AnalysisReportPage() {
               />
             </TabsContent>
           </Tabs>
+        </TabsContent>
+
+        <TabsContent value="status" className="mt-4">
+          <ProjectStatusTab />
         </TabsContent>
       </Tabs>
     </div>

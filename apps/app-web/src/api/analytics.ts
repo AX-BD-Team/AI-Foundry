@@ -51,3 +51,48 @@ export async function fetchQualityMetrics(
   });
   return res.json() as Promise<ApiResponse<QualityMetrics>>;
 }
+
+export interface KpiMetrics {
+  organizationId: string;
+  period: { startDate: string; endDate: string };
+  kpi: {
+    documentsUploaded: number;
+    extractionsCompleted: number;
+    policiesGenerated: number;
+    policiesApproved: number;
+    skillsPackaged: number;
+    avgPipelineDurationMs: number;
+  };
+}
+
+export async function fetchKpiMetrics(
+  organizationId: string,
+): Promise<ApiResponse<KpiMetrics>> {
+  const params = new URLSearchParams({ organizationId });
+  const res = await fetch(`${API_BASE}/kpi?${params.toString()}`, {
+    headers: headers(organizationId),
+  });
+  return res.json() as Promise<ApiResponse<KpiMetrics>>;
+}
+
+export interface CostTierMetrics {
+  inputTokens: number;
+  outputTokens: number;
+  requests: number;
+  cachedRequests: number;
+}
+
+export interface CostMetrics {
+  period: { startDate: string; endDate: string };
+  byTier: Record<string, CostTierMetrics>;
+  total: { inputTokens: number; outputTokens: number; requests: number };
+}
+
+export async function fetchCostMetrics(
+  organizationId: string,
+): Promise<ApiResponse<CostMetrics>> {
+  const res = await fetch(`${API_BASE}/cost`, {
+    headers: headers(organizationId),
+  });
+  return res.json() as Promise<ApiResponse<CostMetrics>>;
+}
