@@ -2,6 +2,18 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 083 — 2026-03-04
+**Bulk Approve + Tier 2-3 문서 투입 — 파이프라인 대량 실행**:
+- ✅ `batch-approve.sh` 3건 버그 수정: policyId (camelCase), pagination (100/page), count 파싱 (jq 전환)
+- ✅ 2,641건 candidate → approved 일괄 전환 (53 batches, 0 fail)
+- ✅ Pipeline 전파 검증: Skills 171→2,812 (1:1 with policies), Terms 1,448→25,231
+- ✅ `filelist-upload.sh` 신규 작성 (symlink 기반 curl -F 특수문자 파일명 처리)
+- ✅ Tier 2(17건: 화면목록/배치JOB/메뉴구조도) + Tier 3(70건: 업무별 대표 화면설계서) = 87건 업로드 완료
+- ✅ 87건 업로드 → 194 candidate policies 자동 생성 확인 (파이프라인 정상)
+
+**Production 현황**: documents 111, policies 2,997 (approved 2,803 + candidate 194), terms 25,231+, skills 2,812
+**변경 파일**: 3 files (+270) — scripts/filelist-upload.sh, scripts/tier2-3-filelist.txt, .gitignore
+
 ## 세션 082 — 2026-03-04
 **Organization Selector — 프론트엔드 조직 선택 기능**:
 - ✅ `OrganizationContext` + `useOrganization()` 훅 (localStorage 영속화, 기본값 Miraeasset)
