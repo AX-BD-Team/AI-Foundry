@@ -615,6 +615,9 @@ function buildScreenWorkbookSummary(
     }
   }
 
+  // No active sheets → no summary (all noise sheets)
+  if (activeSheets.length === 0) return null;
+
   const lines: string[] = [
     `# Workbook: ${fileName}`,
     `- SI Subtype: 화면설계`,
