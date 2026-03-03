@@ -79,5 +79,9 @@ test-docs/
 # Wireframe images (design artifacts)
 wireframe-*.png
 
+# Upload/operation logs
+scripts/upload-log-*.jsonl
+scripts/upload-tier23-*.log
+
 # Source documents (real SI deliverables — large binary, not for VCS)
 docs/retirement-pension-source/

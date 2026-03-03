@@ -1,0 +1,97 @@
+# === Tier 2: 화면목록 + 배치JOB목록 + 메뉴구조도 (17건) ===
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/03. 지급/01. 상세설계/03. 화면목록/MR_RSR_BDPYDL_AD_03.화면목록_V1.1_20210930.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/03. 지급/01. 상세설계/03. 화면목록/MR_RSR_BDPYDM_AD_03.화면목록_V1.1_20210930.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/03. 지급/01. 상세설계/04. 배치JOB목록/MR_RSR_업무코드_AD_04.배치Job목록_V1.0_20210930_지급.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/05. 업무공통/01. 상세설계/03. 화면목록/MR_RSR_BOGOOD_AD_03.화면목록_V1.1_20210930.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/05. 업무공통/01. 상세설계/04. 배치JOB목록/MR_RSR_BOSYST_AD_04.배치Job목록_V1.1_20210930.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/06. 상품제공/01. 상세설계/03. 화면목록/MR_RSR_GODGBS_AD_03.화면목록_V1.1_20210930.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/06. 상품제공/01. 상세설계/04. 배치JOB목록/MR_RSR_GOGDBS_AD_04.배치Job목록_V1.1_20210930.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/01. 신계약/01. 상세설계/03. 화면목록/MR_RSR_BDNWCT_AD_03.화면목록_V1.0_20210930.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/01. 신계약/01. 상세설계/04. 배치JOB목록/MR_RSR_BDNWCT_04.배치Job목록_V1.1_20210930.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/07. 법인영업정보/01. 상세설계/03. 배치목록/MR_RSR_EIJNED_AD_03.배치Job목록_V1.0_20210216.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/07. 법인영업정보/01. 상세설계/02. 화면_보고서목록/MR_RSR_EICSAD_AD_03.화면목록_V1.0_20210216.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/02. 운용지시/01. 상세설계/03. 화면목록/MR_RSR_BDOPOR_AD_03.화면목록_V1.1_운용지시_20210930.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/02. 운용지시/01. 상세설계/04. 배치JOB목록/MR_RSR_DBOPOR_AD_04.배치Job목록_V1.0_운용지시_20200930.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/04. 적립금수수료/01. 상세설계/03. 화면목록/MR_RSR_BDACAT_AD_03.화면목록_V1.1_적립금수수료_20210930.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/04. 적립금수수료/01. 상세설계/04. 배치JOB목록/MR_RSR_DBACAT_AD_04.배치Job목록_V1.1_적립금수수료_20210930.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/07. 법인영업정보/01. 상세설계/05. 메뉴구조도/MR_RSR_EI_AD_06.메뉴구조도_V1.0_20210216.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/06. 메뉴구조도/MR_RSR_BDNWCT_AD_06.메뉴구조도_V1.1_20210930.xlsx
+
+# === Tier 3: 업무별 대표 화면설계서 10개씩 ===
+# 01. 신계약
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/01. 신계약/01. 상세설계/07. 화면설계서/MR_RSR_BDCHNG_AD_07.화면설계서(BDCHNG0001M1)(고객정보변경(단체))_V1.0_20210215.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/01. 신계약/01. 상세설계/07. 화면설계서/MR_RSR_BDCHNG_AD_07.화면설계서(BDCHNG0101M1)(고객정보변경(개인))_V1.0_20210215.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/01. 신계약/01. 상세설계/07. 화면설계서/MR_RSR_BDCHNG_AD_07.화면설계서(BDCHNG0201M1)(단체별고객정보변경(개인))_V1.0_20210215.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/01. 신계약/01. 상세설계/07. 화면설계서/MR_RSR_BDCHNG_AD_07.화면설계서(BDCHNG0301M1)(고객정보변경이력조회(단체개인))_V1.0_20210215.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/01. 신계약/01. 상세설계/07. 화면설계서/MR_RSR_BDCHNG_AD_07.화면설계서(BDCHNG1001M1)(계약정보변경(DBDC))_V1.0_20210215.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/01. 신계약/01. 상세설계/07. 화면설계서/MR_RSR_BDCHNG_AD_07.화면설계서(BDCHNG1201M1)(상품라인업변경(DBDC))_V1.0_20210215.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/01. 신계약/01. 상세설계/07. 화면설계서/MR_RSR_BDCHNG_AD_07.화면설계서(BDCHNG1301M1)(계좌정보변경(DBDC))_V1.0_20210215.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/01. 신계약/01. 상세설계/07. 화면설계서/MR_RSR_BDCHNG_AD_07.화면설계서(BDCHNG1401M1)(사이버담당자및연락처변경(DBDC))_V1.0_20210215.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/01. 신계약/01. 상세설계/07. 화면설계서/MR_RSR_BDCHNG_AD_07.화면설계서(BDCHNG1501M1)(계약서류조회및변경(DBDC))_V1.0_20210215.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/01. 신계약/01. 상세설계/07. 화면설계서/MR_RSR_BDCHNG_AD_07.화면설계서(BDCHNG1601M1)(제도중단(DBDC))_V1.0_20210215.xlsx
+# 02. 운용지시
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/02. 운용지시/01. 상세설계/07. 화면설계서/1.운용지시승인/MR_RSR_BDOPOR_AD_07.화면설계서(BDOPOR4000M0)(운용지시조회및승인처리)_V1.0_20210129.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/02. 운용지시/01. 상세설계/07. 화면설계서/1.운용지시승인/MR_RSR_BDOPOR_AD_07.화면설계서(BDOPOR4100M0)(가입자별운용지시조회및승인)_V1.0_20210129.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/02. 운용지시/01. 상세설계/07. 화면설계서/1.운용지시승인/MR_RSR_BDOPOR_AD_07.화면설계서(BDOPOR4200M0)(단체별운용지시조회및변경)_V1.0_20210129.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/02. 운용지시/01. 상세설계/07. 화면설계서/1.운용지시승인/MR_RSR_BDOPOR_AD_07.화면설계서(BDOPOR4300M0)(운용지시상세조회)_V1.0_20210129.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/02. 운용지시/01. 상세설계/07. 화면설계서/1.운용지시승인/MR_RSR_BDOPOR_AD_07.화면설계서(BDOPOR4500M0)(현금성자산운용지시생성_언자산)_V1.0_20210129.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/02. 운용지시/01. 상세설계/07. 화면설계서/1.운용지시승인/MR_RSR_BDOPOR_AD_07.화면설계서(BDOPOR4600M0)(언번들거래조회및처리)_V1.0_20210129.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/02. 운용지시/01. 상세설계/07. 화면설계서/10.신탁전송처리/MR_RSR_BDACTR_AD_07.화면설계서(BDACTR1000M1)(신탁전송상세내역조회)_V1.0_20210210.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/02. 운용지시/01. 상세설계/07. 화면설계서/10.신탁전송처리/MR_RSR_BDACTR_AD_07.화면설계서(BDACTR1100M1)(신탁전송및취소)_V1.0_20210210.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/02. 운용지시/01. 상세설계/07. 화면설계서/10.신탁전송처리/MR_RSR_BDACTR_AD_07.화면설계서(BDACTR1200M1)(신탁입출금등록)_V1.0_20210210.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/02. 운용지시/01. 상세설계/07. 화면설계서/10.신탁전송처리/MR_RSR_BDACTR_AD_07.화면설계서(BDACTR1300M1)(신탁입출금승인)_V1.0_20210210.xlsx
+# 03. 지급
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/03. 지급/01. 상세설계/07. 화면설계서/0.MR_RSR_업무코드_AD_07.화면설계서(화면ID)(화면명)_V1.0_YYYYMMDD.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/03. 지급/01. 상세설계/07. 화면설계서/MR_RSR_BDPYDL_AD_07.화면설계서(BDPYDL0010M1)(지급지시)_V1.0_20210216.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/03. 지급/01. 상세설계/07. 화면설계서/MR_RSR_BDPYDL_AD_07.화면설계서(BDPYDL0020M1)(지급지시상세)_V1.0_20210216.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/03. 지급/01. 상세설계/07. 화면설계서/MR_RSR_BDPYDL_AD_07.화면설계서(BDPYDL0030M1)(원천징수영수증발행(DC,IRP))_V1.0_20210216.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/03. 지급/01. 상세설계/07. 화면설계서/MR_RSR_BDPYDL_AD_07.화면설계서(BDPYDL0040M1)(현금수령확인)_V1.0_20210216.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/03. 지급/01. 상세설계/07. 화면설계서/MR_RSR_BDPYDL_AD_07.화면설계서(BDPYDL0050M1)(DC언번들세금확인)_V1.0_20210216.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/03. 지급/01. 상세설계/07. 화면설계서/MR_RSR_BDPYDL_AD_07.화면설계서(BDPYDL0060M1)(과세산출_simul)_V1.0_20210216.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/03. 지급/01. 상세설계/07. 화면설계서/MR_RSR_BDPYDL_AD_07.화면설계서(BDPYDL0070M1)(과세산출_simul(일괄))_V1.0_20210216.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/03. 지급/01. 상세설계/07. 화면설계서/MR_RSR_BDPYDL_AD_07.화면설계서(BDPYDL0080M1)(세금환급처리)_V1.0_20210216.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/03. 지급/01. 상세설계/07. 화면설계서/MR_RSR_BDPYDL_AD_07.화면설계서(BDPYDL0090M1)(채권추심등록)_V1.0_20210216.xlsx
+# 04. 적립금수수료
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/04. 적립금수수료/01. 상세설계/07. 화면설계서/1.수수료처리/MR_RSR_업무코드_AD_07.10.화면설계서(BDCMSN1090M1)(신탁자산수수료 정산처리_홍은임)_20210216.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/04. 적립금수수료/01. 상세설계/07. 화면설계서/1.수수료처리/MR_RSR_업무코드_AD_07.11.화면설계서(BDCMSN1100M1)(별도납수수료반환(DBDC)_홍은임)_20210216.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/04. 적립금수수료/01. 상세설계/07. 화면설계서/1.수수료처리/MR_RSR_업무코드_AD_07.12.화면설계서(BDCMSN1110M1)(해지수수료조정처리_홍은임)_20210216.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/04. 적립금수수료/01. 상세설계/07. 화면설계서/1.수수료처리/MR_RSR_업무코드_AD_07.1_2.화면설계서(BDCMSN1000M1)(단체별_개인별수수료매도및조회_홍은임)_20210216.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/04. 적립금수수료/01. 상세설계/07. 화면설계서/1.수수료처리/MR_RSR_업무코드_AD_07.3.화면설계서(BDCMSN1020M1)(언번들(자)해지자산수수료처리(별도납_현금성)_홍은임)_20210216.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/04. 적립금수수료/01. 상세설계/07. 화면설계서/1.수수료처리/MR_RSR_업무코드_AD_07.4.화면설계서(BDCMSN1030M1)(언번들운용수수료징구지시처리_홍은임)_20210216.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/04. 적립금수수료/01. 상세설계/07. 화면설계서/1.수수료처리/MR_RSR_업무코드_AD_07.5.화면설계서(BDCMSN1040M1)(수수료매도상품변경_홍은임)_202100216.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/04. 적립금수수료/01. 상세설계/07. 화면설계서/1.수수료처리/MR_RSR_업무코드_AD_07.6.화면설계서(BDCMSN1050M1)(정산수수료처리및조회_홍은임)_20210216.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/04. 적립금수수료/01. 상세설계/07. 화면설계서/1.수수료처리/MR_RSR_업무코드_AD_07.7.화면설계서(BDCMSN1060M1)(제도중단(DC)수수료처리및조회_홍은임)_20210216.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/04. 적립금수수료/01. 상세설계/07. 화면설계서/1.수수료처리/MR_RSR_업무코드_AD_07.8.화면설계서(BDCMSN1070M1)(수수료정보변경_홍은임)_20210216.xlsx
+# 05. 업무공통
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/05. 업무공통/01. 상세설계/07. 화면설계서/1.업무처리/9.대외업무/2.연금사업자정보_홍서윤/MR_RSR_BDEXBS_AD_07.화면설계서(BDEXBS0080M1)(연금사업자등록및수정)_V1.0_20210216.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/05. 업무공통/01. 상세설계/07. 화면설계서/1.업무처리/9.대외업무/2.연금사업자정보_홍서윤/MR_RSR_BDEXBS_AD_07.화면설계서(BDEXBS0090M1)(연금사업자 협약체결현황)_V1.0_20210216.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/05. 업무공통/01. 상세설계/07. 화면설계서/1.업무처리/9.대외업무/3.표준전문관리_홍서윤/MR_RSR_BDEXBS_AD_07.화면설계서(BDEXBS0010M1)(전문속성등록)_V1.0_20210216.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/05. 업무공통/01. 상세설계/07. 화면설계서/1.업무처리/9.대외업무/3.표준전문관리_홍서윤/MR_RSR_BDEXBS_AD_07.화면설계서(BDEXBS0010M1)(전문속성등록)_V1.1_20210216.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/05. 업무공통/01. 상세설계/07. 화면설계서/1.업무처리/9.대외업무/3.표준전문관리_홍서윤/MR_RSR_BDEXBS_AD_07.화면설계서(BDEXBS0020M1)(송수신조회및재전송)_V1.0_20210216.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/05. 업무공통/01. 상세설계/07. 화면설계서/1.업무처리/9.대외업무/3.표준전문관리_홍서윤/MR_RSR_BDEXBS_AD_07.화면설계서(BDEXBS0020M1)(송수신조회및재전송)_V1.1_20210216.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/05. 업무공통/01. 상세설계/07. 화면설계서/1.업무처리/9.대외업무/3.표준전문관리_홍서윤/MR_RSR_BDEXBS_AD_07.화면설계서(BDEXBS0030M1)(송수신전문상세조회)_V1.0_20210216.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/05. 업무공통/01. 상세설계/07. 화면설계서/1.업무처리/9.대외업무/3.표준전문관리_홍서윤/MR_RSR_BDEXBS_AD_07.화면설계서(BDEXBS0040M1)(송수신전문생성)_V1.0_20210216.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/05. 업무공통/01. 상세설계/07. 화면설계서/1.업무처리/9.대외업무/3.표준전문관리_홍서윤/MR_RSR_BDEXBS_AD_07.화면설계서(BDEXBS0050M1)(송수신전문승인전송)_V1.0_20210216.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/05. 업무공통/01. 상세설계/07. 화면설계서/1.업무처리/9.대외업무/3.표준전문관리_홍서윤/MR_RSR_BDEXBS_AD_07.화면설계서(BDEXBS0060M1)(전문송수신집계)_V1.0_20210216.xlsx
+# 06. 상품제공
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/06. 상품제공/01. 상세설계/07. 화면설계서/MR_RSR_GOEXBS_AD_07.화면설계서(GOEXBS0201M1)(사업자정보등록_)_V1.0_20210216.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/06. 상품제공/01. 상세설계/07. 화면설계서/MR_RSR_GOEXBS_AD_07.화면설계서(GOEXBS0301M1)(상품수수료산출안내)_V1.0_20210216.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/06. 상품제공/01. 상세설계/07. 화면설계서/MR_RSR_GOEXBS_AD_07.화면설계서(GOEXBS0302M1)(상품수수료납부)_V1.0_20210216.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/06. 상품제공/01. 상세설계/07. 화면설계서/MR_RSR_GOGDBS_AD_07.화면설계서(GOGDBS0101M1)(운용지시조회및승인)_V1.0_20210216.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/06. 상품제공/01. 상세설계/07. 화면설계서/MR_RSR_GOGDBS_AD_07.화면설계서(GOGDBS0102M1)(운용지시상세조회)_V1.0_20210216.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/06. 상품제공/01. 상세설계/07. 화면설계서/MR_RSR_GOGDBS_AD_07.화면설계서(GOGDBS0103M1)(계약별운용지시현황)_V1.0_20210216.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/06. 상품제공/01. 상세설계/07. 화면설계서/MR_RSR_GOGDBS_AD_07.화면설계서(GOGDBS0104M1)(신규거래단체조회)_V1.0_20210216.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/06. 상품제공/01. 상세설계/07. 화면설계서/MR_RSR_GOGDBS_AD_07.화면설계서(GOGDBS0105M1)(당일거래 마감현황)_V1.0_20210216.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/06. 상품제공/01. 상세설계/07. 화면설계서/MR_RSR_GOGDBS_AD_07.화면설계서(GOGDBS0201M1)(가상계좌입금현황및처리)_V1.0_20210216.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/06. 상품제공/01. 상세설계/07. 화면설계서/MR_RSR_GOGDBS_AD_07.화면설계서(GOGDBS0202M1)(입금처리(자산관리기관별))_V1.0_20210216.xlsx
+# 07. 법인영업정보
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/07. 법인영업정보/01. 상세설계/06. 화면설계서/1. 계약정보/MR_RSR_EICTIF_AD_06.화면설계서(EICTIF0101M1)(입지급현황)_V1.0_20211012.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/07. 법인영업정보/01. 상세설계/06. 화면설계서/1. 계약정보/MR_RSR_EICTIF_AD_06.화면설계서(EICTIF0201M1)(지급청구건조회)_V1.0_20211012.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/07. 법인영업정보/01. 상세설계/06. 화면설계서/1. 계약정보/MR_RSR_EICTIF_AD_06.화면설계서(EICTIF0204M1)(영업일보)_V1.0_20211012.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/07. 법인영업정보/01. 상세설계/06. 화면설계서/1. 계약정보/MR_RSR_EICTIF_AD_06.화면설계서(EICTIF0206M1)(연간목표관리)_V1.0_20211012.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/07. 법인영업정보/01. 상세설계/06. 화면설계서/1. 계약정보/MR_RSR_EICTIF_AD_06.화면설계서(EICTIF0208M1)(영업원별계약현황)_V1.0_20211012.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/07. 법인영업정보/01. 상세설계/06. 화면설계서/2. 계약서류 및 안내장/MR_RSR_EICTDC_AD_06.화면설계서(EICTDC0101M1)(계약서류발행)_V1.0_20211012.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/07. 법인영업정보/01. 상세설계/06. 화면설계서/2. 계약서류 및 안내장/MR_RSR_EICTDC_AD_06.화면설계서(EICTDC0102M1)(계약서류발행관리)_V1.0_20211012.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/07. 법인영업정보/01. 상세설계/06. 화면설계서/5. 자산컨설팅/MR_RSR_EIASCN_AD_06.화면설계서(EIASCN0101M1)(DB(혼합형)계좌정보)_V1.0_20211012.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/07. 법인영업정보/01. 상세설계/06. 화면설계서/5. 자산컨설팅/MR_RSR_EIASCN_AD_06.화면설계서(EIASCN0102M1)(계약기본정보,운용현황)_V1.0_20211012.xlsx
+/home/sinclair/work/axbd/res-ai-foundry/docs/retirement-pension-source/퇴직연금 프로젝트/업무개발관련문서/07. 법인영업정보/01. 상세설계/06. 화면설계서/5. 자산컨설팅/MR_RSR_EIASCN_AD_06.화면설계서(EIASCN0103M1)(수수료부담형태)_V1.0_20211012.xlsx
