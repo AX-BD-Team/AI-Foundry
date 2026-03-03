@@ -3,15 +3,23 @@
 > 세션 히스토리 아카이브 (최신이 상단)
 
 ## 세션 046 — 2026-03-03
-**멀티 프로바이더 LLM 라우팅 + /team 스킬 Multi-Leader 보완**:
+**멀티 프로바이더 LLM 라우팅 구현 + 배포 + 라이브 검증**:
 - ✅ svc-llm-router 멀티 프로바이더: Anthropic + OpenAI + Google + Workers AI 4개 provider 지원
 - ✅ Provider adapter 패턴: 각 provider별 독립 모듈 (anthropic.ts, openai.ts, google.ts, workers-ai.ts)
 - ✅ 자동 fallback: executeWithFallback — 1차 provider 실패 시 fallback chain으로 자동 재시도
 - ✅ LlmProvider schema + PROVIDER_TIER_MODELS + provider/fallbackFrom 필드 (request/response/cost log)
-- ✅ D1 마이그레이션: 0002_add_provider.sql (provider, fallback_from 컬럼)
+- ✅ D1 마이그레이션: 0002_add_provider.sql (provider, fallback_from 컬럼) — staging + production 적용
 - ✅ Non-Anthropic streaming → complete fallback (AI Gateway SSE는 Anthropic만 지원)
-- ✅ /team 스킬 Multi-Leader 보완: $TMUX_PANE 기반 Leader 식별 (active pane 무관), ASCII 다이어그램 추가
-- ✅ Multi-Leader split pane 테스트: 5/5 PASS (독립 분할, 비침범, pane count 검증)
+- ✅ Wrangler secrets: OPENAI_API_KEY + GOOGLE_AI_API_KEY — staging/production/default 3환경 설정
+- ✅ Google endpoint URL 수정: v1beta → v1 (Cloudflare AI Gateway 공식 문서 기준)
+- ✅ Wrangler `[ai]` binding: staging/production 환경에 명시적 선언 (env 미상속 이슈)
+- ✅ 3환경 배포 완료: staging + default + production
+
+**라이브 테스트 (Staging)**:
+- ✅ Workers AI: 정상 (257ms, Llama 3.1 8B, 무료)
+- ✅ OpenAI: 정상 (2.2s, gpt-4o-mini)
+- ⚠️ Google: 무료 tier 쿼터 소진 (429) → OpenAI fallback 정상 동작
+- ⚠️ Anthropic: 크레딧 소진 → OpenAI/Workers AI fallback 정상 동작
 
 **검증 결과**:
 - ✅ typecheck 16/16 PASS
