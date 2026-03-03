@@ -52,15 +52,17 @@
 
 ## 5) Current Status
 
-- **Last Updated**: 2026-03-04 (세션 070)
-- **Current Phase**: Phase 3 Sprint 3 완료 — xlsx-parser PDCA 완료 (100% match)
-- **Production E2E**: ✅ 8/8 PASS (synthetic) + 7/7 PASS (real-doc) + Batch 9/11 parsed (real-doc)
-- **Real Document Pilot**: ✅ 13/15 문서 파싱 완료 (Batch 1: 4건, Batch 2: 9/11건)
+- **Last Updated**: 2026-03-04 (세션 072)
+- **Current Phase**: Phase 4 Sprint 1 진행중 — Tier 1 문서 11건 배치 투입
+- **Production E2E**: ✅ 8/8 PASS (synthetic) + 7/7 PASS (real-doc) + Batch 3: 7/11 parsed (SCDSA002 4건 제외)
+- **Real Document Pilot**: ✅ 20/26 문서 파싱 완료 (Batch 1: 4건, Batch 2: 9/11건, Batch 3: 7/11건)
 - **Production Data**: policies 134+ approved, terms 1,441, skills 171 (org-mirae-pension)
+- **Batch 3 Extraction**: Gap분석서 28proc/27ent, DDD설계 11proc/9ent, 요구사항정의서 8proc/5ent
 - **Multi-Provider LLM**: ✅ Anthropic→OpenAI→Google→Workers AI 4-provider fallback 구현 + 검증
 - **Phase 3 Sprint 1**: ✅ Skill Evaluate endpoint (POST+GET) + D1 마이그레이션 + 3환경 배포 + E2E 검증
 - **Phase 3 Sprint 2**: ✅ Skill 검색 API (q/tag/subdomain/sort + total) + 태그/통계 엔드포인트 + Marketplace UX + Skill Detail 페이지
 - **Phase 3 Sprint 3**: ✅ svc-mcp-server — MCP Server Worker (Streamable HTTP 2025-03-26 spec, @modelcontextprotocol/sdk, 12 tests, 3환경 배포)
+- **Phase 4 Sprint 1**: 🔄 Tier 1 문서 11건 투입 — 7/11 파싱 성공, SCDSA002 4건 제외. 수동 extraction 트리거로 파이프라인 진행
 - **Phase 3 Prep**: ✅ MCP 2024-11-05 protocol + OpenAPI 3.0 adapter (Staging 배포 완료)
 - **Quality Infra**: ✅ DB 마이그레이션 + API + 대시보드 배포 완료 (org별 메트릭 기록)
 - **Frontend API**: ✅ 11/11 페이지 API 연동 완료 (Skill Detail 추가, Settings Health 모니터링 + 알림 연동 포함)
@@ -207,7 +209,8 @@
   - svc-ontology: 100 tests (100% stmts)
   - svc-security: 153 tests (97.14% stmts)
   - svc-queue-router: 43 tests (100% stmts)
-- **Test Coverage**: 1,132 tests, 12 services (vitest) — svc-ingestion 175, svc-security 153, svc-skill 151, svc-llm-router 134, svc-ontology 100, svc-governance 75, svc-policy 68, svc-extraction 60, svc-queue-router 43, svc-analytics 22, svc-notification 16, svc-mcp-server 12 (+screen-design-parser 리뷰: svc-ingestion +121)
+- **Test Coverage**: 1,132 tests, 12 services (vitest) — svc-ingestion 175, svc-security 153, svc-skill 151, svc-llm-router 134, svc-ontology 100, svc-governance 75, svc-policy 68, svc-extraction 60, svc-queue-router 43, svc-analytics 22, svc-notification 16, svc-mcp-server 12
+- **Batch Scripts**: `scripts/batch-upload.sh` (bulk upload + resume + dry-run), `scripts/batch-status.sh` (status query + CSV export + polling)
 - **Frontend**: https://ai-foundry-web.pages.dev (Cloudflare Pages) + https://ai-foundry.minu.best (커스텀 도메인)
   - 10/10 pages real API 연동 완료 (upload, analysis, hitl, audit, skill-catalog, dashboard, ontology, api-console, trust, settings)
 - **E2E 스크립트**: `--staging`, `--real-doc <path>`, `--json`, `--wait-queue` 지원

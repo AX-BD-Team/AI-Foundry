@@ -2,6 +2,18 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 072 — 2026-03-04
+**Phase 4 Sprint 1 — Tier 1 문서 11건 배치 투입 + 파이프라인 검증**:
+- ✅ Phase 4 Sprint 1 계획 수립 (깊이 우선 전략, Tier 1 문서 11건)
+- ✅ screen-design-parser 코드 커밋 + Production 배포 (12/12 healthy)
+- ✅ Tier 1 문서 11건 Production 업로드 (org-mirae-pension)
+- ✅ 7/11 파싱 성공, 4건 SCDSA002 암호화로 format_invalid
+- ✅ Queue 이벤트 미전달 디버깅 → 수동 extraction 트리거로 우회
+- ✅ Extraction 결과: Gap분석서 28proc/27ent, DDD설계 11/9, 요구사항정의서 8/5
+- ✅ batch-upload.sh / batch-status.sh 배치 스크립트 추가
+
+**검증**: typecheck 17/17, lint 14/14, Production 12/12 healthy
+
 ## 세션 071 — 2026-03-04
 **screen-design-parser 코드 리뷰 + 5건 Fix + 테스트 보강**:
 - ✅ PDCA 일괄 정리: 7개 부산물 feature 삭제 → screen-design-parser 단일 활성화
