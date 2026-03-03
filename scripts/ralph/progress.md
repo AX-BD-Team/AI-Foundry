@@ -37,3 +37,20 @@
 - Duration: ~5min (upload) + ~5min (queue processing)
 - Notes: Queue processing 약 5분 소요 (max_batch_timeout 30s × 다수 배치)
 - Cumulative: Total 39 docs (parsed 32, failed 7)
+
+## Iteration 8 — 2026-03-04 03:12
+- Task: R-8 — Tier 3 화면설계서 업로드 (456건)
+- Status: COMPLETED
+- Results:
+  - 1차 batch-upload: 441/456 OK, 15 FAIL (HTTP 000 — 파일명 내 comma/parens → curl -F 충돌)
+  - 2차 수동 재업로드: 15/15 OK (파일명 sanitize 후 직접 curl)
+  - Total uploaded: 456 + 1(테스트) + 일부 중복(~80건, stopped)
+  - Content: xlsx 450 (screen-design parser, $0) + pptx 6 (Unstructured.io)
+- Verify: N/A (upload task)
+- Commit: N/A
+- Duration: ~15min
+- Notes:
+  - curl -F에서 filename 내 comma(,)가 parameter separator로 해석됨
+  - 해결: sanitize(comma→underscore, parens→underscore) 후 업로드
+  - 중복 문서 일부 발생 (stopped retry script) — document_id 다르므로 파싱 결과 무해
+  - batch-upload.sh 개선 필요: 파일명 sanitize 로직 추가

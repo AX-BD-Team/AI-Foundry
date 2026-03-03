@@ -1,0 +1,33 @@
+[
+{"path":"/tmp/tier3-upload/10_03._지급__MR_RSR_BDPYDM_AD_07.화면설계서(BDPYDM0100M1)(타사_단체별일부이전_접수및청구(DB,DC))_V1.0_20210216.xlsx","status":"FAIL","documentId":"","error":"HTTP 000
+000","timestamp":"2026-03-03T18:31:22Z"}
+,{"path":"/tmp/tier3-upload/12_03._지급__MR_RSR_BDPYDM_AD_07.화면설계서(BDPYDM0120M1)(계약해지접수현황조회(DB,DC))_V1.0_20210216.xlsx","status":"FAIL","documentId":"","error":"HTTP 000
+000","timestamp":"2026-03-03T18:31:22Z"}
+,{"path":"/tmp/tier3-upload/16_03._지급__MR_RSR_BDPYDM_AD_07.화면설계서(BDPYDM0110M1)(타사_개인별일부이전_접수및청구(DB,DC))_V1.0_20210216.xlsx","status":"FAIL","documentId":"","error":"HTTP 000
+000","timestamp":"2026-03-03T18:31:23Z"}
+,{"path":"/tmp/tier3-upload/22_03._지급__MR_RSR_BDPYDM_AD_07.화면설계서(BDPYDM0070M1)(제도폐지접수및청구(DB,DC))_V1.0_20210216.xlsx","status":"FAIL","documentId":"","error":"HTTP 000
+000","timestamp":"2026-03-03T18:31:23Z"}
+,{"path":"/tmp/tier3-upload/2_03._지급__MR_RSR_BDPYDM_AD_07.화면설계서(BDPYDM0050M1)(무급부처리_엑셀(DB,DC))_V1.0_20210216.xlsx","status":"FAIL","documentId":"","error":"HTTP 000
+000","timestamp":"2026-03-03T18:31:24Z"}
+,{"path":"/tmp/tier3-upload/318_07._법인영업정보__MR_RSR_EIASCN_AD_06.화면설계서(EIASCN0202M1)(계약기본정보,운용현황)_V1.0_20211012.xlsx","status":"FAIL","documentId":"","error":"HTTP 000
+000","timestamp":"2026-03-03T18:31:24Z"}
+,{"path":"/tmp/tier3-upload/320_07._법인영업정보__MR_RSR_EIASCN_AD_06.화면설계서(EIASCN0104M1)(지급현황,자산별)_V1.0_20211012.xlsx","status":"FAIL","documentId":"","error":"HTTP 000
+000","timestamp":"2026-03-03T18:31:25Z"}
+,{"path":"/tmp/tier3-upload/322_07._법인영업정보__MR_RSR_EIASCN_AD_06.화면설계서(EIASCN0102M1)(계약기본정보,운용현황)_V1.0_20211012.xlsx","status":"FAIL","documentId":"","error":"HTTP 000
+000","timestamp":"2026-03-03T18:31:25Z"}
+,{"path":"/tmp/tier3-upload/325_07._법인영업정보__MR_RSR_EIASCN_AD_06.화면설계서(EIASCN0203M1)(계약형태,수수료 세부내용)_V1.0_20211012.xlsx","status":"FAIL","documentId":"","error":"HTTP 000
+000","timestamp":"2026-03-03T18:31:26Z"}
+,{"path":"/tmp/tier3-upload/331_07._법인영업정보__MR_RSR_EIASCN_AD_06.화면설계서(EIASCN0105M1)(상품별적립금보유비중,자산별)_V1.0_20211012.xlsx","status":"FAIL","documentId":"","error":"HTTP 000
+000","timestamp":"2026-03-03T18:31:26Z"}
+,{"path":"/tmp/tier3-upload/33_03._지급__MR_RSR_BDPYDM_AD_07.화면설계서(BDPYDM0090M1)(타사_전부이전_접수및청구(DB,DC))_V1.0_20210216.xlsx","status":"FAIL","documentId":"","error":"HTTP 000
+000","timestamp":"2026-03-03T18:31:27Z"}
+,{"path":"/tmp/tier3-upload/35_03._지급__MR_RSR_BDPYDM_AD_07.화면설계서(BDPYDM0040M1)(무급부처리_건별(DB,DC))_V1.0_20210216.xlsx","status":"FAIL","documentId":"","error":"HTTP 000
+000","timestamp":"2026-03-03T18:31:27Z"}
+,{"path":"/tmp/tier3-upload/41_03._지급__MR_RSR_BDPYDM_AD_07.화면설계서(BDPYDM0020M1)(지급접수및청구_엑셀(DB,DC))_V1.0_20210216.xlsx","status":"FAIL","documentId":"","error":"HTTP 000
+000","timestamp":"2026-03-03T18:31:28Z"}
+,{"path":"/tmp/tier3-upload/4_03._지급__MR_RSR_BDPYDL_AD_07.화면설계서(BDPYDL0030M1)(원천징수영수증발행(DC,IRP))_V1.0_20210216.xlsx","status":"FAIL","documentId":"","error":"HTTP 000
+000","timestamp":"2026-03-03T18:31:29Z"}
+,{"path":"/tmp/tier3-upload/59_03._지급__MR_RSR_BDPYDM_AD_07.화면설계서(BDPYDM0060M1)(무급부현황조회(DB,DC))_V1.0_20210216.xlsx","status":"FAIL","documentId":"","error":"HTTP 000
+000","timestamp":"2026-03-03T18:31:29Z"}
+
+]
