@@ -9,6 +9,8 @@ import { createLogger } from "@ai-foundry/utils";
 import { PipelineEventSchema } from "@ai-foundry/types";
 import type { IngestionCompletedEvent } from "@ai-foundry/types";
 import { buildExtractionPrompt } from "../prompts/structure.js";
+import { buildScoringPrompt, parseScoringResult, buildCoreSummary } from "../prompts/scoring.js";
+import { buildDiagnosisPrompt, parseDiagnosisResult } from "../prompts/diagnosis.js";
 import { callLlm } from "../llm/caller.js";
 import type { Env } from "../env.js";
 
@@ -166,6 +168,13 @@ async function runExtraction(
 
     logger.info("Emitted extraction.completed event", { extractionId, documentId, organizationId });
 
+    // Auto-trigger Pass 1+2 analysis (non-blocking — must not interrupt the pipeline)
+    ctx.waitUntil(
+      runAnalysis(env, { documentId, extractionId, organizationId, parsed }).catch((e) => {
+        logger.warn("Auto-analysis failed (non-blocking)", { documentId, extractionId, error: String(e) });
+      })
+    );
+
     return { extractionId, processNodeCount, entityCount };
   } catch (e) {
     // Mark extraction as failed so it doesn't stay permanently pending
@@ -179,6 +188,158 @@ async function runExtraction(
     );
     throw e;
   }
+}
+
+/**
+ * Auto-analysis: Pass 1 (scoring) + Pass 2 (diagnosis) after extraction.completed
+ * This is non-blocking — failures are logged but do not affect the main pipeline.
+ */
+async function runAnalysis(
+  env: Env,
+  opts: {
+    documentId: string;
+    extractionId: string;
+    organizationId: string;
+    parsed: ExtractionResult;
+  }
+): Promise<void> {
+  const { documentId, extractionId, organizationId, parsed } = opts;
+  const analysisId = crypto.randomUUID();
+  const now = new Date().toISOString();
+
+  // Too little data — skip analysis, emit info finding
+  if ((parsed.processes?.length ?? 0) < 3) {
+    logger.info("Skipping analysis: too few processes extracted", { documentId, processCount: parsed.processes?.length ?? 0 });
+    return;
+  }
+
+  // Pass 1: Scoring + Core Identification
+  let scoringResult;
+  try {
+    const scoringPrompt = buildScoringPrompt({
+      processes: parsed.processes ?? [],
+      entities: parsed.entities ?? [],
+      rules: parsed.rules ?? [],
+      relationships: parsed.relationships ?? [],
+    });
+    const rawScoring = await callLlm(scoringPrompt, "sonnet", env.LLM_ROUTER, env.INTERNAL_API_SECRET);
+    scoringResult = parseScoringResult(rawScoring);
+  } catch (e) {
+    logger.warn("Pass 1 scoring failed, using empty result", { documentId, error: String(e) });
+    scoringResult = { scoredProcesses: [], coreJudgments: [], processTree: [] };
+  }
+
+  const coreSummary = buildCoreSummary(scoringResult.scoredProcesses);
+
+  const summaryJson = JSON.stringify({
+    documentId,
+    organizationId,
+    extractionId,
+    counts: {
+      processes: parsed.processes?.length ?? 0,
+      entities: parsed.entities?.length ?? 0,
+      rules: parsed.rules?.length ?? 0,
+      relationships: parsed.relationships?.length ?? 0,
+    },
+    processes: scoringResult.scoredProcesses,
+    entities: (parsed.entities ?? []).map((e) => ({ ...e, usageCount: 0, isOrphan: false })),
+    documentClassification: "general",
+    analysisTimestamp: now,
+  });
+
+  const coreIdentificationJson = JSON.stringify({
+    documentId,
+    organizationId,
+    coreProcesses: scoringResult.coreJudgments,
+    processTree: scoringResult.processTree,
+    summary: coreSummary,
+  });
+
+  try {
+    await env.DB_EXTRACTION.prepare(
+      `INSERT INTO analyses
+       (analysis_id, document_id, extraction_id, organization_id,
+        process_count, entity_count, rule_count, relationship_count,
+        core_process_count, mega_process_count,
+        summary_json, core_identification_json, status, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'completed', ?)`
+    )
+      .bind(
+        analysisId, documentId, extractionId, organizationId,
+        parsed.processes?.length ?? 0,
+        parsed.entities?.length ?? 0,
+        parsed.rules?.length ?? 0,
+        parsed.relationships?.length ?? 0,
+        coreSummary.coreProcessCount,
+        coreSummary.megaProcessCount,
+        summaryJson,
+        coreIdentificationJson,
+        now
+      )
+      .run();
+  } catch (e) {
+    logger.warn("Failed to insert analysis record", { analysisId, error: String(e) });
+    return;
+  }
+
+  // Pass 2: Diagnosis
+  let findings: ReturnType<typeof parseDiagnosisResult>;
+  try {
+    const diagnosisPrompt = buildDiagnosisPrompt(scoringResult, {
+      processes: parsed.processes ?? [],
+      entities: parsed.entities ?? [],
+      rules: parsed.rules ?? [],
+      relationships: parsed.relationships ?? [],
+    });
+    const rawDiagnosis = await callLlm(diagnosisPrompt, "sonnet", env.LLM_ROUTER, env.INTERNAL_API_SECRET);
+    findings = parseDiagnosisResult(rawDiagnosis);
+  } catch (e) {
+    logger.warn("Pass 2 diagnosis failed, proceeding with empty findings", { documentId, error: String(e) });
+    findings = [];
+  }
+
+  for (const finding of findings) {
+    try {
+      await env.DB_EXTRACTION.prepare(
+        `INSERT INTO diagnosis_findings
+         (finding_id, analysis_id, document_id, organization_id,
+          type, severity, finding, evidence, recommendation,
+          related_processes, related_entities, source_document_ids,
+          confidence, hitl_status, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)`
+      )
+        .bind(
+          crypto.randomUUID(), analysisId, documentId, organizationId,
+          finding.type, finding.severity, finding.finding,
+          finding.evidence, finding.recommendation,
+          JSON.stringify(finding.relatedProcesses),
+          finding.relatedEntities ? JSON.stringify(finding.relatedEntities) : null,
+          JSON.stringify(finding.sourceDocumentIds),
+          finding.confidence, now
+        )
+        .run();
+    } catch (e) {
+      logger.warn("Failed to insert finding", { analysisId, error: String(e) });
+    }
+  }
+
+  // Emit analysis.completed event
+  await env.QUEUE_PIPELINE.send({
+    eventId: crypto.randomUUID(),
+    occurredAt: new Date().toISOString(),
+    type: "analysis.completed",
+    payload: { documentId, analysisId, organizationId, findingCount: findings.length, coreProcessCount: coreSummary.coreProcessCount },
+  });
+
+  // Emit diagnosis.completed event
+  await env.QUEUE_PIPELINE.send({
+    eventId: crypto.randomUUID(),
+    occurredAt: new Date().toISOString(),
+    type: "diagnosis.completed",
+    payload: { analysisId, documentId, organizationId, findingCount: findings.length },
+  });
+
+  logger.info("Auto-analysis completed", { analysisId, documentId, coreProcessCount: coreSummary.coreProcessCount, findingCount: findings.length });
 }
 
 /**

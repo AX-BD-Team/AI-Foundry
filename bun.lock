@@ -97,6 +97,7 @@
       "dependencies": {
         "@ai-foundry/types": "workspace:*",
         "@ai-foundry/utils": "workspace:*",
+        "zod": "^3.25.76",
       },
       "devDependencies": {
         "@cloudflare/workers-types": "^4.20241230.0",

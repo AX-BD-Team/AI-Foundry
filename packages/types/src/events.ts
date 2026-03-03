@@ -105,6 +105,42 @@ export const SkillPackagedEventSchema = BaseEventSchema.extend({
   }),
 });
 
+// Stage 2A+2B: analysis (scoring + diagnosis) completed
+export const AnalysisCompletedEventSchema = BaseEventSchema.extend({
+  type: z.literal("analysis.completed"),
+  payload: z.object({
+    documentId: z.string(),
+    extractionId: z.string(),
+    organizationId: z.string(),
+    analysisId: z.string(),
+    findingCount: z.number().int(),
+    coreProcessCount: z.number().int(),
+  }),
+});
+
+// Stage 2B: diagnosis analysis completed (findings generated, ready for HITL)
+export const DiagnosisCompletedEventSchema = BaseEventSchema.extend({
+  type: z.literal("diagnosis.completed"),
+  payload: z.object({
+    analysisId: z.string(),
+    documentId: z.string(),
+    organizationId: z.string(),
+    findingCount: z.number().int(),
+  }),
+});
+
+// Stage 2B HITL: diagnosis finding review completed
+export const DiagnosisReviewCompletedEventSchema = BaseEventSchema.extend({
+  type: z.literal("diagnosis.review_completed"),
+  payload: z.object({
+    findingId: z.string(),
+    analysisId: z.string(),
+    organizationId: z.string(),
+    reviewerId: z.string(),
+    action: z.enum(["accepted", "rejected", "modified"]),
+  }),
+});
+
 export const PipelineEventSchema = z.discriminatedUnion("type", [
   DocumentUploadedEventSchema,
   IngestionCompletedEventSchema,
@@ -113,6 +149,9 @@ export const PipelineEventSchema = z.discriminatedUnion("type", [
   PolicyApprovedEventSchema,
   OntologyNormalizedEventSchema,
   SkillPackagedEventSchema,
+  AnalysisCompletedEventSchema,
+  DiagnosisCompletedEventSchema,
+  DiagnosisReviewCompletedEventSchema,
 ]);
 
 export type DocumentUploadedEvent = z.infer<typeof DocumentUploadedEventSchema>;
@@ -122,4 +161,7 @@ export type PolicyCandidateReadyEvent = z.infer<typeof PolicyCandidateReadyEvent
 export type PolicyApprovedEvent = z.infer<typeof PolicyApprovedEventSchema>;
 export type OntologyNormalizedEvent = z.infer<typeof OntologyNormalizedEventSchema>;
 export type SkillPackagedEvent = z.infer<typeof SkillPackagedEventSchema>;
+export type AnalysisCompletedEvent = z.infer<typeof AnalysisCompletedEventSchema>;
+export type DiagnosisCompletedEvent = z.infer<typeof DiagnosisCompletedEventSchema>;
+export type DiagnosisReviewCompletedEvent = z.infer<typeof DiagnosisReviewCompletedEventSchema>;
 export type PipelineEvent = z.infer<typeof PipelineEventSchema>;

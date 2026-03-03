@@ -6,3 +6,5 @@ export * from "./skill.js";
 export * from "./security.js";
 export * from "./governance.js";
 export * from "./policy.js";
+export * from "./analysis.js";
+export * from "./diagnosis.js";

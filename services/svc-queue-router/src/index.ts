@@ -26,7 +26,10 @@ type EventType =
   | "policy.candidate_ready"
   | "policy.approved"
   | "ontology.normalized"
-  | "skill.packaged";
+  | "skill.packaged"
+  | "analysis.completed"
+  | "diagnosis.completed"
+  | "diagnosis.review_completed";
 
 /** Map each event type to the target service binding(s) */
 function getTargets(type: EventType, env: Env): Fetcher[] {
@@ -45,6 +48,12 @@ function getTargets(type: EventType, env: Env): Fetcher[] {
       case "ontology.normalized":
         return [env.SVC_SKILL];
       case "skill.packaged":
+        return [env.SVC_NOTIFICATION];
+      case "analysis.completed":
+        return [env.SVC_NOTIFICATION];
+      case "diagnosis.completed":
+        return [env.SVC_NOTIFICATION];
+      case "diagnosis.review_completed":
         return [env.SVC_NOTIFICATION];
     }
   })();

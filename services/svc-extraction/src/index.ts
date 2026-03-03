@@ -12,6 +12,8 @@
 import { createLogger, unauthorized, notFound, ok, extractRbacContext, checkPermission, logAudit } from "@ai-foundry/utils";
 import type { Env } from "./env.js";
 import { handleExtract } from "./routes/extract.js";
+import { handleAnalysisRoutes } from "./routes/analysis.js";
+import { handleCompareRoutes } from "./routes/compare.js";
 import { processQueueEvent } from "./queue/handler.js";
 
 export default {
@@ -37,6 +39,24 @@ export default {
     }
 
     try {
+      // /analysis/* and /analyze routes — analysis + cross-org comparison
+      if (path.startsWith("/analysis") || path === "/analyze") {
+        const rbacCtx = extractRbacContext(request);
+        if (rbacCtx) {
+          const action = method === "GET" ? "read" : "execute";
+          const denied = await checkPermission(env, rbacCtx.role, "extraction", action);
+          if (denied) return denied;
+        }
+        // compare routes first (more specific), then analysis routes
+        if (path.startsWith("/analysis/compare") || path === "/analysis/compare") {
+          return await handleCompareRoutes(request, env, ctx);
+        }
+        if (path.startsWith("/analysis/") && path.includes("/service-groups")) {
+          return await handleCompareRoutes(request, env, ctx);
+        }
+        return await handleAnalysisRoutes(request, env, ctx);
+      }
+
       // POST /internal/queue-event — invoked by svc-queue-router via service binding
       if (method === "POST" && path === "/internal/queue-event") {
         const body: unknown = await request.json();
