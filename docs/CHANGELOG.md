@@ -2,6 +2,19 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 086 — 2026-03-04
+**HITL 데모 데이터 조정 — Admin Reopen API + 버그 수정 3건**:
+- ✅ HitlSession DO: `/reset` 엔드포인트 추가 (storage 완전 초기화)
+- ✅ `POST /admin/reopen-policies`: approved→candidate 되돌리기 (D1 + DO 동기화, 최대 100건/요청)
+- ✅ 18건 핵심 정책 reopen: 7개 카테고리(BN 4, WD 3, CT 2, EN 3, TR 2, CL 1, RG 3)
+- ✅ Frontend `policyId` 필드 매핑 오류 수정 (hitl.tsx + api/policy.ts: `id`→`policyId`)
+- ✅ reject/modify 핸들러 auto-assign 누락 수정 (DO open→in_progress 전환)
+- ✅ E2E 검증: 승인(200), 반려(200), RBAC 차단(Analyst→403), RBAC 허용(Reviewer→200)
+- ✅ 테스트 후 데모 데이터 18건 복원 완료
+
+**검증**: typecheck ✅, Production 배포 완료 (svc-policy 2회 + Pages 1회)
+**변경 파일**: 6 files — svc-policy 4 (hitl-session, index, hitl routes, admin 신규) + app-web 2 (hitl.tsx, policy.ts)
+
 ## 세션 085 — 2026-03-04
 **243건 Candidate Bulk Approve — Phase 4 Sprint 2 파이프라인 완결**:
 - ✅ `batch-approve.sh --env production --yes` 실행: 243건 candidate → 5 배치 → 전체 approved (0 fail)
