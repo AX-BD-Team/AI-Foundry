@@ -1,7 +1,7 @@
 name: Deploy app-web (Cloudflare Pages)
 
 on:
-  # Staging: auto-deploy on push to main
+  # Production: auto-deploy on push to main
   push:
     branches: [main]
     paths:
@@ -9,7 +9,7 @@ on:
       - "packages/types/**"
       - ".github/workflows/deploy-pages.yml"
 
-  # Production: manual trigger or release
+  # Manual trigger (production default)
   workflow_dispatch:
     inputs:
       environment:
@@ -19,7 +19,7 @@ on:
         options:
           - staging
           - production
-        default: staging
+        default: production
 
   release:
     types: [published]
@@ -42,10 +42,7 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           INPUT_ENV: ${{ github.event.inputs.environment }}
         run: |
-          if [[ "$EVENT_NAME" == "release" ]]; then
-            echo "environment=production" >> "$GITHUB_OUTPUT"
-            echo "pages_branch=main" >> "$GITHUB_OUTPUT"
-          elif [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+          if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
             echo "environment=${INPUT_ENV}" >> "$GITHUB_OUTPUT"
             if [[ "$INPUT_ENV" == "production" ]]; then
               echo "pages_branch=main" >> "$GITHUB_OUTPUT"
@@ -53,8 +50,9 @@ jobs:
               echo "pages_branch=staging" >> "$GITHUB_OUTPUT"
             fi
           else
-            echo "environment=staging" >> "$GITHUB_OUTPUT"
-            echo "pages_branch=staging" >> "$GITHUB_OUTPUT"
+            # push to main and release → deploy to production
+            echo "environment=production" >> "$GITHUB_OUTPUT"
+            echo "pages_branch=main" >> "$GITHUB_OUTPUT"
           fi
 
   deploy:

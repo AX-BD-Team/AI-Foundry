@@ -1,7 +1,7 @@
 name: Deploy Workers Services
 
 on:
-  # Staging: auto-deploy on push to main
+  # Production: auto-deploy on push to main
   push:
     branches: [main]
     paths:
@@ -9,7 +9,7 @@ on:
       - "packages/**"
       - ".github/workflows/deploy-services.yml"
 
-  # Production: manual trigger or release
+  # Manual trigger (production default)
   workflow_dispatch:
     inputs:
       environment:
@@ -19,7 +19,7 @@ on:
         options:
           - staging
           - production
-        default: staging
+        default: production
       services:
         description: "Services to deploy (comma-separated, or 'all')"
         required: false
@@ -59,13 +59,12 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           INPUT_ENV: ${{ github.event.inputs.environment }}
         run: |
-          if [[ "$EVENT_NAME" == "release" ]]; then
-            echo "environment=production" >> "$GITHUB_OUTPUT"
-          elif [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+          if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
             # INPUT_ENV is constrained by choice type: staging|production
             echo "environment=${INPUT_ENV}" >> "$GITHUB_OUTPUT"
           else
-            echo "environment=staging" >> "$GITHUB_OUTPUT"
+            # push to main and release → deploy to production
+            echo "environment=production" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Determine services to deploy
