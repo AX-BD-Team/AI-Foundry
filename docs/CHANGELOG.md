@@ -2,6 +2,20 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 062 — 2026-03-03
+**Cross-Org Comparison 프로덕션 검증 + Silent Failure 수정 + Skill Evaluate 기능**:
+- ✅ 조직 비교 Production E2E 테스트: org-mirae-pension vs org-test-e2e-2 → 7건 비교 항목 (4-Group)
+- ✅ `compare.ts` silent failure 수정: LLM 실패 시 빈 결과 대신 502 에러 반환
+- ✅ `callLlmWithMeta()`: LLM 프로바이더/모델 추적 (analyses 테이블 llm_provider/llm_model)
+- ✅ `diagnosis-sync` 모드 추가: 동기식 분석 실행 지원
+- ✅ `svc-skill` policy evaluation 엔드포인트: POST /skills/:id/evaluate + GET /evaluations
+- ✅ svc-skill lint 수정 (floating promise)
+- ✅ Production 비교 결과: 공통표준 1, 조직고유 2, 암묵지 3, 핵심차별 1 + 표준화 권고 65%
+
+**검증**: typecheck 16/16, lint 13/13 PASS
+
+**산출물**: `b5b1bdd` feat(svc-extraction), `684fc2a` fix(svc-extraction), `c19fede` feat(svc-skill)
+
 ## 세션 061 — 2026-03-03
 **Cross-Org Comparison UI 구현 — analysis-report 4번째 탭 추가**:
 - ✅ `GET /analysis/organizations` 엔드포인트 추가 (svc-extraction)
