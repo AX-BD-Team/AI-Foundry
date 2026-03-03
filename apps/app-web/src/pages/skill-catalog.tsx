@@ -15,6 +15,7 @@ import { Search, Package, Star, Download, ArrowUpDown, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { fetchSkills, downloadSkill } from '@/api/skill';
 import type { SkillRow } from '@/api/skill';
+import { useOrganization } from '@/contexts/OrganizationContext';
 
 const TRUST_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
   unreviewed: { label: '\uBBF8\uAC80\uD1A0', color: '#9CA3AF', bg: 'rgba(156, 163, 175, 0.1)' },
@@ -44,6 +45,7 @@ function sortSkills(skills: SkillRow[], key: SortKey): SkillRow[] {
 }
 
 export default function SkillCatalogPage() {
+  const { organizationId } = useOrganization();
   const [skills, setSkills] = useState<SkillRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -54,7 +56,7 @@ export default function SkillCatalogPage() {
 
   useEffect(() => {
     setLoading(true);
-    void fetchSkills(trustFilter ? { limit: 100, trustLevel: trustFilter } : { limit: 100 })
+    void fetchSkills(organizationId, trustFilter ? { limit: 100, trustLevel: trustFilter } : { limit: 100 })
       .then((res) => { if (res.success) setSkills(res.data.skills); })
       .catch(() => toast.error('Skill \uBAA9\uB85D\uC744 \uBD88\uB7EC\uC62C \uC218 \uC5C6\uC2B5\uB2C8\uB2E4'))
       .finally(() => setLoading(false));
@@ -84,7 +86,7 @@ export default function SkillCatalogPage() {
     e.preventDefault(); // prevent Link navigation
     e.stopPropagation();
     try {
-      const blob = await downloadSkill(skillId);
+      const blob = await downloadSkill(organizationId, skillId);
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;

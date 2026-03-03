@@ -1,17 +1,20 @@
 import type { ApiResponse } from "@ai-foundry/types";
+import { buildHeaders } from "./headers";
 
 const API_BASE =
   (import.meta.env["VITE_API_BASE"] as string | undefined) ?? "/api";
 
-const HEADERS = {
-  "Content-Type": "application/json",
-  "X-Internal-Secret":
-    (import.meta.env["VITE_INTERNAL_SECRET"] as string | undefined) ??
-    "dev-secret",
-  "X-User-Id": "exec-001",
-  "X-User-Role": "Executive",
-  "X-Organization-Id": "org-001",
-};
+const USER_ID = "exec-001";
+const USER_ROLE = "Executive";
+
+function headers(organizationId: string): Record<string, string> {
+  return buildHeaders({
+    organizationId,
+    userId: USER_ID,
+    userRole: USER_ROLE,
+    contentType: "application/json",
+  });
+}
 
 export interface QualityMetrics {
   organizationId: string;
@@ -48,9 +51,11 @@ export interface QualityMetrics {
   >;
 }
 
-export async function fetchQualityMetrics(): Promise<
-  ApiResponse<QualityMetrics>
-> {
-  const res = await fetch(`${API_BASE}/quality`, { headers: HEADERS });
+export async function fetchQualityMetrics(
+  organizationId: string,
+): Promise<ApiResponse<QualityMetrics>> {
+  const res = await fetch(`${API_BASE}/quality`, {
+    headers: headers(organizationId),
+  });
   return res.json() as Promise<ApiResponse<QualityMetrics>>;
 }

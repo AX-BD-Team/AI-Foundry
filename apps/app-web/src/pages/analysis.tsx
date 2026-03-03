@@ -8,8 +8,10 @@ import { Search, FileText, ExternalLink, CheckCircle, AlertCircle } from 'lucide
 import { toast } from 'sonner';
 import { fetchDocuments, fetchDocumentChunks } from '@/api/ingestion';
 import type { DocumentRow, DocumentChunk } from '@/api/ingestion';
+import { useOrganization } from '@/contexts/OrganizationContext';
 
 export default function AnalysisPage() {
+  const { organizationId } = useOrganization();
   const [documents, setDocuments] = useState<DocumentRow[]>([]);
   const [selectedDoc, setSelectedDoc] = useState<DocumentRow | null>(null);
   const [chunks, setChunks] = useState<DocumentChunk[]>([]);
@@ -18,7 +20,7 @@ export default function AnalysisPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    void fetchDocuments().then((res) => {
+    void fetchDocuments(organizationId).then((res) => {
       if (res.success) {
         setDocuments(res.data.documents);
         const first = res.data.documents[0];
@@ -35,7 +37,7 @@ export default function AnalysisPage() {
     if (!selectedDoc) return;
     setLoading(true);
     setSelectedChunk(null);
-    void fetchDocumentChunks(selectedDoc.document_id).then((res) => {
+    void fetchDocumentChunks(organizationId, selectedDoc.document_id).then((res) => {
       if (res.success) {
         setChunks(res.data.chunks);
         const first = res.data.chunks[0];

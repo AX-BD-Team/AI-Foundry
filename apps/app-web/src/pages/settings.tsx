@@ -17,6 +17,7 @@ import { toast } from 'sonner';
 import { useTheme } from '@/contexts/ThemeContext';
 import { fetchNotifications, markNotificationRead } from '@/api/notification';
 import type { Notification } from '@/api/notification';
+import { useOrganization } from '@/contexts/OrganizationContext';
 
 interface ServiceHealth {
   name: string;
@@ -31,6 +32,7 @@ const SERVICES = [
 ] as const;
 
 export default function SettingsPage() {
+  const { organizationId } = useOrganization();
   const { darkMode, setDarkMode } = useTheme();
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [slackNotifications, setSlackNotifications] = useState(false);
@@ -49,7 +51,7 @@ export default function SettingsPage() {
   const loadNotifications = useCallback(async () => {
     setNotifLoading(true);
     try {
-      const res = await fetchNotifications();
+      const res = await fetchNotifications(organizationId);
       if (res.success && res.data) {
         setNotifications(res.data.items);
       }
@@ -62,7 +64,7 @@ export default function SettingsPage() {
 
   const handleMarkRead = async (id: string) => {
     try {
-      await markNotificationRead(id);
+      await markNotificationRead(organizationId, id);
       setNotifications((prev) =>
         prev.map((n) => (n.notification_id === id ? { ...n, read: true } : n)),
       );

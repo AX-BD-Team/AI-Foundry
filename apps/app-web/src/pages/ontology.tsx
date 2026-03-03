@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Search, Network, Box, Link as LinkIcon, Plus, Edit, Loader2 } from 'lucide-react';
 import { fetchTerms, type TermRow } from '@/api/ontology';
+import { useOrganization } from '@/contexts/OrganizationContext';
 
 interface OntologyNode {
   id: string;
@@ -85,6 +86,7 @@ const getTypeBadge = (type: OntologyNode['type']) => {
 };
 
 export default function OntologyPage() {
+  const { organizationId } = useOrganization();
   const [nodes, setNodes] = useState<OntologyNode[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -97,7 +99,7 @@ export default function OntologyPage() {
     setLoading(true);
     setError(null);
 
-    fetchTerms({ limit: 100 })
+    fetchTerms(organizationId, { limit: 100 })
       .then((res) => {
         if (cancelled) return;
         if (res.success) {

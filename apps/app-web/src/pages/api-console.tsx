@@ -8,6 +8,7 @@ import { IntegrationGuide } from '@/components/IntegrationGuide';
 import { FlaskConical, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { fetchSkills, fetchSkillMcp, type SkillRow, type McpAdapter } from '@/api/skill';
+import { useOrganization } from '@/contexts/OrganizationContext';
 
 interface McpMapping {
   id: string;
@@ -34,6 +35,7 @@ function skillToMappings(skill: SkillRow, adapter: McpAdapter): McpMapping[] {
 }
 
 export default function ApiConsolePage() {
+  const { organizationId } = useOrganization();
   const [selectedMappingId, setSelectedMappingId] = useState<string | null>(null);
   const [mappings, setMappings] = useState<McpMapping[]>([]);
   const [activeTab, setActiveTab] = useState('mcp-adapter');
@@ -45,7 +47,7 @@ export default function ApiConsolePage() {
     setLoading(true);
     setError(null);
 
-    fetchSkills({ limit: 50 })
+    fetchSkills(organizationId, { limit: 50 })
       .then(async (res) => {
         if (cancelled) return;
         if (!res.success) {
@@ -58,7 +60,7 @@ export default function ApiConsolePage() {
         for (const skill of res.data.skills) {
           if (cancelled) break;
           try {
-            const adapter = await fetchSkillMcp(skill.skillId);
+            const adapter = await fetchSkillMcp(organizationId, skill.skillId);
             const items = skillToMappings(skill, adapter);
             allMappings.push(...items);
           } catch (e: unknown) {

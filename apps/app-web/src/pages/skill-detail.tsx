@@ -23,6 +23,7 @@ import {
 import { toast } from 'sonner';
 import { fetchSkill, downloadSkill, fetchSkillMcp, fetchSkillOpenApi } from '@/api/skill';
 import type { SkillDetail, McpAdapter } from '@/api/skill';
+import { useOrganization } from '@/contexts/OrganizationContext';
 
 const TRUST_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
   unreviewed: { label: '\uBBF8\uAC80\uD1A0', color: '#9CA3AF', bg: 'rgba(156, 163, 175, 0.1)' },
@@ -37,6 +38,7 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }
 };
 
 export default function SkillDetailPage() {
+  const { organizationId } = useOrganization();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [skill, setSkill] = useState<SkillDetail | null>(null);
@@ -49,7 +51,7 @@ export default function SkillDetailPage() {
   useEffect(() => {
     if (!id) return;
     setLoading(true);
-    void fetchSkill(id)
+    void fetchSkill(organizationId, id)
       .then((res) => {
         if (res.success) {
           setSkill(res.data);
@@ -64,7 +66,7 @@ export default function SkillDetailPage() {
   const handleDownload = async () => {
     if (!id) return;
     try {
-      const blob = await downloadSkill(id);
+      const blob = await downloadSkill(organizationId, id);
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -84,7 +86,7 @@ export default function SkillDetailPage() {
       return;
     }
     try {
-      const adapter = await fetchSkillMcp(id);
+      const adapter = await fetchSkillMcp(organizationId, id);
       setMcpAdapter(adapter);
       setShowMcp(true);
     } catch {
@@ -99,7 +101,7 @@ export default function SkillDetailPage() {
       return;
     }
     try {
-      const spec = await fetchSkillOpenApi(id);
+      const spec = await fetchSkillOpenApi(organizationId, id);
       setOpenApiSpec(spec);
       setShowOpenApi(true);
     } catch {

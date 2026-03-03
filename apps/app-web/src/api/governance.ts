@@ -1,17 +1,20 @@
 import type { ApiResponse } from "@ai-foundry/types";
+import { buildHeaders } from "./headers";
 
 const API_BASE =
   (import.meta.env["VITE_API_BASE"] as string | undefined) ?? "/api";
 
-const HEADERS = {
-  "Content-Type": "application/json",
-  "X-Internal-Secret":
-    (import.meta.env["VITE_INTERNAL_SECRET"] as string | undefined) ??
-    "dev-secret",
-  "X-User-Id": "exec-001",
-  "X-User-Role": "Executive",
-  "X-Organization-Id": "org-001",
-};
+const USER_ID = "exec-001";
+const USER_ROLE = "Executive";
+
+function headers(organizationId: string): Record<string, string> {
+  return buildHeaders({
+    organizationId,
+    userId: USER_ID,
+    userRole: USER_ROLE,
+    contentType: "application/json",
+  });
+}
 
 export interface CostSummary {
   totalRequests: number;
@@ -22,8 +25,12 @@ export interface CostSummary {
   period: string;
 }
 
-export async function fetchCostSummary(): Promise<ApiResponse<CostSummary>> {
-  const res = await fetch(`${API_BASE}/cost`, { headers: HEADERS });
+export async function fetchCostSummary(
+  organizationId: string,
+): Promise<ApiResponse<CostSummary>> {
+  const res = await fetch(`${API_BASE}/cost`, {
+    headers: headers(organizationId),
+  });
   return res.json() as Promise<ApiResponse<CostSummary>>;
 }
 
@@ -32,8 +39,12 @@ export interface TrustData {
   totalEvaluations: number;
 }
 
-export async function fetchTrust(): Promise<ApiResponse<TrustData>> {
-  const res = await fetch(`${API_BASE}/trust`, { headers: HEADERS });
+export async function fetchTrust(
+  organizationId: string,
+): Promise<ApiResponse<TrustData>> {
+  const res = await fetch(`${API_BASE}/trust`, {
+    headers: headers(organizationId),
+  });
   return res.json() as Promise<ApiResponse<TrustData>>;
 }
 
@@ -54,9 +65,11 @@ export interface HitlStats {
   }>;
 }
 
-export async function fetchHitlStats(): Promise<ApiResponse<HitlStats>> {
+export async function fetchHitlStats(
+  organizationId: string,
+): Promise<ApiResponse<HitlStats>> {
   const res = await fetch(`${API_BASE}/policies/hitl/stats`, {
-    headers: HEADERS,
+    headers: headers(organizationId),
   });
   return res.json() as Promise<ApiResponse<HitlStats>>;
 }
@@ -75,11 +88,12 @@ export interface QualityTrend {
 }
 
 export async function fetchQualityTrend(
+  organizationId: string,
   days = 30,
 ): Promise<ApiResponse<QualityTrend>> {
   const res = await fetch(
     `${API_BASE}/policies/quality-trend?days=${days}`,
-    { headers: HEADERS },
+    { headers: headers(organizationId) },
   );
   return res.json() as Promise<ApiResponse<QualityTrend>>;
 }
@@ -94,10 +108,12 @@ export interface GoldenTestData {
   breakdown: Array<{ name: string; score: number }>;
 }
 
-export async function fetchGoldenTests(): Promise<
-  ApiResponse<GoldenTestData>
-> {
-  const res = await fetch(`${API_BASE}/golden-tests`, { headers: HEADERS });
+export async function fetchGoldenTests(
+  organizationId: string,
+): Promise<ApiResponse<GoldenTestData>> {
+  const res = await fetch(`${API_BASE}/golden-tests`, {
+    headers: headers(organizationId),
+  });
   return res.json() as Promise<ApiResponse<GoldenTestData>>;
 }
 
@@ -125,11 +141,11 @@ export interface ReasoningAnalysis {
   totalPoliciesAnalyzed: number;
 }
 
-export async function fetchReasoningAnalysis(): Promise<
-  ApiResponse<ReasoningAnalysis>
-> {
+export async function fetchReasoningAnalysis(
+  organizationId: string,
+): Promise<ApiResponse<ReasoningAnalysis>> {
   const res = await fetch(`${API_BASE}/policies/reasoning-analysis`, {
-    headers: HEADERS,
+    headers: headers(organizationId),
   });
   return res.json() as Promise<ApiResponse<ReasoningAnalysis>>;
 }

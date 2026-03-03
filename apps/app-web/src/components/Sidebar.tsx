@@ -15,10 +15,13 @@ import {
   User,
   Moon,
   Sun,
+  Building2,
 } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useOrganization } from '@/contexts/OrganizationContext';
 
 interface MenuItem {
   icon: React.ReactNode;
@@ -26,6 +29,11 @@ interface MenuItem {
   labelEn: string;
   path: string;
 }
+
+const ORGANIZATIONS = [
+  { id: 'Miraeasset', label: '미래에셋 퇴직연금', labelEn: 'Miraeasset Pension' },
+  { id: 'org-001', label: '파일럿', labelEn: 'Pilot' },
+] as const;
 
 interface SidebarProps {
   userRole?: string;
@@ -37,6 +45,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   userName = '김민준',
 }) => {
   const location = useLocation();
+  const { organizationId, setOrganizationId } = useOrganization();
 
   const menuItems: MenuItem[] = [
     {
@@ -135,6 +144,37 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </p>
           </div>
         </Link>
+      </div>
+
+      {/* Organization Selector */}
+      <div className="px-4 pt-4 pb-2">
+        <div className="flex items-center gap-2 mb-2 px-1">
+          <Building2 className="w-4 h-4" style={{ color: 'rgba(255, 255, 255, 0.6)' }} />
+          <span className="text-xs font-medium" style={{ color: 'rgba(255, 255, 255, 0.6)' }}>
+            조직 선택
+          </span>
+        </div>
+        <Select value={organizationId} onValueChange={setOrganizationId}>
+          <SelectTrigger
+            className="w-full border-white/20 text-sm"
+            style={{
+              backgroundColor: 'rgba(255, 255, 255, 0.08)',
+              color: 'var(--primary-foreground)',
+            }}
+          >
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {ORGANIZATIONS.map((org) => (
+              <SelectItem key={org.id} value={org.id}>
+                <div>
+                  <div className="text-sm">{org.label}</div>
+                  <div className="text-xs text-muted-foreground">{org.labelEn}</div>
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Navigation Menu */}

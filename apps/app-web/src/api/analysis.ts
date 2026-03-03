@@ -6,60 +6,68 @@ import type {
   DiagnosisFinding,
   CrossOrgComparison,
 } from "@ai-foundry/types";
+import { buildHeaders } from "./headers";
 
 const API_BASE =
   (import.meta.env["VITE_API_BASE"] as string | undefined) ?? "/api";
 
-const HEADERS: Record<string, string> = {
-  "Content-Type": "application/json",
-  "X-Internal-Secret":
-    (import.meta.env["VITE_INTERNAL_SECRET"] as string | undefined) ??
-    "dev-secret",
-  "X-User-Id": "analyst-001",
-  "X-User-Role": "Analyst",
-  "X-Organization-Id": "org-001",
-};
+const USER_ID = "analyst-001";
+const USER_ROLE = "Analyst";
+
+function headers(organizationId: string): Record<string, string> {
+  return buildHeaders({
+    organizationId,
+    userId: USER_ID,
+    userRole: USER_ROLE,
+    contentType: "application/json",
+  });
+}
 
 export async function fetchAnalysisSummary(
+  organizationId: string,
   documentId: string,
 ): Promise<ApiResponse<ExtractionSummary>> {
   const res = await fetch(`${API_BASE}/analysis/${documentId}/summary`, {
-    headers: HEADERS,
+    headers: headers(organizationId),
   });
   return res.json() as Promise<ApiResponse<ExtractionSummary>>;
 }
 
 export async function fetchCoreProcesses(
+  organizationId: string,
   documentId: string,
 ): Promise<ApiResponse<CoreIdentification>> {
   const res = await fetch(
     `${API_BASE}/analysis/${documentId}/core-processes`,
-    { headers: HEADERS },
+    { headers: headers(organizationId) },
   );
   return res.json() as Promise<ApiResponse<CoreIdentification>>;
 }
 
 export async function fetchFindings(
+  organizationId: string,
   documentId: string,
 ): Promise<ApiResponse<DiagnosisResult>> {
   const res = await fetch(`${API_BASE}/analysis/${documentId}/findings`, {
-    headers: HEADERS,
+    headers: headers(organizationId),
   });
   return res.json() as Promise<ApiResponse<DiagnosisResult>>;
 }
 
 export async function fetchFinding(
+  organizationId: string,
   documentId: string,
   findingId: string,
 ): Promise<ApiResponse<DiagnosisFinding>> {
   const res = await fetch(
     `${API_BASE}/analysis/${documentId}/findings/${findingId}`,
-    { headers: HEADERS },
+    { headers: headers(organizationId) },
   );
   return res.json() as Promise<ApiResponse<DiagnosisFinding>>;
 }
 
 export async function reviewFinding(
+  organizationId: string,
   documentId: string,
   findingId: string,
   body: { action: "accept" | "reject" | "modify"; comment?: string },
@@ -68,7 +76,7 @@ export async function reviewFinding(
     `${API_BASE}/analysis/${documentId}/findings/${findingId}/review`,
     {
       method: "POST",
-      headers: HEADERS,
+      headers: headers(organizationId),
       body: JSON.stringify(body),
     },
   );
@@ -79,19 +87,21 @@ export async function reviewFinding(
 
 import type { LlmProvider } from "@ai-foundry/types";
 export type { LlmProvider };
-/** UI에서 선택 가능한 tier — Opus/Workers는 UI 노출 제외 */
 export type LlmTier = "sonnet" | "haiku";
 
-export async function triggerAnalysis(body: {
-  documentId: string;
-  extractionId: string;
-  organizationId: string;
-  preferredProvider?: LlmProvider;
-  preferredTier?: LlmTier;
-}): Promise<ApiResponse<{ analysisId: string; status: string }>> {
+export async function triggerAnalysis(
+  organizationId: string,
+  body: {
+    documentId: string;
+    extractionId: string;
+    organizationId: string;
+    preferredProvider?: LlmProvider;
+    preferredTier?: LlmTier;
+  },
+): Promise<ApiResponse<{ analysisId: string; status: string }>> {
   const res = await fetch(`${API_BASE}/analyze`, {
     method: "POST",
-    headers: HEADERS,
+    headers: headers(organizationId),
     body: JSON.stringify({ ...body, mode: "diagnosis-sync" }),
   });
   return res.json() as Promise<
@@ -108,30 +118,34 @@ export interface OrganizationSummary {
   lastAnalysisAt: string;
 }
 
-export async function fetchOrganizations(): Promise<
-  ApiResponse<{ organizations: OrganizationSummary[] }>
-> {
+export async function fetchOrganizations(
+  organizationId: string,
+): Promise<ApiResponse<{ organizations: OrganizationSummary[] }>> {
   const res = await fetch(`${API_BASE}/analysis/organizations`, {
-    headers: HEADERS,
+    headers: headers(organizationId),
   });
   return res.json() as Promise<
     ApiResponse<{ organizations: OrganizationSummary[] }>
   >;
 }
 
-export async function triggerComparison(body: {
-  organizationIds: string[];
-  domain?: string;
-}): Promise<ApiResponse<CrossOrgComparison>> {
+export async function triggerComparison(
+  organizationId: string,
+  body: {
+    organizationIds: string[];
+    domain?: string;
+  },
+): Promise<ApiResponse<CrossOrgComparison>> {
   const res = await fetch(`${API_BASE}/analysis/compare`, {
     method: "POST",
-    headers: HEADERS,
+    headers: headers(organizationId),
     body: JSON.stringify(body),
   });
   return res.json() as Promise<ApiResponse<CrossOrgComparison>>;
 }
 
 export async function fetchStandardization(
+  organizationId: string,
   comparisonId: string,
 ): Promise<
   ApiResponse<{
@@ -145,7 +159,7 @@ export async function fetchStandardization(
 > {
   const res = await fetch(
     `${API_BASE}/analysis/compare/${comparisonId}/standardization`,
-    { headers: HEADERS },
+    { headers: headers(organizationId) },
   );
   return res.json() as Promise<
     ApiResponse<{

@@ -17,6 +17,7 @@ import {
 import { toast } from 'sonner';
 import { uploadDocument, fetchDocuments } from '@/api/ingestion';
 import type { DocumentRow } from '@/api/ingestion';
+import { useOrganization } from '@/contexts/OrganizationContext';
 
 const ACCEPTED_TYPES = [
   'application/pdf',
@@ -28,6 +29,7 @@ const ACCEPTED_TYPES = [
 ];
 
 export default function DocumentUploadPage() {
+  const { organizationId } = useOrganization();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [documents, setDocuments] = useState<DocumentRow[]>([]);
@@ -35,7 +37,7 @@ export default function DocumentUploadPage() {
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
-    void fetchDocuments().then((res) => {
+    void fetchDocuments(organizationId).then((res) => {
       if (res.success) setDocuments(res.data.documents);
     });
   }, []);
@@ -47,10 +49,10 @@ export default function DocumentUploadPage() {
     }
     setUploading(true);
     try {
-      const res = await uploadDocument(file);
+      const res = await uploadDocument(organizationId, file);
       if (res.success) {
         toast.success(`업로드 완료: ${file.name}`);
-        const refreshed = await fetchDocuments();
+        const refreshed = await fetchDocuments(organizationId);
         if (refreshed.success) setDocuments(refreshed.data.documents);
       } else {
         toast.error(res.error.message);

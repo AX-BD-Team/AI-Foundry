@@ -1,16 +1,15 @@
 import type { ApiResponse } from "@ai-foundry/types";
+import { buildHeaders } from "./headers";
 
 const API_BASE =
   (import.meta.env["VITE_API_BASE"] as string | undefined) ?? "/api";
 
-const HEADERS: Record<string, string> = {
-  "X-Internal-Secret":
-    (import.meta.env["VITE_INTERNAL_SECRET"] as string | undefined) ??
-    "dev-secret",
-  "X-User-Id": "analyst-001",
-  "X-User-Role": "Analyst",
-  "X-Organization-Id": "org-001",
-};
+const USER_ID = "analyst-001";
+const USER_ROLE = "Analyst";
+
+function headers(organizationId: string): Record<string, string> {
+  return buildHeaders({ organizationId, userId: USER_ID, userRole: USER_ROLE });
+}
 
 export interface DocumentRow {
   document_id: string;
@@ -40,27 +39,31 @@ export interface UploadResult {
   uploadedAt: string;
 }
 
-export async function fetchDocuments(): Promise<
-  ApiResponse<{ documents: DocumentRow[] }>
-> {
-  const res = await fetch(`${API_BASE}/documents`, { headers: HEADERS });
+export async function fetchDocuments(
+  organizationId: string,
+): Promise<ApiResponse<{ documents: DocumentRow[] }>> {
+  const res = await fetch(`${API_BASE}/documents`, {
+    headers: headers(organizationId),
+  });
   return res.json() as Promise<ApiResponse<{ documents: DocumentRow[] }>>;
 }
 
 export async function fetchDocument(
+  organizationId: string,
   id: string,
 ): Promise<ApiResponse<DocumentRow>> {
   const res = await fetch(`${API_BASE}/documents/${id}`, {
-    headers: HEADERS,
+    headers: headers(organizationId),
   });
   return res.json() as Promise<ApiResponse<DocumentRow>>;
 }
 
 export async function fetchDocumentChunks(
+  organizationId: string,
   documentId: string,
 ): Promise<ApiResponse<{ documentId: string; chunks: DocumentChunk[] }>> {
   const res = await fetch(`${API_BASE}/documents/${documentId}/chunks`, {
-    headers: HEADERS,
+    headers: headers(organizationId),
   });
   return res.json() as Promise<
     ApiResponse<{ documentId: string; chunks: DocumentChunk[] }>
@@ -68,17 +71,14 @@ export async function fetchDocumentChunks(
 }
 
 export async function uploadDocument(
+  organizationId: string,
   file: File,
 ): Promise<ApiResponse<UploadResult>> {
   const formData = new FormData();
   formData.append("file", file);
-  const { "Content-Type": _, ...headersWithoutCT } = {
-    "Content-Type": "",
-    ...HEADERS,
-  };
   const res = await fetch(`${API_BASE}/documents`, {
     method: "POST",
-    headers: headersWithoutCT,
+    headers: headers(organizationId),
     body: formData,
   });
   return res.json() as Promise<ApiResponse<UploadResult>>;

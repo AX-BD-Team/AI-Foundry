@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { OrganizationProvider } from "./contexts/OrganizationContext";
 import { Toaster } from "./components/ui/sonner";
 import { Layout } from "./components/Layout";
 
@@ -34,6 +35,7 @@ function LoadingFallback() {
 export function App() {
   return (
     <ThemeProvider>
+      <OrganizationProvider>
       <Toaster />
       <BrowserRouter>
         <Suspense fallback={<LoadingFallback />}>
@@ -55,6 +57,7 @@ export function App() {
           </Routes>
         </Suspense>
       </BrowserRouter>
+      </OrganizationProvider>
     </ThemeProvider>
   );
 }

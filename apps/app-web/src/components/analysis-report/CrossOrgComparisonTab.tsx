@@ -37,6 +37,7 @@ import {
 } from "@/api/analysis";
 import type { OrganizationSummary } from "@/api/analysis";
 import { MetricCard } from "./MetricCard";
+import { useOrganization } from "@/contexts/OrganizationContext";
 
 // ── 서비스 그룹 메타데이터 ───────────────────────────────────────────
 
@@ -80,6 +81,7 @@ interface StandardizationCandidate {
 // ── 컴포넌트 ─────────────────────────────────────────────────────────
 
 export function CrossOrgComparisonTab() {
+  const { organizationId } = useOrganization();
   // 조직 목록
   const [organizations, setOrganizations] = useState<OrganizationSummary[]>([]);
   const [loadingOrgs, setLoadingOrgs] = useState(true);
@@ -103,7 +105,7 @@ export function CrossOrgComparisonTab() {
 
   // 조직 목록 로드
   useEffect(() => {
-    void fetchOrganizations()
+    void fetchOrganizations(organizationId)
       .then((res) => {
         if (res.success) {
           setOrganizations(res.data.organizations);
@@ -118,7 +120,7 @@ export function CrossOrgComparisonTab() {
       })
       .catch(() => toast.error("조직 목록 API 호출 실패"))
       .finally(() => setLoadingOrgs(false));
-  }, []);
+  }, [organizationId]);
 
   // 비교 실행
   const handleCompare = useCallback(async () => {
@@ -132,7 +134,7 @@ export function CrossOrgComparisonTab() {
     setCandidates([]);
 
     try {
-      const res = await triggerComparison({
+      const res = await triggerComparison(organizationId, {
         organizationIds: [orgA, orgB],
         domain: "퇴직연금",
       });
@@ -144,7 +146,7 @@ export function CrossOrgComparisonTab() {
         // 표준화 후보 조회
         setLoadingCandidates(true);
         try {
-          const stdRes = await fetchStandardization(res.data.comparisonId);
+          const stdRes = await fetchStandardization(organizationId, res.data.comparisonId);
           if (stdRes.success) {
             setCandidates(stdRes.data.candidates);
           }
@@ -161,7 +163,7 @@ export function CrossOrgComparisonTab() {
     } finally {
       setComparing(false);
     }
-  }, [orgA, orgB]);
+  }, [organizationId, orgA, orgB]);
 
   // 정렬 + 필터된 아이템
   const filteredItems = useMemo(() => {

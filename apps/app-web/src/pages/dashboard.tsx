@@ -14,6 +14,7 @@ import type { LucideIcon } from 'lucide-react';
 import { fetchSkills } from '@/api/skill';
 import { fetchAuditLogs } from '@/api/security';
 import type { AuditRow } from '@/api/security';
+import { useOrganization } from '@/contexts/OrganizationContext';
 
 interface SystemStat {
   label: string;
@@ -23,6 +24,7 @@ interface SystemStat {
 }
 
 export default function DashboardPage() {
+  const { organizationId } = useOrganization();
   const [stats, setStats] = useState<SystemStat[]>([
     { label: '처리 중인 문서', value: '—', color: '#3B82F6', icon: FileSearch },
     { label: '검토 대기', value: '—', color: 'var(--accent)', icon: AlertCircle },
@@ -38,8 +40,8 @@ export default function DashboardPage() {
     async function loadData() {
       try {
         const [skillsRes, auditRes] = await Promise.allSettled([
-          fetchSkills({ limit: 100 }),
-          fetchAuditLogs({ limit: 10 }),
+          fetchSkills(organizationId, { limit: 100 }),
+          fetchAuditLogs(organizationId, { limit: 10 }),
         ]);
 
         if (cancelled) return;

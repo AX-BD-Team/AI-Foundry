@@ -1,17 +1,20 @@
 import type { ApiResponse } from "@ai-foundry/types";
+import { buildHeaders } from "./headers";
 
 const API_BASE =
   (import.meta.env["VITE_API_BASE"] as string | undefined) ?? "/api";
 
-const HEADERS = {
-  "Content-Type": "application/json",
-  "X-Internal-Secret":
-    (import.meta.env["VITE_INTERNAL_SECRET"] as string | undefined) ??
-    "dev-secret",
-  "X-User-Id": "analyst-001",
-  "X-User-Role": "Analyst",
-  "X-Organization-Id": "org-001",
-};
+const USER_ID = "analyst-001";
+const USER_ROLE = "Analyst";
+
+function headers(organizationId: string): Record<string, string> {
+  return buildHeaders({
+    organizationId,
+    userId: USER_ID,
+    userRole: USER_ROLE,
+    contentType: "application/json",
+  });
+}
 
 export interface TermRow {
   termId: string;
@@ -24,11 +27,14 @@ export interface TermRow {
   createdAt: string;
 }
 
-export async function fetchTerms(params?: {
-  ontologyId?: string;
-  limit?: number;
-  offset?: number;
-}): Promise<ApiResponse<{ terms: TermRow[]; limit: number; offset: number }>> {
+export async function fetchTerms(
+  organizationId: string,
+  params?: {
+    ontologyId?: string;
+    limit?: number;
+    offset?: number;
+  },
+): Promise<ApiResponse<{ terms: TermRow[]; limit: number; offset: number }>> {
   const qs = new URLSearchParams();
   if (params !== undefined) {
     if (params.ontologyId !== undefined) qs.set("ontologyId", params.ontologyId);
@@ -38,7 +44,7 @@ export async function fetchTerms(params?: {
   const query = qs.toString();
   const res = await fetch(
     `${API_BASE}/terms${query ? `?${query}` : ""}`,
-    { headers: HEADERS },
+    { headers: headers(organizationId) },
   );
   return res.json() as Promise<
     ApiResponse<{ terms: TermRow[]; limit: number; offset: number }>
@@ -46,10 +52,11 @@ export async function fetchTerms(params?: {
 }
 
 export async function fetchTerm(
+  organizationId: string,
   id: string,
 ): Promise<ApiResponse<TermRow>> {
   const res = await fetch(`${API_BASE}/terms/${id}`, {
-    headers: HEADERS,
+    headers: headers(organizationId),
   });
   return res.json() as Promise<ApiResponse<TermRow>>;
 }
@@ -61,6 +68,7 @@ export interface GraphResult {
 }
 
 export async function fetchGraph(
+  organizationId: string,
   query?: string,
 ): Promise<ApiResponse<GraphResult>> {
   const qs = new URLSearchParams();
@@ -68,7 +76,7 @@ export async function fetchGraph(
   const q = qs.toString();
   const res = await fetch(
     `${API_BASE}/graph${q ? `?${q}` : ""}`,
-    { headers: HEADERS },
+    { headers: headers(organizationId) },
   );
   return res.json() as Promise<ApiResponse<GraphResult>>;
 }

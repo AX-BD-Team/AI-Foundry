@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { CheckCircle, XCircle, MessageSquare, AlertTriangle, Clock, User } from 'lucide-react';
 import { toast } from 'sonner';
 import { fetchPolicies, approvePolicy, rejectPolicy } from '@/api/policy';
+import { useOrganization } from '@/contexts/OrganizationContext';
 
 interface PolicyItem {
   id: string;
@@ -20,6 +21,7 @@ interface PolicyItem {
 }
 
 export default function HITLReviewPage() {
+  const { organizationId } = useOrganization();
   const [policies, setPolicies] = useState<PolicyItem[]>([]);
   const [selectedPolicy, setSelectedPolicy] = useState<PolicyItem | null>(null);
   const [comment, setComment] = useState('');
@@ -28,7 +30,7 @@ export default function HITLReviewPage() {
   const loadPolicies = async () => {
     setLoading(true);
     try {
-      const res = await fetchPolicies({ status: 'candidate', limit: 50 });
+      const res = await fetchPolicies(organizationId, { status: 'candidate', limit: 50 });
       if (res.success) {
         setPolicies(res.data.policies);
         const first = res.data.policies[0];
@@ -46,7 +48,7 @@ export default function HITLReviewPage() {
   const handleApprove = async () => {
     if (!selectedPolicy) return;
     try {
-      const res = await approvePolicy(selectedPolicy.id, { reviewerId: 'reviewer-001', comment });
+      const res = await approvePolicy(organizationId, selectedPolicy.id, { reviewerId: 'reviewer-001', comment });
       if (res.success) {
         toast.success(`${selectedPolicy.policyCode} 승인 완료`);
         setComment('');
@@ -60,7 +62,7 @@ export default function HITLReviewPage() {
   const handleReject = async () => {
     if (!selectedPolicy) return;
     try {
-      const res = await rejectPolicy(selectedPolicy.id, { reviewerId: 'reviewer-001', comment });
+      const res = await rejectPolicy(organizationId, selectedPolicy.id, { reviewerId: 'reviewer-001', comment });
       if (res.success) {
         toast.success(`${selectedPolicy.policyCode} 반려 완료`);
         setComment('');

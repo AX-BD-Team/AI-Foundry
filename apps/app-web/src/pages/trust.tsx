@@ -22,6 +22,7 @@ import {
   type ReasoningAnalysis,
 } from '@/api/governance';
 import { fetchQualityMetrics, type QualityMetrics } from '@/api/analytics';
+import { useOrganization } from '@/contexts/OrganizationContext';
 
 function extractScore(
   data: TrustData,
@@ -43,6 +44,7 @@ function extractScore(
 }
 
 export default function TrustDashboardPage() {
+  const { organizationId } = useOrganization();
   const [trustData, setTrustData] = useState<TrustData | null>(null);
   const [hitlStats, setHitlStats] = useState<HitlStats | null>(null);
   const [qualityTrend, setQualityTrend] = useState<QualityTrendItem[] | null>(null);
@@ -63,11 +65,11 @@ export default function TrustDashboardPage() {
     setError(null);
 
     Promise.allSettled([
-      fetchTrust(),
-      fetchHitlStats(),
-      fetchQualityTrend(),
-      fetchGoldenTests(),
-      fetchReasoningAnalysis(),
+      fetchTrust(organizationId),
+      fetchHitlStats(organizationId),
+      fetchQualityTrend(organizationId),
+      fetchGoldenTests(organizationId),
+      fetchReasoningAnalysis(organizationId),
     ])
       .then(([trustRes, hitlRes, qualityRes, goldenRes, reasoningRes]) => {
         if (cancelled) return;
@@ -109,7 +111,7 @@ export default function TrustDashboardPage() {
     if (qualityData) return;
     let cancelled = false;
     setQualityLoading(true);
-    fetchQualityMetrics()
+    fetchQualityMetrics(organizationId)
       .then((res) => {
         if (cancelled) return;
         if (res.success) setQualityData(res.data);

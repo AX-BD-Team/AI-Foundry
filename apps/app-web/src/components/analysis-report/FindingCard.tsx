@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import type { DiagnosisFinding } from "@ai-foundry/types";
 import { SeverityBadge } from "./SeverityBadge";
 import { reviewFinding } from "@/api/analysis";
+import { useOrganization } from "@/contexts/OrganizationContext";
 
 const TYPE_LABELS: Record<string, string> = {
   missing: "누락",
@@ -27,6 +28,7 @@ export function FindingCard({
   documentId,
   onReviewComplete,
 }: FindingCardProps) {
+  const { organizationId } = useOrganization();
   const [expanded, setExpanded] = useState(false);
   const [reviewing, setReviewing] = useState(false);
   const [comment, setComment] = useState("");
@@ -34,7 +36,7 @@ export function FindingCard({
   async function handleReview(action: "accept" | "reject" | "modify") {
     setReviewing(true);
     try {
-      const res = await reviewFinding(documentId, finding.findingId, {
+      const res = await reviewFinding(organizationId, documentId, finding.findingId, {
         action,
         ...(comment ? { comment } : {}),
       });

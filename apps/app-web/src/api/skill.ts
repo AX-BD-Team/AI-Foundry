@@ -1,17 +1,20 @@
 import type { ApiResponse } from "@ai-foundry/types";
+import { buildHeaders } from "./headers";
 
 const API_BASE =
   (import.meta.env["VITE_API_BASE"] as string | undefined) ?? "/api";
 
-const HEADERS = {
-  "Content-Type": "application/json",
-  "X-Internal-Secret":
-    (import.meta.env["VITE_INTERNAL_SECRET"] as string | undefined) ??
-    "dev-secret",
-  "X-User-Id": "developer-001",
-  "X-User-Role": "Developer",
-  "X-Organization-Id": "org-001",
-};
+const USER_ID = "developer-001";
+const USER_ROLE = "Developer";
+
+function headers(organizationId: string): Record<string, string> {
+  return buildHeaders({
+    organizationId,
+    userId: USER_ID,
+    userRole: USER_ROLE,
+    contentType: "application/json",
+  });
+}
 
 export interface SkillRow {
   skillId: string;
@@ -38,13 +41,16 @@ export interface SkillDetail extends SkillRow {
   ontologyId: string;
 }
 
-export async function fetchSkills(params?: {
-  domain?: string;
-  status?: string;
-  trustLevel?: string;
-  limit?: number;
-  offset?: number;
-}): Promise<ApiResponse<{ skills: SkillRow[]; limit: number; offset: number }>> {
+export async function fetchSkills(
+  organizationId: string,
+  params?: {
+    domain?: string;
+    status?: string;
+    trustLevel?: string;
+    limit?: number;
+    offset?: number;
+  },
+): Promise<ApiResponse<{ skills: SkillRow[]; limit: number; offset: number }>> {
   const qs = new URLSearchParams();
   if (params !== undefined) {
     if (params.domain !== undefined) qs.set("domain", params.domain);
@@ -56,7 +62,7 @@ export async function fetchSkills(params?: {
   const query = qs.toString();
   const res = await fetch(
     `${API_BASE}/skills${query ? `?${query}` : ""}`,
-    { headers: HEADERS },
+    { headers: headers(organizationId) },
   );
   return res.json() as Promise<
     ApiResponse<{ skills: SkillRow[]; limit: number; offset: number }>
@@ -64,17 +70,21 @@ export async function fetchSkills(params?: {
 }
 
 export async function fetchSkill(
+  organizationId: string,
   id: string,
 ): Promise<ApiResponse<SkillDetail>> {
   const res = await fetch(`${API_BASE}/skills/${id}`, {
-    headers: HEADERS,
+    headers: headers(organizationId),
   });
   return res.json() as Promise<ApiResponse<SkillDetail>>;
 }
 
-export async function downloadSkill(id: string): Promise<Blob> {
+export async function downloadSkill(
+  organizationId: string,
+  id: string,
+): Promise<Blob> {
   const res = await fetch(`${API_BASE}/skills/${id}/download`, {
-    headers: HEADERS,
+    headers: headers(organizationId),
   });
   return res.blob();
 }
@@ -104,19 +114,21 @@ export interface McpAdapter {
 }
 
 export async function fetchSkillMcp(
+  organizationId: string,
   id: string,
 ): Promise<McpAdapter> {
   const res = await fetch(`${API_BASE}/skills/${id}/mcp`, {
-    headers: HEADERS,
+    headers: headers(organizationId),
   });
   return res.json() as Promise<McpAdapter>;
 }
 
 export async function fetchSkillOpenApi(
+  organizationId: string,
   id: string,
 ): Promise<unknown> {
   const res = await fetch(`${API_BASE}/skills/${id}/openapi`, {
-    headers: HEADERS,
+    headers: headers(organizationId),
   });
   return res.json() as Promise<unknown>;
 }

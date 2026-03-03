@@ -1,17 +1,20 @@
 import type { ApiResponse, HitlAction } from "@ai-foundry/types";
+import { buildHeaders } from "./headers";
 
 const API_BASE =
   (import.meta.env["VITE_API_BASE"] as string | undefined) ?? "/api";
 
-const HEADERS = {
-  "Content-Type": "application/json",
-  "X-Internal-Secret":
-    (import.meta.env["VITE_INTERNAL_SECRET"] as string | undefined) ??
-    "dev-secret",
-  "X-User-Id": "reviewer-001",
-  "X-User-Role": "Reviewer",
-  "X-Organization-Id": "org-001",
-};
+const USER_ID = "reviewer-001";
+const USER_ROLE = "Reviewer";
+
+function headers(organizationId: string): Record<string, string> {
+  return buildHeaders({
+    organizationId,
+    userId: USER_ID,
+    userRole: USER_ROLE,
+    contentType: "application/json",
+  });
+}
 
 export interface PolicyRow {
   id: string;
@@ -39,11 +42,14 @@ export interface HitlSession {
   completedAt?: string;
 }
 
-export async function fetchPolicies(params?: {
-  status?: string;
-  limit?: number;
-  offset?: number;
-}): Promise<ApiResponse<{ policies: PolicyRow[]; total: number }>> {
+export async function fetchPolicies(
+  organizationId: string,
+  params?: {
+    status?: string;
+    limit?: number;
+    offset?: number;
+  },
+): Promise<ApiResponse<{ policies: PolicyRow[]; total: number }>> {
   const qs = new URLSearchParams();
   if (params !== undefined) {
     if (params.status !== undefined) qs.set("status", params.status);
@@ -53,7 +59,7 @@ export async function fetchPolicies(params?: {
   const query = qs.toString();
   const res = await fetch(
     `${API_BASE}/policies${query ? `?${query}` : ""}`,
-    { headers: HEADERS }
+    { headers: headers(organizationId) },
   );
   return res.json() as Promise<
     ApiResponse<{ policies: PolicyRow[]; total: number }>
@@ -61,21 +67,23 @@ export async function fetchPolicies(params?: {
 }
 
 export async function fetchPolicy(
-  policyId: string
+  organizationId: string,
+  policyId: string,
 ): Promise<ApiResponse<PolicyRow>> {
   const res = await fetch(`${API_BASE}/policies/${policyId}`, {
-    headers: HEADERS,
+    headers: headers(organizationId),
   });
   return res.json() as Promise<ApiResponse<PolicyRow>>;
 }
 
 export async function approvePolicy(
+  organizationId: string,
   policyId: string,
-  body: { reviewerId: string; comment?: string }
+  body: { reviewerId: string; comment?: string },
 ): Promise<ApiResponse<{ policyId: string; status: "approved" }>> {
   const res = await fetch(`${API_BASE}/policies/${policyId}/approve`, {
     method: "POST",
-    headers: HEADERS,
+    headers: headers(organizationId),
     body: JSON.stringify(body),
   });
   return res.json() as Promise<
@@ -84,16 +92,17 @@ export async function approvePolicy(
 }
 
 export async function modifyPolicy(
+  organizationId: string,
   policyId: string,
   body: {
     reviewerId: string;
     comment?: string;
     modifiedFields: Record<string, string>;
-  }
+  },
 ): Promise<ApiResponse<{ policyId: string; status: "approved" }>> {
   const res = await fetch(`${API_BASE}/policies/${policyId}/modify`, {
     method: "POST",
-    headers: HEADERS,
+    headers: headers(organizationId),
     body: JSON.stringify(body),
   });
   return res.json() as Promise<
@@ -102,12 +111,13 @@ export async function modifyPolicy(
 }
 
 export async function rejectPolicy(
+  organizationId: string,
   policyId: string,
-  body: { reviewerId: string; comment?: string }
+  body: { reviewerId: string; comment?: string },
 ): Promise<ApiResponse<{ policyId: string; status: "rejected" }>> {
   const res = await fetch(`${API_BASE}/policies/${policyId}/reject`, {
     method: "POST",
-    headers: HEADERS,
+    headers: headers(organizationId),
     body: JSON.stringify(body),
   });
   return res.json() as Promise<
@@ -116,10 +126,11 @@ export async function rejectPolicy(
 }
 
 export async function fetchSession(
-  sessionId: string
+  organizationId: string,
+  sessionId: string,
 ): Promise<ApiResponse<HitlSession>> {
   const res = await fetch(`${API_BASE}/sessions/${sessionId}`, {
-    headers: HEADERS,
+    headers: headers(organizationId),
   });
   return res.json() as Promise<ApiResponse<HitlSession>>;
 }

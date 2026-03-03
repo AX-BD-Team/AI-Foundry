@@ -14,6 +14,7 @@ import { AuditLogSummary } from '@/components/AuditLogSummary';
 import { Search, Download, FileText, Calendar, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { fetchAuditLogs, type AuditRow } from '@/api/security';
+import { useOrganization } from '@/contexts/OrganizationContext';
 
 const PAGE_SIZE = 12;
 
@@ -70,6 +71,7 @@ const severities: { value: SeverityLevel; label: string }[] = [
 ];
 
 export default function AuditPage() {
+  const { organizationId } = useOrganization();
   const [items, setItems] = useState<AuditRow[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -89,7 +91,7 @@ export default function AuditPage() {
     };
     if (resourceFilter !== '전체') params.resource = resourceFilter;
 
-    void fetchAuditLogs(params)
+    void fetchAuditLogs(organizationId, params)
       .then((res) => {
         if (cancelled) return;
         if (res.success) {

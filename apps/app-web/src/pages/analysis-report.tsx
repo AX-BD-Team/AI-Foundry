@@ -29,8 +29,10 @@ import { DiagnosticFindingsTab } from "@/components/analysis-report/DiagnosticFi
 import { CrossOrgComparisonTab } from "@/components/analysis-report/CrossOrgComparisonTab";
 import { LlmModelBadge } from "@/components/analysis-report/LlmModelBadge";
 import { ReanalysisPopover } from "@/components/analysis-report/ReanalysisPopover";
+import { useOrganization } from "@/contexts/OrganizationContext";
 
 export default function AnalysisReportPage() {
+  const { organizationId } = useOrganization();
   const [searchParams, setSearchParams] = useSearchParams();
   const [documents, setDocuments] = useState<DocumentRow[]>([]);
   const [selectedDocId, setSelectedDocId] = useState<string>(
@@ -54,7 +56,7 @@ export default function AnalysisReportPage() {
 
   // Load document list
   useEffect(() => {
-    void fetchDocuments()
+    void fetchDocuments(organizationId)
       .then((res) => {
         if (res.success) {
           setDocuments(res.data.documents);
@@ -79,7 +81,7 @@ export default function AnalysisReportPage() {
     setLoadingCore(true);
     setLoadingFindings(true);
 
-    void fetchAnalysisSummary(docId)
+    void fetchAnalysisSummary(organizationId, docId)
       .then((res) => {
         if (res.success) {
           setSummary(res.data);
@@ -91,20 +93,20 @@ export default function AnalysisReportPage() {
       .catch(() => {/* silently handle — data just won't show */})
       .finally(() => setLoadingSummary(false));
 
-    void fetchCoreProcesses(docId)
+    void fetchCoreProcesses(organizationId, docId)
       .then((res) => {
         if (res.success) setCoreData(res.data);
       })
       .catch(() => {})
       .finally(() => setLoadingCore(false));
 
-    void fetchFindings(docId)
+    void fetchFindings(organizationId, docId)
       .then((res) => {
         if (res.success) setDiagnosisData(res.data);
       })
       .catch(() => {})
       .finally(() => setLoadingFindings(false));
-  }, []);
+  }, [organizationId]);
 
   // Load analysis data when document changes
   useEffect(() => {
@@ -122,7 +124,7 @@ export default function AnalysisReportPage() {
 
     setReanalyzing(true);
     try {
-      const res = await triggerAnalysis({
+      const res = await triggerAnalysis(organizationId, {
         documentId: selectedDocId,
         extractionId,
         organizationId,
@@ -150,13 +152,13 @@ export default function AnalysisReportPage() {
   const handleRefreshFindings = useCallback(() => {
     if (!selectedDocId) return;
     setLoadingFindings(true);
-    void fetchFindings(selectedDocId)
+    void fetchFindings(organizationId, selectedDocId)
       .then((res) => {
         if (res.success) setDiagnosisData(res.data);
       })
       .catch(() => {})
       .finally(() => setLoadingFindings(false));
-  }, [selectedDocId]);
+  }, [organizationId, selectedDocId]);
 
   return (
     <div className="space-y-4">
