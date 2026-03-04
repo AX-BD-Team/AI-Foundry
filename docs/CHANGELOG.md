@@ -2,6 +2,20 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 096 — 2026-03-04
+**분석 리포트 "진행 현황" 탭 추가**:
+- ✅ 4번째 탭 신규: `?view=status` — 파이프라인 현황 · 품질 평가 · 비용 분석
+- ✅ Section A: 소스 파일 현황 (1,034건: 미래에셋 787 + 현대해상/LLM 247) + 파이프라인 산출물 (각 서비스 DB 직접 조회)
+- ✅ Section B: **핵심 평가 — Reverse Engineering 가능성** — 7차원 추출 평가, 잘되는것/부족한것/보강가능 3-column, 시스템 구성요소별 AI/전문가 비율, 종합 판정
+- ✅ Section C: 품질 평가 — 암묵지 추출 사례 (BN-724, CL-409, CT-361), 한계점, 종합 판단
+- ✅ Section D: LLM 비용 분석 — 누적 ~$25, 멀티 프로바이더 티어 매핑, 비용 최적화 과제
+- ✅ Section E: 향후 과제 + 대표 정책 예시
+- ✅ analytics.ts: fetchKpiMetrics, fetchCostMetrics 추가 (향후 동적 비용 표시용)
+- ✅ 데이터 소스: analytics D1 집계(부정확) → 각 서비스 API 직접 카운트로 전환
+
+**검증**: typecheck ✅, CI ✅, Production 배포 ✅
+**변경 파일**: 3 files — ProjectStatusTab.tsx (신규), analysis-report.tsx, analytics.ts
+
 ## 세션 094 — 2026-03-04
 **Skill Marketplace 통계 카드 수정**:
 - ✅ Fix: stats 카드가 로드된 100개 subset 기준으로 표시 → `/skills/stats` API 호출로 전체 수치 표시
