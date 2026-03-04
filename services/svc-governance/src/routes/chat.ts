@@ -106,9 +106,9 @@ export async function handleChat(
   };
 
   try {
-    // Call svc-llm-router via service binding (non-streaming /execute)
+    // Call svc-llm-router via service binding (non-streaming /complete)
     const llmResponse = await env.LLM_ROUTER.fetch(
-      new Request("https://llm-router.internal/execute", {
+      new Request("https://llm-router.internal/complete", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
