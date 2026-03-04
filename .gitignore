@@ -63,9 +63,8 @@ services/*/.claude/
 .claude/agent-memory/
 .claude/worktrees/
 
-# Screenshots (temp analysis artifacts)
-analysis-report-*.png
-comparison-tab-*.png
+# Screenshots (temp analysis artifacts — root level only)
+/*.png
 
 # Windows Zone.Identifier metadata
 *:Zone.Identifier
@@ -76,8 +75,8 @@ comparison-tab-*.png
 # Test documents (synthetic/pilot — not for version control)
 test-docs/
 
-# Wireframe images (design artifacts)
-wireframe-*.png
+# Playwright MCP cache
+.playwright-mcp/
 
 # Upload/operation logs
 scripts/upload-log-*.jsonl
