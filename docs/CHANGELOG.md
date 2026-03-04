@@ -2,6 +2,17 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 093 — 2026-03-04
+**Skill Trust Score Backfill + 분석 리포트 v2 API 검증**:
+- ✅ Backend: `POST /admin/backfill-trust` — D1 컬럼(trust_level + content_depth)으로 trust_score 계산. LLM/R2 미사용
+- ✅ 공식: baseTrust(validated=0.9, reviewed=0.7, unreviewed=0.3) × qualityFactor(depth)
+- ✅ Backfill: 3,104건 전량 완료 — Rich 0.700 / Medium 0.49-0.70 / Thin 0.40-0.49
+- ✅ 분석 리포트 v2 API 검증: triage 95문서 (1 high, 4 medium, 90 low), domain-report 393 findings
+- ✅ Pages Function 프록시 검증: `/api/analysis/*` → svc-extraction 정상 라우팅
+
+**검증**: typecheck 17/17 ✅, CI ✅, Production 배포 ✅
+**변경 파일**: 2 files — svc-skill (routes/admin.ts, index.ts)
+
 ## 세션 092 — 2026-03-04
 **Skill Marketplace 품질 필터 + 한국어 렌더링 수정**:
 - ✅ Fix: JSX 텍스트 내 `\uXXXX` escape 272개 → UTF-8 한국어 변환 (skill-catalog, skill-detail, ontology)
