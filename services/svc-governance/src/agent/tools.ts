@@ -21,7 +21,7 @@ export interface ToolDefinition {
 export const TOOL_DEFINITIONS: ToolDefinition[] = [
   {
     name: "get_document_stats",
-    description: "문서 업로드 현황을 조회합니다. 총 건수, 상태별(parsed/failed/pending) 통계를 반환합니다.",
+    description: "문서 업로드 현황을 조회합니다. 총 건수(total)와 최근 문서 상태를 반환합니다.",
     input_schema: {
       type: "object",
       properties: {},
@@ -37,7 +37,7 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "get_policy_stats",
-    description: "정책(Policy) 통계를 조회합니다. 총 건수, 승인/후보/거부 상태별 통계를 반환합니다.",
+    description: "정책(Policy) HITL 리뷰 통계를 조회합니다. 완료율, 편집율, 거부율, 리뷰어별 통계를 반환합니다.",
     input_schema: {
       type: "object",
       properties: {},
@@ -127,15 +127,15 @@ export async function executeTool(
 
   switch (toolName) {
     case "get_document_stats":
-      result = await fetchService(env.SVC_INGESTION, "/documents/stats", env.INTERNAL_API_SECRET);
+      result = await fetchService(env.SVC_INGESTION, "/documents?limit=1", env.INTERNAL_API_SECRET);
       break;
 
     case "get_pipeline_kpi":
-      result = await fetchService(env.SVC_ANALYTICS, "/kpi/pipeline", env.INTERNAL_API_SECRET);
+      result = await fetchService(env.SVC_ANALYTICS, "/kpi", env.INTERNAL_API_SECRET);
       break;
 
     case "get_policy_stats":
-      result = await fetchService(env.SVC_POLICY, "/policies/stats", env.INTERNAL_API_SECRET);
+      result = await fetchService(env.SVC_POLICY, "/policies/hitl/stats", env.INTERNAL_API_SECRET);
       break;
 
     case "get_skill_stats":
