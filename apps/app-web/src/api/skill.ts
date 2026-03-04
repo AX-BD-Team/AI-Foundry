@@ -66,6 +66,24 @@ export async function fetchSkills(
   >;
 }
 
+export interface SkillStats {
+  totalSkills: number;
+  totalPolicies: number;
+  byTrustLevel: Record<string, number>;
+  byDomain: Record<string, number>;
+  byContentDepth: { rich: number; medium: number; thin: number };
+  topTags: Array<{ tag: string; count: number }>;
+}
+
+export async function fetchSkillStats(
+  organizationId: string,
+): Promise<ApiResponse<SkillStats>> {
+  const res = await fetch(`${API_BASE}/skills/stats`, {
+    headers: headers(organizationId),
+  });
+  return res.json() as Promise<ApiResponse<SkillStats>>;
+}
+
 export async function fetchSkill(
   organizationId: string,
   id: string,

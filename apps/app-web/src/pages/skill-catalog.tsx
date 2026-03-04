@@ -13,8 +13,8 @@ import {
 } from '@/components/ui/select';
 import { Search, Package, Star, Download, ArrowUpDown, X, BarChart3 } from 'lucide-react';
 import { toast } from 'sonner';
-import { fetchSkills, downloadSkill } from '@/api/skill';
-import type { SkillRow } from '@/api/skill';
+import { fetchSkills, fetchSkillStats, downloadSkill } from '@/api/skill';
+import type { SkillRow, SkillStats } from '@/api/skill';
 import { useOrganization } from '@/contexts/OrganizationContext';
 
 const TRUST_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
@@ -65,6 +65,7 @@ export default function SkillCatalogPage() {
   const { organizationId } = useOrganization();
   const [skills, setSkills] = useState<SkillRow[]>([]);
   const [total, setTotal] = useState(0);
+  const [stats, setStats] = useState<SkillStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [trustFilter, setTrustFilter] = useState('');
@@ -72,6 +73,13 @@ export default function SkillCatalogPage() {
   const [domainFilter, setDomainFilter] = useState('');
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
   const [sortKey, setSortKey] = useState<SortKey>('depth');
+
+  // Load global stats once
+  useEffect(() => {
+    void fetchSkillStats(organizationId).then((res) => {
+      if (res.success) setStats(res.data);
+    });
+  }, [organizationId]);
 
   const loadSkills = useCallback(() => {
     setLoading(true);
@@ -172,19 +180,7 @@ export default function SkillCatalogPage() {
     return sortSkills(result, sortKey);
   }, [skills, domainFilter, selectedTags, searchQuery, sortKey]);
 
-  // Depth distribution from loaded skills
-  const depthStats = useMemo(() => {
-    let rich = 0;
-    let medium = 0;
-    let thin = 0;
-    for (const s of skills) {
-      const d = s.contentDepth ?? 0;
-      if (d >= 150) rich++;
-      else if (d >= 50) medium++;
-      else thin++;
-    }
-    return { rich, medium, thin };
-  }, [skills]);
+  const depthStats = stats?.byContentDepth ?? { rich: 0, medium: 0, thin: 0 };
 
   return (
     <div className="space-y-6">
@@ -301,7 +297,7 @@ export default function SkillCatalogPage() {
         <Card className="shadow-sm"><CardContent className="p-4">
           <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>총 Skill</div>
           <div className="text-2xl font-bold mt-1" style={{ color: 'var(--text-primary)' }}>
-            {total > 0 ? total.toLocaleString() : skills.length}
+            {(stats?.totalSkills ?? total).toLocaleString()}
           </div>
         </CardContent></Card>
         <Card className="shadow-sm"><CardContent className="p-4">
@@ -325,7 +321,7 @@ export default function SkillCatalogPage() {
         <Card className="shadow-sm"><CardContent className="p-4">
           <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>총 정책</div>
           <div className="text-2xl font-bold mt-1" style={{ color: '#9333EA' }}>
-            {skills.reduce((sum, s) => sum + s.policyCount, 0)}
+            {(stats?.totalPolicies ?? skills.reduce((sum, s) => sum + s.policyCount, 0)).toLocaleString()}
           </div>
         </CardContent></Card>
       </div>
