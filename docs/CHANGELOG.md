@@ -2,6 +2,17 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 105 — 2026-03-06
+**LPON 재파싱 — Unstructured.io API 키 교체 + 타임아웃 증가**:
+- ✅ Unstructured.io API 키 교체: `ktds.axbd@gmail.com` 계정 (default + production env)
+- ✅ LPON 46건 failed → 43건 재파싱 성공 (58/61 parsed)
+- ✅ 파싱 타임아웃 60초→180초 상향 (대용량 PDF/PPTX 대응)
+- ✅ svc-ingestion 재배포 (default + production)
+- ⚠️ 나머지 3건: Unstructured.io 쿼터 재소진 (16MB pptx, 2.2MB pdf, 2MB pdf)
+- 📊 LPON 파이프라인: docs 58 → chunks 5,463 → extractions 82 → policies 515 candidate
+
+**검증**: typecheck ✅ | reprocess 46건 발행 ✅ | 58/61 parsed ✅
+
 ## 세션 104 — 2026-03-06
 **v0.7.4 Pivot — Phase 2-A Source Code Parsing 구현**:
 - ✅ PRD v0.7.4 분석 (Skill 추출 → Source↔Document Fact Check 방향 전환)
