@@ -52,11 +52,11 @@
 
 ## 5) Current Status
 
-- **Last Updated**: 2026-03-04
-- **Current Phase**: Phase 4 Sprint 2 완료 — 전체 파이프라인 완결 (소스 1,034건 → 3,046 policies → 26,825 terms → 3,104 skills)
+- **Last Updated**: 2026-03-05
+- **Current Phase**: Phase 4 Sprint 2 완료 — 전체 파이프라인 완결 (Miraeasset 단일 org: 948 docs → 2,827 policies → 24,884 terms → 3,047 skills)
 - **Production E2E**: ✅ 8/8 PASS (synthetic) + 7/7 PASS (real-doc) + Batch 3: 7/11 parsed (SCDSA002 4건 → encrypted 상태)
 - **Real Document Pilot**: ✅ 20/26 문서 파싱 완료 (Batch 1: 4건, Batch 2: 9/11건, Batch 3: 7/11건)
-- **Production Data**: policies 3,046 (3,028 approved + 18 candidate), terms 26,825, skills 3,104 (Rich 597 / Medium 1,954 / Thin 553). Miraeasset org 334건 분석 완료
+- **Production Data**: policies 2,827, terms 24,884, skills 3,047. Miraeasset 단일 org (세션 101 통합). 1,143건 분석 완료
 - **Batch 3 Extraction**: Gap분석서 28proc/27ent, DDD설계 11proc/9ent, 요구사항정의서 8proc/5ent
 - **Queue Fix**: default env consumer 충돌 해결 (wrangler.toml + DLQ). 수동: `wrangler delete --name svc-queue-router`
 - **Multi-Provider LLM**: ✅ Anthropic→OpenAI→Google→Workers AI 4-provider fallback 구현 + 검증

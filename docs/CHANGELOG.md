@@ -2,6 +2,18 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 101 — 2026-03-05
+**Org 통합: org-mirae-pension → Miraeasset**:
+- ✅ tmux /team으로 2 Worker 병렬 D1 데이터 조사 (Miraeasset + org-mirae-pension + 전체 org 분포)
+- ✅ 중복 분석: 18건 중복 (동일 original_name), 93건 고유
+- ✅ Phase 1: 중복 downstream cascade 삭제 (57 skills, 425 terms, 57 ontologies, 57 policies, 16 extractions, 546 chunks)
+- ✅ Phase 2: 중복 18건 documents 삭제
+- ✅ Phase 3: 고유 93건 + downstream UPDATE → Miraeasset (6 D1 DB)
+- ✅ 마이그레이션 스크립트: `infra/scripts/org-consolidation.sh` (dry-run/execute 모드)
+- ✅ 최종: Miraeasset 단일 org — 948 docs, 3,533 extractions, 2,827 policies, 24,884 terms, 3,047 skills
+
+**검증**: Production D1 POST-CHECK 전 DB 정상 ✅
+
 ## 세션 100 — 2026-03-05
 **AI Chat Agent Tool Use 전환 — 4-Provider Fallback + 7 Tools**:
 - ✅ agent/anthropic.ts: Anthropic Messages API 직접 호출 (tool_use 지원)
