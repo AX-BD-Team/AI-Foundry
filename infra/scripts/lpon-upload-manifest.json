@@ -1,0 +1,686 @@
+{
+  "org": "LPON",
+  "generatedAt": "2026-03-05T14:30:10.220204+00:00",
+  "dedup": {
+    "original": 84,
+    "afterDedup": 63,
+    "removed": [
+      "docs/LPON 전자식 온누리상품권 플랫폼/000 표준문서서식/KTSSP-P000-SW개발표준 개요-v4.0.pdf",
+      "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/270 이행/275 배포작업계획/LPON-S275_온누리상품권_배포작업계획서_v1.2_20230.xlsx",
+      "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/270 이행/275 배포작업계획/LPON-S275_온누리상품권_배포작업계획서_v1.2_20230228.xlsx",
+      "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/270 이행/275 배포작업계획/LPON-S275_온누리상품권_배포작업계획서_v1.2_20230426.xlsx",
+      "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/270 이행/275 배포작업계획/LPON-S275_온누리상품권_배포작업계획서_v1.2_20230530.xlsx",
+      "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/270 이행/275 배포작업계획/LPON-S275_온누리상품권_배포작업계획서_v1.2_20230627.xlsx",
+      "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/270 이행/275 배포작업계획/LPON-S275_온누리상품권_배포작업계획서_v1.2_20230713(선물).xlsx",
+      "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/270 이행/275 배포작업계획/LPON-S275_온누리상품권_배포작업계획서_v1.2_20230713.xlsx",
+      "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/270 이행/275 배포작업계획/LPON-S275_온누리상품권_배포작업계획서_v1.2_20230727.xlsx",
+      "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/270 이행/275 배포작업계획/LPON-S275_온누리상품권_배포작업계획서_v1.2_20230816(긴급).xlsx",
+      "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/270 이행/275 배포작업계획/LPON-S275_온누리상품권_배포작업계획서_v1.2_20230828.xlsx",
+      "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/270 이행/275 배포작업계획/LPON-S275_온누리상품권_배포작업계획서_v1.2_20230919.xlsx",
+      "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/270 이행/275 배포작업계획/LPON-S275_온누리상품권_배포작업계획서_v1.2_20230925.xlsx",
+      "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/270 이행/275 배포작업계획/LPON-S275_온누리상품권_배포작업계획서_v1.2_20231017.xlsx",
+      "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/270 이행/275 배포작업계획/LPON-S275_온누리상품권_배포작업계획서_v1.2_20231024.xlsx",
+      "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/270 이행/275 배포작업계획/LPON-S275_온누리상품권_배포작업계획서_v1.2_20231102.xlsx",
+      "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/270 이행/275 배포작업계획/LPON-S275_온누리상품권_배포작업계획서_v1.2_20231114.xlsx",
+      "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/270 이행/275 배포작업계획/LPON-S275_온누리상품권_배포작업계획서_v1.2_20231205-1.xlsx",
+      "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/270 이행/275 배포작업계획/LPON-S275_온누리상품권_배포작업계획서_v1.2_20231205.xlsx",
+      "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/270 이행/275 배포작업계획/LPON-S275_온누리상품권_배포작업계획서_v1.2_20240123.xlsx",
+      "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/270 이행/275 배포작업계획/LPON-S275_온누리상품권_배포작업계획서_v1.2_20411.xlsx"
+    ]
+  },
+  "stats": {
+    "total": 63,
+    "byGroup": {
+      "A": 7,
+      "B-interface": 8,
+      "B-ui": 2,
+      "C": 22,
+      "D": 2,
+      "E": 18,
+      "F": 4
+    },
+    "byTier": {
+      "tier1": 17,
+      "tier2": 40,
+      "tier3": 6
+    },
+    "byFormat": {
+      "docx": 1,
+      "pdf": 8,
+      "pptx": 37,
+      "xlsx": 17
+    }
+  },
+  "files": [
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/LPON-D102_프로젝트 계획서_과업 목록.xlsx",
+      "filename": "LPON-D102_프로젝트 계획서_과업 목록.xlsx",
+      "group": "A",
+      "tier": 1,
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "format": "xlsx",
+      "needsSymlink": false,
+      "sizeBytes": 696547
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/LPON-D103_WBS_2023.xlsx",
+      "filename": "LPON-D103_WBS_2023.xlsx",
+      "group": "A",
+      "tier": 1,
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "format": "xlsx",
+      "needsSymlink": false,
+      "sizeBytes": 795335
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/LPON-D106_온누리상품권_정책정의서.xlsx",
+      "filename": "LPON-D106_온누리상품권_정책정의서.xlsx",
+      "group": "A",
+      "tier": 1,
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "format": "xlsx",
+      "needsSymlink": false,
+      "sizeBytes": 333185
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/LPON-D221_요구사항 정의서.xlsx",
+      "filename": "LPON-D221_요구사항 정의서.xlsx",
+      "group": "A",
+      "tier": 1,
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "format": "xlsx",
+      "needsSymlink": false,
+      "sizeBytes": 732830
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/LPON-S421_문서관리(온누리상품권).xlsx",
+      "filename": "LPON-S421_문서관리(온누리상품권).xlsx",
+      "group": "A",
+      "tier": 1,
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "format": "xlsx",
+      "needsSymlink": true,
+      "sizeBytes": 283566
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/LPON-S422_인력관리(온누리상품권).xlsx",
+      "filename": "LPON-S422_인력관리(온누리상품권).xlsx",
+      "group": "A",
+      "tier": 1,
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "format": "xlsx",
+      "needsSymlink": true,
+      "sizeBytes": 210147
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/LPON-S424_비상연락망(온누리상품권).xlsx",
+      "filename": "LPON-S424_비상연락망(온누리상품권).xlsx",
+      "group": "A",
+      "tier": 1,
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "format": "xlsx",
+      "needsSymlink": true,
+      "sizeBytes": 110971
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/240 설계/243 시스템 인터페이스 정의서/(헥토파이낸셜)간편현금결제_표준_WEB_API_연동규격서_v3.5.pdf.pdf",
+      "filename": "(헥토파이낸셜)간편현금결제_표준_WEB_API_연동규격서_v3.5.pdf.pdf",
+      "group": "B-interface",
+      "tier": 1,
+      "mimeType": "application/pdf",
+      "format": "pdf",
+      "needsSymlink": true,
+      "sizeBytes": 2125882
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/240 설계/243 시스템 인터페이스 정의서/20 수신 자료/KMC/[KMC]본인확인서비스_개발가이드(범용)_v2.3.pdf",
+      "filename": "[KMC]본인확인서비스_개발가이드(범용)_v2.3.pdf",
+      "group": "B-interface",
+      "tier": 1,
+      "mimeType": "application/pdf",
+      "format": "pdf",
+      "needsSymlink": true,
+      "sizeBytes": 521767
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/240 설계/243 시스템 인터페이스 정의서/20 수신 자료/KMC/본인확인서비스_개발가이드(WEB통신)_v1.6.pdf",
+      "filename": "본인확인서비스_개발가이드(WEB통신)_v1.6.pdf",
+      "group": "B-interface",
+      "tier": 1,
+      "mimeType": "application/pdf",
+      "format": "pdf",
+      "needsSymlink": true,
+      "sizeBytes": 703156
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/240 설계/243 시스템 인터페이스 정의서/20 수신 자료/KMC/본인확인서비스_개발가이드(WEB통신)_v1.7(보안문자 안내 추가).pdf",
+      "filename": "본인확인서비스_개발가이드(WEB통신)_v1.7(보안문자 안내 추가).pdf",
+      "group": "B-interface",
+      "tier": 1,
+      "mimeType": "application/pdf",
+      "format": "pdf",
+      "needsSymlink": true,
+      "sizeBytes": 1035732
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/240 설계/243 시스템 인터페이스 정의서/20 수신 자료/헥토파이낸셜/간편현금결제_표준_WEB_API_연동규격서_2.9.pdf",
+      "filename": "간편현금결제_표준_WEB_API_연동규격서_2.9.pdf",
+      "group": "B-interface",
+      "tier": 1,
+      "mimeType": "application/pdf",
+      "format": "pdf",
+      "needsSymlink": false,
+      "sizeBytes": 2316361
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/240 설계/243 시스템 인터페이스 정의서/31 방화벽 - 카드사/대외거래협의서_KT온누리_KB회신_20220720.xlsx",
+      "filename": "대외거래협의서_KT온누리_KB회신_20220720.xlsx",
+      "group": "B-interface",
+      "tier": 1,
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "format": "xlsx",
+      "needsSymlink": false,
+      "sizeBytes": 67310
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/240 설계/243 시스템 인터페이스 정의서/LPON-D243_시스템 인터페이스 정의서_02_App 연동.xlsx",
+      "filename": "LPON-D243_시스템 인터페이스 정의서_02_App 연동.xlsx",
+      "group": "B-interface",
+      "tier": 1,
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "format": "xlsx",
+      "needsSymlink": false,
+      "sizeBytes": 5825310
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/240 설계/243 시스템 인터페이스 정의서/LPON-D243_시스템 인터페이스 정의서_42_KMC 연동_v0.1.0_20220727.xlsx",
+      "filename": "LPON-D243_시스템 인터페이스 정의서_42_KMC 연동_v0.1.0_20220727.xlsx",
+      "group": "B-interface",
+      "tier": 1,
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "format": "xlsx",
+      "needsSymlink": false,
+      "sizeBytes": 741294
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/240 설계/244 UI 정의서/LPON-D244_UI 정의서_01_App(사용자) 화면 설계서_v2.4.1.pptx",
+      "filename": "LPON-D244_UI 정의서_01_App(사용자) 화면 설계서_v2.4.1.pptx",
+      "group": "B-ui",
+      "tier": 1,
+      "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "format": "pptx",
+      "needsSymlink": true,
+      "sizeBytes": 16716846
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/240 설계/244 UI 정의서/LPON-D244_UI 정의서_11_BO 화면 설계서_v1.4.0_20230307_.pptx",
+      "filename": "LPON-D244_UI 정의서_11_BO 화면 설계서_v1.4.0_20230307_.pptx",
+      "group": "B-ui",
+      "tier": 1,
+      "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "format": "pptx",
+      "needsSymlink": false,
+      "sizeBytes": 6115726
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/280 보안검토/280.01 관리적 검증/증적자료(2차)/01시트_4.1 서버배치_WEB40101-02_NW 구성도_IP포함.pptx",
+      "filename": "01시트_4.1 서버배치_WEB40101-02_NW 구성도_IP포함.pptx",
+      "group": "C",
+      "tier": 2,
+      "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "format": "pptx",
+      "needsSymlink": false,
+      "sizeBytes": 140728
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/280 보안검토/280.01 관리적 검증/증적자료(2차)/02시트_4.4 필수 설치 하드웨어_WEB40401-01_NW 구성도.pptx",
+      "filename": "02시트_4.4 필수 설치 하드웨어_WEB40401-01_NW 구성도.pptx",
+      "group": "C",
+      "tier": 2,
+      "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "format": "pptx",
+      "needsSymlink": false,
+      "sizeBytes": 217662
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/280 보안검토/280.01 관리적 검증/증적자료(2차)/03시트_4.4 필수 설치 하드웨어_WEB40402-02_사용자인증.pptx",
+      "filename": "03시트_4.4 필수 설치 하드웨어_WEB40402-02_사용자인증.pptx",
+      "group": "C",
+      "tier": 2,
+      "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "format": "pptx",
+      "needsSymlink": false,
+      "sizeBytes": 305110
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/280 보안검토/280.01 관리적 검증/증적자료(2차)/04시트_4.5 필수 설치 소프트웨어_WEB40501-03_트렌드마이크로 백신 설치 및 실시간 탐지.pptx",
+      "filename": "04시트_4.5 필수 설치 소프트웨어_WEB40501-03_트렌드마이크로 백신 설치 및 실시간 탐지.pptx",
+      "group": "C",
+      "tier": 2,
+      "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "format": "pptx",
+      "needsSymlink": false,
+      "sizeBytes": 152925
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/280 보안검토/280.01 관리적 검증/증적자료(2차)/05시트_4.6 인프라 접근통제_WEB40601-01_요청번호_운영계 관리자페이지 적용.xlsx",
+      "filename": "05시트_4.6 인프라 접근통제_WEB40601-01_요청번호_운영계 관리자페이지 적용.xlsx",
+      "group": "C",
+      "tier": 2,
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "format": "xlsx",
+      "needsSymlink": false,
+      "sizeBytes": 17214
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/280 보안검토/280.01 관리적 검증/증적자료(2차)/05시트_4.6 인프라 접근통제_WEB40601-01_요청번호_운영계WAF적용.xlsx",
+      "filename": "05시트_4.6 인프라 접근통제_WEB40601-01_요청번호_운영계WAF적용.xlsx",
+      "group": "C",
+      "tier": 2,
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "format": "xlsx",
+      "needsSymlink": false,
+      "sizeBytes": 17470
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/280 보안검토/280.01 관리적 검증/증적자료(2차)/06시트_5.2 ID 설계_WEB50201-03_계정관리.pptx",
+      "filename": "06시트_5.2 ID 설계_WEB50201-03_계정관리.pptx",
+      "group": "C",
+      "tier": 2,
+      "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "format": "pptx",
+      "needsSymlink": false,
+      "sizeBytes": 193605
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/280 보안검토/280.01 관리적 검증/증적자료(2차)/07시트_5.4 사용자 인증_WEB50402-02_로그인 OTP.pptx",
+      "filename": "07시트_5.4 사용자 인증_WEB50402-02_로그인 OTP.pptx",
+      "group": "C",
+      "tier": 2,
+      "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "format": "pptx",
+      "needsSymlink": false,
+      "sizeBytes": 205596
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/280 보안검토/280.01 관리적 검증/증적자료(2차)/07시트_5.4 사용자 인증_WEB50402-02_알림기능.pptx",
+      "filename": "07시트_5.4 사용자 인증_WEB50402-02_알림기능.pptx",
+      "group": "C",
+      "tier": 2,
+      "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "format": "pptx",
+      "needsSymlink": false,
+      "sizeBytes": 481211
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/280 보안검토/280.01 관리적 검증/증적자료(2차)/08시트_5.7 접근통제_WEB50702-02_관리자와 사용자 사이트 분리.pptx",
+      "filename": "08시트_5.7 접근통제_WEB50702-02_관리자와 사용자 사이트 분리.pptx",
+      "group": "C",
+      "tier": 2,
+      "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "format": "pptx",
+      "needsSymlink": false,
+      "sizeBytes": 185218
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/280 보안검토/280.01 관리적 검증/증적자료(2차)/09시트_5.9 로그관리_WEB50901-02_LAMP연동.pptx",
+      "filename": "09시트_5.9 로그관리_WEB50901-02_LAMP연동.pptx",
+      "group": "C",
+      "tier": 2,
+      "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "format": "pptx",
+      "needsSymlink": false,
+      "sizeBytes": 132694
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/280 보안검토/280.01 관리적 검증/증적자료(2차)/09시트_5.9 로그관리_WEB50901-04_접속로그.pptx",
+      "filename": "09시트_5.9 로그관리_WEB50901-04_접속로그.pptx",
+      "group": "C",
+      "tier": 2,
+      "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "format": "pptx",
+      "needsSymlink": false,
+      "sizeBytes": 251455
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/280 보안검토/280.01 관리적 검증/증적자료(2차)/10시트_5.9 로그관리_WEB50902-04_개인정보처리로그.pptx",
+      "filename": "10시트_5.9 로그관리_WEB50902-04_개인정보처리로그.pptx",
+      "group": "C",
+      "tier": 2,
+      "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "format": "pptx",
+      "needsSymlink": false,
+      "sizeBytes": 171373
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/280 보안검토/280.01 관리적 검증/증적자료(2차)/11시트_5.9 로그관리_WEB50903-02_권한관리로그.pptx",
+      "filename": "11시트_5.9 로그관리_WEB50903-02_권한관리로그.pptx",
+      "group": "C",
+      "tier": 2,
+      "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "format": "pptx",
+      "needsSymlink": false,
+      "sizeBytes": 183143
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/280 보안검토/280.01 관리적 검증/증적자료(2차)/12시트_5.10 개인정보 처리_WEB51001-01_개인정보처리방침.pptx",
+      "filename": "12시트_5.10 개인정보 처리_WEB51001-01_개인정보처리방침.pptx",
+      "group": "C",
+      "tier": 2,
+      "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "format": "pptx",
+      "needsSymlink": false,
+      "sizeBytes": 411585
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/280 보안검토/280.01 관리적 검증/증적자료(2차)/13시트_5.10 개인정보 처리_WEB51003-02_개인정보 수집.pptx",
+      "filename": "13시트_5.10 개인정보 처리_WEB51003-02_개인정보 수집.pptx",
+      "group": "C",
+      "tier": 2,
+      "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "format": "pptx",
+      "needsSymlink": false,
+      "sizeBytes": 443566
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/280 보안검토/280.01 관리적 검증/증적자료(2차)/15시트_5.10 개인정보처리_WEB51005-02_CRIS연동제외.pptx",
+      "filename": "15시트_5.10 개인정보처리_WEB51005-02_CRIS연동제외.pptx",
+      "group": "C",
+      "tier": 2,
+      "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "format": "pptx",
+      "needsSymlink": false,
+      "sizeBytes": 314266
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/280 보안검토/280.01 관리적 검증/증적자료(2차)/16시트_5.10 개인정보처리_WEB51006-03_온라인철회방법.pptx",
+      "filename": "16시트_5.10 개인정보처리_WEB51006-03_온라인철회방법.pptx",
+      "group": "C",
+      "tier": 2,
+      "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "format": "pptx",
+      "needsSymlink": false,
+      "sizeBytes": 302040
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/280 보안검토/280.01 관리적 검증/증적자료(2차)/17시트_5.10 개인정보처리_WEB51008-02_제3자제공동의.pptx",
+      "filename": "17시트_5.10 개인정보처리_WEB51008-02_제3자제공동의.pptx",
+      "group": "C",
+      "tier": 2,
+      "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "format": "pptx",
+      "needsSymlink": false,
+      "sizeBytes": 414796
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/280 보안검토/280.01 관리적 검증/증적자료(2차)/19시트_5.10 개인정보 처리_WEB51011-03_개인정보 파기.pptx",
+      "filename": "19시트_5.10 개인정보 처리_WEB51011-03_개인정보 파기.pptx",
+      "group": "C",
+      "tier": 2,
+      "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "format": "pptx",
+      "needsSymlink": false,
+      "sizeBytes": 118394
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/280 보안검토/280.01 관리적 검증/증적자료(2차)/20시트_5.11 암호화_WEB51103-03_HTTPS적용.pptx",
+      "filename": "20시트_5.11 암호화_WEB51103-03_HTTPS적용.pptx",
+      "group": "C",
+      "tier": 2,
+      "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "format": "pptx",
+      "needsSymlink": false,
+      "sizeBytes": 278181
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/280 보안검토/280.01 관리적 검증/증적자료(2차)/20시트_5.11 암호화_WEB51103-04_TLS1.2.pptx",
+      "filename": "20시트_5.11 암호화_WEB51103-04_TLS1.2.pptx",
+      "group": "C",
+      "tier": 2,
+      "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "format": "pptx",
+      "needsSymlink": false,
+      "sizeBytes": 269646
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/300 프로젝트종료/매뉴얼/1. FlyingCube2.0_OS 구축 가이드.pdf",
+      "filename": "1. FlyingCube2.0_OS 구축 가이드.pdf",
+      "group": "E",
+      "tier": 2,
+      "mimeType": "application/pdf",
+      "format": "pdf",
+      "needsSymlink": false,
+      "sizeBytes": 269449
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/300 프로젝트종료/매뉴얼/2. FlyingCube2.0_AP 신청 가이드.pdf",
+      "filename": "2. FlyingCube2.0_AP 신청 가이드.pdf",
+      "group": "E",
+      "tier": 2,
+      "mimeType": "application/pdf",
+      "format": "pdf",
+      "needsSymlink": false,
+      "sizeBytes": 1555168
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/300 프로젝트종료/매뉴얼/3. FlyingCube2.0_기본 컨테이너 사용 가이드.pdf",
+      "filename": "3. FlyingCube2.0_기본 컨테이너 사용 가이드.pdf",
+      "group": "E",
+      "tier": 2,
+      "mimeType": "application/pdf",
+      "format": "pdf",
+      "needsSymlink": false,
+      "sizeBytes": 1497731
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/300 프로젝트종료/매뉴얼/API_MOBILE-프로세스흐름도_V1 (1).pptx",
+      "filename": "API_MOBILE-프로세스흐름도_V1 (1).pptx",
+      "group": "E",
+      "tier": 2,
+      "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "format": "pptx",
+      "needsSymlink": true,
+      "sizeBytes": 482782
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/300 프로젝트종료/매뉴얼/BO회원가입_프로세스흐름도_V1 (1).pptx",
+      "filename": "BO회원가입_프로세스흐름도_V1 (1).pptx",
+      "group": "E",
+      "tier": 2,
+      "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "format": "pptx",
+      "needsSymlink": true,
+      "sizeBytes": 74611
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/300 프로젝트종료/매뉴얼/LPON-D243_프로세스 흐름도_QR 결제 프로세스_v1.0.1.pptx",
+      "filename": "LPON-D243_프로세스 흐름도_QR 결제 프로세스_v1.0.1.pptx",
+      "group": "E",
+      "tier": 2,
+      "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "format": "pptx",
+      "needsSymlink": false,
+      "sizeBytes": 1641113
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/300 프로젝트종료/매뉴얼/LPON-D244_매뉴얼_11_BO 매뉴얼 V0.1_20220810 작성중.pptx",
+      "filename": "LPON-D244_매뉴얼_11_BO 매뉴얼 V0.1_20220810 작성중.pptx",
+      "group": "E",
+      "tier": 2,
+      "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "format": "pptx",
+      "needsSymlink": false,
+      "sizeBytes": 3771939
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/300 프로젝트종료/매뉴얼/MPM결제.pptx",
+      "filename": "MPM결제.pptx",
+      "group": "E",
+      "tier": 2,
+      "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "format": "pptx",
+      "needsSymlink": false,
+      "sizeBytes": 44144
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/300 프로젝트종료/매뉴얼/OPM_전자식온누리상품권_PG0735 (2) (1).pptx",
+      "filename": "OPM_전자식온누리상품권_PG0735 (2) (1).pptx",
+      "group": "E",
+      "tier": 2,
+      "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "format": "pptx",
+      "needsSymlink": true,
+      "sizeBytes": 4004598
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/300 프로젝트종료/매뉴얼/[온누리상품권]Backoffice SSLVPN사용자가이드_V1.0_20220827.pptx",
+      "filename": "[온누리상품권]Backoffice SSLVPN사용자가이드_V1.0_20220827.pptx",
+      "group": "E",
+      "tier": 2,
+      "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "format": "pptx",
+      "needsSymlink": true,
+      "sizeBytes": 2043408
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/300 프로젝트종료/매뉴얼/lamp용 온누리 트랙젝션 흐름도_1차_완성본_230125.pptx",
+      "filename": "lamp용 온누리 트랙젝션 흐름도_1차_완성본_230125.pptx",
+      "group": "E",
+      "tier": 2,
+      "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "format": "pptx",
+      "needsSymlink": false,
+      "sizeBytes": 88460
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/300 프로젝트종료/매뉴얼/lamp용 온누리 트랙젝션 흐름도_장재호.pptx",
+      "filename": "lamp용 온누리 트랙젝션 흐름도_장재호.pptx",
+      "group": "E",
+      "tier": 2,
+      "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "format": "pptx",
+      "needsSymlink": false,
+      "sizeBytes": 103187
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/300 프로젝트종료/매뉴얼/승인_시퀀스 (1)_이나현.pptx",
+      "filename": "승인_시퀀스 (1)_이나현.pptx",
+      "group": "E",
+      "tier": 2,
+      "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "format": "pptx",
+      "needsSymlink": true,
+      "sizeBytes": 89288
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/300 프로젝트종료/매뉴얼/승인_프로세스흐름도_V1 (1).pptx",
+      "filename": "승인_프로세스흐름도_V1 (1).pptx",
+      "group": "E",
+      "tier": 2,
+      "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "format": "pptx",
+      "needsSymlink": true,
+      "sizeBytes": 83290
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/300 프로젝트종료/매뉴얼/온누리상품권 빌드 배포 가이드 ver0.91.pptx",
+      "filename": "온누리상품권 빌드 배포 가이드 ver0.91.pptx",
+      "group": "E",
+      "tier": 2,
+      "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "format": "pptx",
+      "needsSymlink": false,
+      "sizeBytes": 238967
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/300 프로젝트종료/매뉴얼/온누리상품권 운영 배포 절차.pptx",
+      "filename": "온누리상품권 운영 배포 절차.pptx",
+      "group": "E",
+      "tier": 2,
+      "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "format": "pptx",
+      "needsSymlink": false,
+      "sizeBytes": 575307
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/300 프로젝트종료/매뉴얼/외부연동_기업전동_프로세스흐름도V1 (1).pptx",
+      "filename": "외부연동_기업전동_프로세스흐름도V1 (1).pptx",
+      "group": "E",
+      "tier": 2,
+      "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "format": "pptx",
+      "needsSymlink": true,
+      "sizeBytes": 948587
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/300 프로젝트종료/매뉴얼/장애대응모의훈련_블록체인기반지역화폐_시나리오(카드결제장애)_0117_v1.2.xlsx",
+      "filename": "장애대응모의훈련_블록체인기반지역화폐_시나리오(카드결제장애)_0117_v1.2.xlsx",
+      "group": "E",
+      "tier": 2,
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "format": "xlsx",
+      "needsSymlink": true,
+      "sizeBytes": 31753
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/270 이행/275 배포작업계획/LPON-S275_온누리상품권_배포작업계획서_v1.2_20240326.xlsx",
+      "filename": "LPON-S275_온누리상품권_배포작업계획서_v1.2_20240326.xlsx",
+      "group": "D",
+      "tier": 3,
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "format": "xlsx",
+      "needsSymlink": false,
+      "sizeBytes": 950032
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/200 프로젝트실행/270 이행/275 배포작업계획/작업계획서_전자식온누리상품권_CRM번호_V.1.1(20240326).xlsx",
+      "filename": "작업계획서_전자식온누리상품권_CRM번호_V.1.1(20240326).xlsx",
+      "group": "D",
+      "tier": 3,
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "format": "xlsx",
+      "needsSymlink": true,
+      "sizeBytes": 946922
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/000 표준문서서식/KTSSP-P000-SW개발표준 개요-v4.0.docx",
+      "filename": "KTSSP-P000-SW개발표준 개요-v4.0.docx",
+      "group": "F",
+      "tier": 3,
+      "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "format": "docx",
+      "needsSymlink": false,
+      "sizeBytes": 309337
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/999 임시작성문서/24년 플랫폼사업본부 배치Job 현황 점검(지역화폐,온누리추가)_v1.0_온누리_임시.xlsx",
+      "filename": "24년 플랫폼사업본부 배치Job 현황 점검(지역화폐,온누리추가)_v1.0_온누리_임시.xlsx",
+      "group": "F",
+      "tier": 3,
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "format": "xlsx",
+      "needsSymlink": true,
+      "sizeBytes": 148126
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/999 임시작성문서/앱서비스 품질 점검(2023.06.05-김동욱 개인의견 정리).xlsx",
+      "filename": "앱서비스 품질 점검(2023.06.05-김동욱 개인의견 정리).xlsx",
+      "group": "F",
+      "tier": 3,
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "format": "xlsx",
+      "needsSymlink": true,
+      "sizeBytes": 7565
+    },
+    {
+      "path": "docs/LPON 전자식 온누리상품권 플랫폼/999 임시작성문서/온누리상품권 TOP3 VOC 원인분석.pptx",
+      "filename": "온누리상품권 TOP3 VOC 원인분석.pptx",
+      "group": "F",
+      "tier": 3,
+      "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "format": "pptx",
+      "needsSymlink": false,
+      "sizeBytes": 56459
+    }
+  ]
+}
