@@ -1,12 +1,13 @@
 import { createLogger } from "@ai-foundry/utils";
 import { PipelineEventSchema } from "@ai-foundry/types";
 import type { Env } from "./env.js";
-import { parseDocument } from "./parsing/unstructured.js";
+import { parseDocument, type UnstructuredElement } from "./parsing/unstructured.js";
 import { parseXlsx, detectSiSubtype } from "./parsing/xlsx.js";
 import { parseScreenDesign } from "./parsing/screen-design.js";
-import { classifyDocument, classifyXlsxElements } from "./parsing/classifier.js";
+import { classifyDocument, classifyXlsxElements, classifySourceElements } from "./parsing/classifier.js";
 import { maskText } from "./parsing/masking.js";
 import { validateFileFormat, isScdsa002Encrypted, classifyParseError, type ErrorType } from "./parsing/validator.js";
+import { extractSourceFiles, parseSourceProject, parseSingleJavaFile, parseSingleSqlFile } from "./parsing/zip-extractor.js";
 
 const MIME_MAP: Record<string, string> = {
   pdf: "application/pdf",
@@ -19,10 +20,15 @@ const MIME_MAP: Record<string, string> = {
   jpg: "image/jpeg",
   jpeg: "image/jpeg",
   txt: "text/plain",
+  // v0.7.4: Source code MIME types
+  zip: "application/zip",
+  java: "text/x-java-source",
+  sql: "application/sql",
 };
 
 const MAX_ELEMENTS = 200;
 const MAX_ELEMENTS_XLSX = 500;
+const MAX_ELEMENTS_SOURCE = 1000;
 
 /**
  * Process a single queue event delivered via HTTP from the queue router.
@@ -106,10 +112,13 @@ export async function processQueueEvent(body: unknown, env: Env, _ctx: Execution
       logger.info("Large file detected", { documentId, sizeMB: (fileBytes.byteLength / (1024 * 1024)).toFixed(1) });
     }
 
-    // 3. Parse: custom xlsx parser (with screen-design routing) or Unstructured.io
+    // 3. Parse: source code / xlsx / Unstructured.io
     const isXlsx = fileType === "xlsx" || fileType === "xls";
+    const isSourceCode = fileType === "java" || fileType === "sql" || fileType === "zip";
     let elements;
-    if (isXlsx) {
+    if (isSourceCode) {
+      elements = parseSourceCodeFiles(fileBytes, originalName, fileType);
+    } else if (isXlsx) {
       const siSubtype = detectSiSubtype(originalName);
       elements = siSubtype === "화면설계"
         ? parseScreenDesign(fileBytes, originalName)
@@ -119,12 +128,14 @@ export async function processQueueEvent(body: unknown, env: Env, _ctx: Execution
     }
 
     // 4. Classify
-    const classification = isXlsx
-      ? classifyXlsxElements(elements)
-      : classifyDocument(elements, fileType);
+    const classification = isSourceCode
+      ? classifySourceElements(elements)
+      : isXlsx
+        ? classifyXlsxElements(elements)
+        : classifyDocument(elements, fileType);
 
-    // 5. Insert chunks (xlsx: max 500, others: max 200, skip blank text)
-    const maxElements = isXlsx ? MAX_ELEMENTS_XLSX : MAX_ELEMENTS;
+    // 5. Insert chunks (source: max 1000, xlsx: max 500, others: max 200, skip blank text)
+    const maxElements = isSourceCode ? MAX_ELEMENTS_SOURCE : isXlsx ? MAX_ELEMENTS_XLSX : MAX_ELEMENTS;
     let chunkIndex = 0;
     for (const element of elements.slice(0, maxElements)) {
       const text = element.text.trim();
@@ -211,4 +222,25 @@ export async function processQueueEvent(body: unknown, env: Env, _ctx: Execution
       headers: { "Content-Type": "application/json" },
     });
   }
+}
+
+function parseSourceCodeFiles(
+  fileBytes: ArrayBuffer,
+  originalName: string,
+  fileType: string,
+): UnstructuredElement[] {
+  if (fileType === "zip") {
+    const files = extractSourceFiles(fileBytes);
+    const projectName = originalName.replace(/\.zip$/i, "");
+    return parseSourceProject(files, projectName);
+  }
+  if (fileType === "java") {
+    const source = new TextDecoder("utf-8").decode(fileBytes);
+    return parseSingleJavaFile(source, originalName);
+  }
+  if (fileType === "sql") {
+    const source = new TextDecoder("utf-8").decode(fileBytes);
+    return parseSingleSqlFile(source, originalName);
+  }
+  return [];
 }

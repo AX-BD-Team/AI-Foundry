@@ -13,6 +13,13 @@ const ALLOWED_TYPES = new Set([
   "image/png",
   "image/jpeg",
   "text/plain",
+  // v0.7.4: Source code file types
+  "application/zip",
+  "application/x-zip-compressed",
+  "text/x-java-source",
+  "text/x-java",
+  "application/sql",
+  "text/sql",
 ]);
 
 const MIME_TO_EXT: Record<string, DocumentUploadedEvent["payload"]["fileType"]> = {
@@ -26,6 +33,13 @@ const MIME_TO_EXT: Record<string, DocumentUploadedEvent["payload"]["fileType"]> 
   "image/png": "png",
   "image/jpeg": "jpg",
   "text/plain": "txt",
+  // v0.7.4: Source code MIME types
+  "application/zip": "zip",
+  "application/x-zip-compressed": "zip",
+  "text/x-java-source": "java",
+  "text/x-java": "java",
+  "application/sql": "sql",
+  "text/sql": "sql",
 };
 
 export async function handleUpload(

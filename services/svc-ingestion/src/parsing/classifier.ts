@@ -7,7 +7,14 @@ export type DocumentCategory =
   | "api_spec"
   | "requirements"
   | "process"
-  | "general";
+  | "general"
+  // v0.7.4 source code categories
+  | "source_controller"
+  | "source_vo"
+  | "source_service"
+  | "source_ddl"
+  | "source_config"
+  | "source_project";
 
 export type DocumentClassification = {
   category: DocumentCategory;
@@ -68,6 +75,34 @@ export function classifyXlsxElements(
   return { category: "general", confidence: 0.3 };
 }
 
+/**
+ * Classify source code elements based on their element type.
+ * Used for .java, .sql, and .zip uploads (v0.7.4).
+ */
+export function classifySourceElements(
+  elements: UnstructuredElement[],
+): DocumentClassification {
+  const typeCounts: Record<string, number> = {};
+  for (const el of elements) {
+    typeCounts[el.type] = (typeCounts[el.type] ?? 0) + 1;
+  }
+
+  // If multiple element types present, it's a project archive
+  const sourceTypes = ["CodeController", "CodeDataModel", "CodeTransaction", "CodeDdl"];
+  const presentTypes = sourceTypes.filter((t) => (typeCounts[t] ?? 0) > 0);
+
+  if (presentTypes.length > 1 || typeCounts["SourceProjectSummary"]) {
+    return { category: "source_project", confidence: 0.95 };
+  }
+
+  if (typeCounts["CodeController"]) return { category: "source_controller", confidence: 0.9 };
+  if (typeCounts["CodeDataModel"]) return { category: "source_vo", confidence: 0.9 };
+  if (typeCounts["CodeTransaction"]) return { category: "source_service", confidence: 0.9 };
+  if (typeCounts["CodeDdl"]) return { category: "source_ddl", confidence: 0.9 };
+
+  return { category: "source_config", confidence: 0.5 };
+}
+
 const KEYWORD_RULES: Array<{ keywords: string[]; category: DocumentCategory }> = [
   { keywords: ["ERD", "엔터티", "entity", "관계"], category: "erd" },
   { keywords: ["화면", "UI", "UX", "스크린"], category: "screen_design" },
@@ -83,7 +118,7 @@ export function classifyDocument(
   const combinedText = elements.map((el) => el.text).join(" ").toLowerCase();
 
   // Score each category by counting keyword matches
-  const scores: Record<DocumentCategory, number> = {
+  const scores: Record<string, number> = {
     erd: 0,
     screen_design: 0,
     api_spec: 0,
@@ -102,27 +137,26 @@ export function classifyDocument(
         ? new RegExp(`\\b${lower}\\b`).test(combinedText)
         : combinedText.includes(lower);
       if (matched) {
-        scores[category] += 1;
+        scores[category] = (scores[category] ?? 0) + 1;
       }
     }
   }
 
   // Boost score based on fileType hint
   if (fileType === "xlsx" || fileType === "xls") {
-    scores.requirements += 0.5;
-    scores.process += 0.3;
+    scores["requirements"] = (scores["requirements"] ?? 0) + 0.5;
+    scores["process"] = (scores["process"] ?? 0) + 0.3;
   } else if (fileType === "pptx" || fileType === "ppt") {
-    scores.screen_design += 0.5;
+    scores["screen_design"] = (scores["screen_design"] ?? 0) + 0.5;
   }
 
   // Find best category
   let bestCategory: DocumentCategory = "general";
   let bestScore = 0;
-  const entries = Object.entries(scores) as Array<[DocumentCategory, number]>;
-  for (const [cat, score] of entries) {
-    if (score > bestScore) {
-      bestScore = score;
-      bestCategory = cat;
+  for (const [cat, score] of Object.entries(scores)) {
+    if ((score ?? 0) > bestScore) {
+      bestScore = score ?? 0;
+      bestCategory = cat as DocumentCategory;
     }
   }
 
