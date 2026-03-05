@@ -3,7 +3,7 @@ import type { Env } from "../env.js";
 
 const logger = createLogger("svc-ingestion:unstructured");
 
-const PARSE_TIMEOUT_MS = 180_000;
+const PARSE_TIMEOUT_MS = 300_000;
 const MAX_RETRIES = 2;
 const BASE_DELAY_MS = 2_000;
 
