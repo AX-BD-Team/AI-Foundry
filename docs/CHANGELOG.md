@@ -2,6 +2,23 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 100 — 2026-03-05
+**AI Chat Agent Tool Use 전환 — 4-Provider Fallback + 7 Tools**:
+- ✅ agent/anthropic.ts: Anthropic Messages API 직접 호출 (tool_use 지원)
+- ✅ agent/openai.ts: OpenAI function calling ↔ Anthropic format 변환
+- ✅ agent/google.ts: Gemini function calling ↔ Anthropic format 변환
+- ✅ agent/workers-ai.ts: Workers AI 무료 fallback (text-only, llama-3.1-8b)
+- ✅ agent/tools.ts: 7 tool 정의 + 6 service binding executor
+- ✅ agent/loop.ts: Agent loop (max 3턴) + 4-provider fallback chain
+- ✅ env.ts/wrangler.toml: 6 service binding × 3 환경 + [ai] binding
+- ✅ chat.ts → agent loop 호출로 교체, system-prompt.ts tool 규칙 추가
+- ✅ ChatMessage.tsx: tool badge 표시 (toolsUsed)
+- ✅ fix: 401 retryable + endpoint 경로 3건 수정 + [ai] 환경 상속
+- ✅ Secrets: OPENAI_API_KEY + GOOGLE_API_KEY (production/staging)
+- ✅ 4/4 curl 테스트 PASS (문서 855건, 스킬 148건, KPI, 일반대화)
+
+**검증**: typecheck ✅, lint ✅, CI/CD production 배포 ✅, curl 4/4 PASS
+
 ## 세션 099 — 2026-03-05
 **프로그래밍 기반 배치 분석 (LLM-Free Analysis)**:
 - ✅ programmatic-scorer.ts: 4-factor 통계 스코어링 (frequency, dependency, domainRelevance, dataFlowCentrality) + 35개 퇴직연금 키워드 사전
