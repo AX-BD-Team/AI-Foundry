@@ -151,6 +151,27 @@ export const DiagnosisReviewCompletedEventSchema = BaseEventSchema.extend({
   }),
 });
 
+// Fact Check events (v0.7.4 Phase 2-B)
+export const FactCheckRequestedEventSchema = BaseEventSchema.extend({
+  type: z.literal("factcheck.requested"),
+  payload: z.object({
+    resultId: z.string(),
+    organizationId: z.string(),
+    specType: z.enum(["api", "table", "mixed"]),
+  }),
+});
+
+export const FactCheckCompletedEventSchema = BaseEventSchema.extend({
+  type: z.literal("factcheck.completed"),
+  payload: z.object({
+    resultId: z.string(),
+    organizationId: z.string(),
+    matchedItems: z.number().int(),
+    gapCount: z.number().int(),
+    coveragePct: z.number(),
+  }),
+});
+
 export const PipelineEventSchema = z.discriminatedUnion("type", [
   DocumentUploadedEventSchema,
   IngestionCompletedEventSchema,
@@ -163,6 +184,8 @@ export const PipelineEventSchema = z.discriminatedUnion("type", [
   AnalysisCompletedEventSchema,
   DiagnosisCompletedEventSchema,
   DiagnosisReviewCompletedEventSchema,
+  FactCheckRequestedEventSchema,
+  FactCheckCompletedEventSchema,
 ]);
 
 export type DocumentUploadedEvent = z.infer<typeof DocumentUploadedEventSchema>;
@@ -176,4 +199,6 @@ export type AnalysisRequestedEvent = z.infer<typeof AnalysisRequestedEventSchema
 export type AnalysisCompletedEvent = z.infer<typeof AnalysisCompletedEventSchema>;
 export type DiagnosisCompletedEvent = z.infer<typeof DiagnosisCompletedEventSchema>;
 export type DiagnosisReviewCompletedEvent = z.infer<typeof DiagnosisReviewCompletedEventSchema>;
+export type FactCheckRequestedEvent = z.infer<typeof FactCheckRequestedEventSchema>;
+export type FactCheckCompletedEvent = z.infer<typeof FactCheckCompletedEventSchema>;
 export type PipelineEvent = z.infer<typeof PipelineEventSchema>;

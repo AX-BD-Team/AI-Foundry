@@ -14,6 +14,7 @@ export type DocumentCategory =
   | "source_service"
   | "source_ddl"
   | "source_config"
+  | "source_mapper"
   | "source_project";
 
 export type DocumentClassification = {
@@ -88,7 +89,7 @@ export function classifySourceElements(
   }
 
   // If multiple element types present, it's a project archive
-  const sourceTypes = ["CodeController", "CodeDataModel", "CodeTransaction", "CodeDdl"];
+  const sourceTypes = ["CodeController", "CodeDataModel", "CodeTransaction", "CodeDdl", "CodeMapper"];
   const presentTypes = sourceTypes.filter((t) => (typeCounts[t] ?? 0) > 0);
 
   if (presentTypes.length > 1 || typeCounts["SourceProjectSummary"]) {
@@ -99,6 +100,7 @@ export function classifySourceElements(
   if (typeCounts["CodeDataModel"]) return { category: "source_vo", confidence: 0.9 };
   if (typeCounts["CodeTransaction"]) return { category: "source_service", confidence: 0.9 };
   if (typeCounts["CodeDdl"]) return { category: "source_ddl", confidence: 0.9 };
+  if (typeCounts["CodeMapper"]) return { category: "source_mapper", confidence: 0.9 };
 
   return { category: "source_config", confidence: 0.5 };
 }

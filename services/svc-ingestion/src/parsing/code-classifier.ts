@@ -1,4 +1,5 @@
 import type { DocumentCategory } from "./classifier.js";
+import { isMyBatisMapper } from "./mybatis-mapper.js";
 
 export function classifyJavaFile(filename: string, content: string): DocumentCategory {
   // 1st priority: annotation-based
@@ -20,4 +21,9 @@ export function classifyJavaFile(filename: string, content: string): DocumentCat
 
 export function classifySqlFile(_filename: string, _content: string): DocumentCategory {
   return "source_ddl";
+}
+
+export function classifyXmlFile(_filename: string, content: string): DocumentCategory {
+  if (isMyBatisMapper(content)) return "source_mapper";
+  return "source_config";
 }

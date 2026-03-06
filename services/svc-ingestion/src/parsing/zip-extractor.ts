@@ -6,6 +6,7 @@ import { parseJavaDataModel } from "./java-datamodel.js";
 import { parseJavaService } from "./java-service.js";
 import { parseDdl } from "./ddl.js";
 import { classifyJavaFile } from "./code-classifier.js";
+import { isMyBatisMapper, parseMyBatisMapper } from "./mybatis-mapper.js";
 
 const logger = createLogger("svc-ingestion:zip-extractor");
 
@@ -113,8 +114,17 @@ export function parseSourceProject(
           text: JSON.stringify(table),
         });
       }
+    } else if (file.type === "xml") {
+      if (isMyBatisMapper(file.content)) {
+        const mapper = parseMyBatisMapper(file.content, file.filename);
+        if (mapper) {
+          elements.push({
+            type: "CodeMapper",
+            text: JSON.stringify(mapper),
+          });
+        }
+      }
     }
-    // xml/properties — skip for now (Phase 2-A scope: Java + SQL only)
   }
 
   // Add project summary element
@@ -124,6 +134,7 @@ export function parseSourceProject(
   const dataModelCount = elements.filter((e) => e.type === "CodeDataModel").length;
   const transactionCount = elements.filter((e) => e.type === "CodeTransaction").length;
   const ddlCount = elements.filter((e) => e.type === "CodeDdl").length;
+  const mapperCount = elements.filter((e) => e.type === "CodeMapper").length;
 
   elements.push({
     type: "SourceProjectSummary",
@@ -143,6 +154,7 @@ export function parseSourceProject(
         dataModelCount,
         transactionCount,
         ddlTableCount: ddlCount,
+        mapperCount,
       },
     }),
   });
@@ -154,6 +166,7 @@ export function parseSourceProject(
     dataModelCount,
     transactionCount,
     ddlCount,
+    mapperCount,
   });
 
   return elements;

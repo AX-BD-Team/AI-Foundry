@@ -35,7 +35,9 @@ type EventType =
   | "analysis.requested"
   | "analysis.completed"
   | "diagnosis.completed"
-  | "diagnosis.review_completed";
+  | "diagnosis.review_completed"
+  | "factcheck.requested"
+  | "factcheck.completed";
 
 /** Named target: service name + Fetcher binding for better observability */
 interface NamedTarget {
@@ -69,6 +71,9 @@ function getTargets(type: EventType, env: Env): NamedTarget[] {
         return [{ name: "svc-notification", fetcher: env.SVC_NOTIFICATION }];
       case "diagnosis.review_completed":
         return [{ name: "svc-notification", fetcher: env.SVC_NOTIFICATION }];
+      case "factcheck.requested":
+      case "factcheck.completed":
+        return [{ name: "svc-extraction", fetcher: env.SVC_EXTRACTION }];
     }
   })();
   // All events also go to analytics for metric aggregation

@@ -82,6 +82,41 @@ export const CodeDdlSchema = z.object({
   sourceFile: z.string(),
 });
 
+// === MyBatis XML Mapper Types (v0.7.4 Phase 2-B) ===
+
+export const MyBatisResultColumnSchema = z.object({
+  column: z.string(),
+  property: z.string(),
+  javaType: z.string().optional(),
+  jdbcType: z.string().optional(),
+  isPrimaryKey: z.boolean().default(false),
+});
+
+export const MyBatisResultMapSchema = z.object({
+  id: z.string(),
+  type: z.string(),
+  typeName: z.string(),
+  columns: z.array(MyBatisResultColumnSchema),
+});
+
+export const MyBatisQuerySchema = z.object({
+  id: z.string(),
+  queryType: z.enum(["select", "insert", "update", "delete"]),
+  tables: z.array(z.string()),
+  parameterType: z.string().optional(),
+  resultMapRef: z.string().optional(),
+  columnNames: z.array(z.string()),
+});
+
+export const CodeMapperSchema = z.object({
+  namespace: z.string(),
+  mapperName: z.string(),
+  resultMaps: z.array(MyBatisResultMapSchema),
+  queries: z.array(MyBatisQuerySchema),
+  tables: z.array(z.string()),
+  sourceFile: z.string(),
+});
+
 export const SourceAnalysisResultSchema = z.object({
   projectName: z.string(),
   controllers: z.array(CodeControllerSchema),
@@ -97,6 +132,7 @@ export const SourceAnalysisResultSchema = z.object({
     dataModelCount: z.number().int(),
     transactionCount: z.number().int(),
     ddlTableCount: z.number().int(),
+    mapperCount: z.number().int(),
   }),
 });
 
@@ -109,4 +145,8 @@ export type CodeDataModel = z.infer<typeof CodeDataModelSchema>;
 export type CodeTransaction = z.infer<typeof CodeTransactionSchema>;
 export type DdlColumn = z.infer<typeof DdlColumnSchema>;
 export type CodeDdl = z.infer<typeof CodeDdlSchema>;
+export type MyBatisResultColumn = z.infer<typeof MyBatisResultColumnSchema>;
+export type MyBatisResultMap = z.infer<typeof MyBatisResultMapSchema>;
+export type MyBatisQuery = z.infer<typeof MyBatisQuerySchema>;
+export type CodeMapper = z.infer<typeof CodeMapperSchema>;
 export type SourceAnalysisResult = z.infer<typeof SourceAnalysisResultSchema>;

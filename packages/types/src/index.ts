@@ -10,3 +10,4 @@ export * from "./analysis.js";
 export * from "./diagnosis.js";
 export * from "./ontology.js";
 export * from "./spec.js";
+export * from "./factcheck.js";
