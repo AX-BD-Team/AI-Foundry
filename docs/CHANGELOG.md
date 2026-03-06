@@ -2,15 +2,17 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
-## 세션 119 — 2026-03-06
-**PM VO severity 다운그레이드 + /team 스킬 수정**:
-- `gap-detector.ts`: @RequestBody VO/DTO 파라미터 PM gap → LOW severity 다운그레이드 (87건 대상)
-- `source-aggregator.ts`: SourceSpec에 transactions/queries 필드 추가, CodeTransaction 수집
-- `relevance-scorer.ts`: 실 데이터(transaction/query)로 relevance 분류 (기존 empty [] 대체)
-- `export.ts`: cached D1 match_result_json 사용 (extractDocSpec+structuralMatch 재실행 제거)
-- `/team` 스킬 버그 수정: `tmux display-message` → `$TMUX_PANE` (잘못된 pane 분할 방지)
-- `/team` 스킬: `command claude` → `command claude -p` (로그 마커 정상 기록)
+## 세션 118 — 2026-03-06
+**Phase 2-E: LPON Export E2E + KPI 측정 + 3가지 개선**:
+- **Export E2E 성공**: `pkg-f1e20fb3` — spec-api.json(184KB), spec-table.json(307KB), fact-check-report.md(140KB), spec-summary.csv(33KB)
+- **Core 분류 활성화**: `classifyAll`에 실 transaction/query 데이터 전달 → Core APIs 137/230 (59.6%), Core Tables 53/152 (34.9%)
+- **Export 타임아웃 해소**: D1 캐시 `match_result_json` 사용 → `extractDocSpec`+`structuralMatch` 재실행 제거 (CPU ~60% 절감)
+- **Fact Check 재실행**: 최신 matcher + PM fix 반영 → KPI 25.7% (structural only, PM 164→87)
+- **KPI 측정**: API Coverage 25.7%, Table Coverage 25.7%, Gap Precision 0% (리뷰어 confirm 0)
+- `SourceSpec` 확장: `transactions[]`, `queries[]` 필드 추가 (types.ts + source-aggregator.ts)
+- PM VO severity 다운그레이드: @RequestBody VO/DTO 파라미터 → LOW severity
 - 326 tests PASS, typecheck+lint 0 errors
+- 배포: svc-extraction CI/CD 자동 배포 완료
 
 ## 세션 117 — 2026-03-06
 **PM 164건 분석 + False Positive 필터링 (PM 164→87, -47%)**:
