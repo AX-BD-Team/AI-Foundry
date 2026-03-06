@@ -2,6 +2,19 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 113 — 2026-03-06
+**v0.7.4 Phase 2-B Session 4 — LLM Semantic Matcher + Deploy + Fact Check E2E**:
+- ✅ `factcheck/llm-matcher.ts` — LLM semantic matching (per-item Sonnet, JSON verdict, naming diff/gap 분류)
+- ✅ `__tests__/llm-matcher.test.ts` — 9 tests (빈 입력, found=true/false, 테이블, score 0.5/0.7, invalid JSON, code fence, 500 error, 복합 시나리오)
+- ✅ BUG-1 수정: `POST /factcheck` INSERT에 `source_document_ids='[]'`, `doc_document_ids='[]'` 추가 (NOT NULL constraint)
+- ✅ `routes/factcheck.ts` — LLM match endpoint 실 구현 연결 (handleLlmMatch)
+- ✅ CI/CD 배포: svc-ingestion + svc-queue-router + svc-extraction (3 서비스, GitHub Actions)
+- ✅ D1 migration: 0005_factcheck.sql (local + production, 2 tables + 6 indexes)
+- ✅ LPON 소스코드 25/28 zips 업로드 (2건 >100MB, 1건 >50MB 스킵)
+- ✅ Fact Check E2E: 소스 21 docs / 425 items, 문서 3 docs / 109 items, 매칭 1건 (0.2%), 533 gaps
+
+**검증**: typecheck 0 errors | lint 0 errors | 261 tests PASS (9 new) | E2E Fact Check completed
+
 ## 세션 112 — 2026-03-06
 **v0.7.4 PRD-구현 Gap Analysis + Phase 2-C 설계**:
 - PRD v0.7.4 전문 vs 구현 현황 비교 분석 (8건 Finding)
