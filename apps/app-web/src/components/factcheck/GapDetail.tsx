@@ -48,8 +48,8 @@ function ItemDisplay({ title, data, raw }: { title: string; data: Record<string,
 
 export function GapDetail({ gap, onReview, reviewerRole, reviewing }: GapDetailProps) {
   const [comment, setComment] = useState('');
-  const sourceData = tryParseJson(gap.source_item);
-  const docData = tryParseJson(gap.document_item);
+  const sourceData = tryParseJson(gap.sourceItem);
+  const docData = tryParseJson(gap.documentItem ?? null);
 
   const severityColor: Record<string, { bg: string; color: string }> = {
     HIGH: { bg: 'rgba(239, 68, 68, 0.1)', color: '#DC2626' },
@@ -64,7 +64,7 @@ export function GapDetail({ gap, onReview, reviewerRole, reviewing }: GapDetailP
         <div className="flex items-center justify-between">
           <CardTitle className="text-base">Gap Detail</CardTitle>
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="text-[10px]">{gap.gap_type}</Badge>
+            <Badge variant="outline" className="text-[10px]">{gap.gapType}</Badge>
             <Badge className="text-[10px]" style={{ backgroundColor: sc.bg, color: sc.color, border: 'none' }}>
               {gap.severity}
             </Badge>
@@ -88,12 +88,12 @@ export function GapDetail({ gap, onReview, reviewerRole, reviewing }: GapDetailP
 
         {/* Source vs Document Side-by-Side */}
         <div className="flex gap-4">
-          <ItemDisplay title="Source (Code)" data={sourceData} raw={gap.source_item} />
-          <ItemDisplay title="Document (Spec)" data={docData} raw={gap.document_item} />
+          <ItemDisplay title="Source (Code)" data={sourceData} raw={gap.sourceItem} />
+          <ItemDisplay title="Document (Spec)" data={docData} raw={gap.documentItem ?? null} />
         </div>
 
         {/* Review Actions */}
-        {reviewerRole && gap.review_status === 'pending' && (
+        {reviewerRole && gap.reviewStatus === 'pending' && (
           <div className="border-t pt-4 space-y-3" style={{ borderColor: 'var(--border)' }}>
             <div className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>Review Actions</div>
             <textarea
@@ -108,7 +108,7 @@ export function GapDetail({ gap, onReview, reviewerRole, reviewing }: GapDetailP
               <Button
                 size="sm"
                 disabled={reviewing}
-                onClick={() => onReview(gap.gap_id, 'confirm', comment || undefined)}
+                onClick={() => onReview(gap.gapId, 'confirm', comment || undefined)}
                 className="gap-1"
               >
                 <CheckCircle className="w-4 h-4" />
@@ -118,7 +118,7 @@ export function GapDetail({ gap, onReview, reviewerRole, reviewing }: GapDetailP
                 size="sm"
                 variant="outline"
                 disabled={reviewing}
-                onClick={() => onReview(gap.gap_id, 'dismiss', comment || undefined)}
+                onClick={() => onReview(gap.gapId, 'dismiss', comment || undefined)}
                 className="gap-1"
               >
                 <XCircle className="w-4 h-4" />
@@ -128,7 +128,7 @@ export function GapDetail({ gap, onReview, reviewerRole, reviewing }: GapDetailP
                 size="sm"
                 variant="outline"
                 disabled={reviewing}
-                onClick={() => onReview(gap.gap_id, 'modify', comment || undefined)}
+                onClick={() => onReview(gap.gapId, 'modify', comment || undefined)}
                 className="gap-1"
               >
                 <Edit3 className="w-4 h-4" />
@@ -139,13 +139,13 @@ export function GapDetail({ gap, onReview, reviewerRole, reviewing }: GapDetailP
         )}
 
         {/* Review result */}
-        {gap.review_status !== 'pending' && (
+        {gap.reviewStatus !== 'pending' && (
           <div className="border-t pt-4" style={{ borderColor: 'var(--border)' }}>
             <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-              Reviewed by {gap.reviewer_id ?? 'N/A'} at {gap.reviewed_at ? new Date(gap.reviewed_at).toLocaleString('ko-KR') : 'N/A'}
+              Reviewed by {gap.reviewerId ?? 'N/A'} at {gap.reviewedAt ? new Date(gap.reviewedAt).toLocaleString('ko-KR') : 'N/A'}
             </div>
-            {gap.reviewer_comment && (
-              <div className="text-sm mt-1" style={{ color: 'var(--text-primary)' }}>{gap.reviewer_comment}</div>
+            {gap.reviewerComment && (
+              <div className="text-sm mt-1" style={{ color: 'var(--text-primary)' }}>{gap.reviewerComment}</div>
             )}
           </div>
         )}

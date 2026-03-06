@@ -130,16 +130,16 @@ export function GapList({
           <TableBody>
             {gaps.map((gap) => (
               <TableRow
-                key={gap.gap_id}
+                key={gap.gapId}
                 className="cursor-pointer"
                 style={{
-                  backgroundColor: selectedGapId === gap.gap_id ? 'rgba(59, 130, 246, 0.05)' : undefined,
+                  backgroundColor: selectedGapId === gap.gapId ? 'rgba(59, 130, 246, 0.05)' : undefined,
                 }}
                 onClick={() => onSelectGap?.(gap)}
               >
                 <TableCell>
                   <Badge variant="outline" className="text-[10px]">
-                    {GAP_TYPE_LABELS[gap.gap_type] ?? gap.gap_type}
+                    {GAP_TYPE_LABELS[gap.gapType] ?? gap.gapType}
                   </Badge>
                 </TableCell>
                 <TableCell>{severityBadge(gap.severity)}</TableCell>
@@ -148,7 +148,7 @@ export function GapList({
                     {gap.description}
                   </div>
                 </TableCell>
-                <TableCell>{reviewStatusBadge(gap.review_status)}</TableCell>
+                <TableCell>{reviewStatusBadge(gap.reviewStatus)}</TableCell>
               </TableRow>
             ))}
           </TableBody>

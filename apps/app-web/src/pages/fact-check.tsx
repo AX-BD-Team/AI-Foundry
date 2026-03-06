@@ -97,14 +97,14 @@ export default function FactCheckPage() {
   // Reload gaps when filters change
   useEffect(() => {
     if (selectedResult) {
-      void loadGaps(selectedResult.result_id);
+      void loadGaps(selectedResult.resultId);
     }
   }, [filterType, filterSeverity]);
 
   const handleSelectResult = (result: FactCheckResult) => {
     setSelectedResult(result);
     setSelectedGap(null);
-    void loadGaps(result.result_id);
+    void loadGaps(result.resultId);
   };
 
   const handleTrigger = async () => {
@@ -130,7 +130,7 @@ export default function FactCheckPage() {
       const res = await reviewGap(organizationId, gapId, { action, ...(comment ? { comment } : {}) });
       if (res.success) {
         toast.success(`Gap ${action}ed`);
-        if (selectedResult) void loadGaps(selectedResult.result_id);
+        if (selectedResult) void loadGaps(selectedResult.resultId);
         setSelectedGap(null);
       } else {
         toast.error(res.error.message);
@@ -160,7 +160,7 @@ export default function FactCheckPage() {
 
   const filteredGaps = useMemo(() => {
     return gaps.filter((g) => {
-      if (filterType !== 'all' && g.gap_type !== filterType) return false;
+      if (filterType !== 'all' && g.gapType !== filterType) return false;
       if (filterSeverity !== 'all' && g.severity !== filterSeverity) return false;
       return true;
     });
@@ -195,7 +195,7 @@ export default function FactCheckPage() {
           <CoverageCard
             label="Average Coverage"
             labelEn="Avg Coverage"
-            value={summary.avgCoverage}
+            value={summary.overallCoveragePct}
             icon={<Target className="w-10 h-10" />}
           />
           <Card className="shadow-sm">
@@ -214,7 +214,9 @@ export default function FactCheckPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>HIGH Gaps</div>
-                  <div className="text-3xl font-bold mt-2" style={{ color: '#DC2626' }}>{summary.highGaps}</div>
+                  <div className="text-3xl font-bold mt-2" style={{ color: '#DC2626' }}>
+                    {results.reduce((sum, r) => sum + (r.gapsBySeverity["HIGH"] ?? 0), 0)}
+                  </div>
                 </div>
                 <Zap className="w-10 h-10" style={{ color: '#EF4444', opacity: 0.2 }} />
               </div>
@@ -225,7 +227,7 @@ export default function FactCheckPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Completed</div>
-                  <div className="text-3xl font-bold mt-2" style={{ color: '#22C55E' }}>{summary.completedResults}</div>
+                  <div className="text-3xl font-bold mt-2" style={{ color: '#22C55E' }}>{summary.resultCount}</div>
                 </div>
                 <CheckCircle className="w-10 h-10" style={{ color: '#22C55E', opacity: 0.2 }} />
               </div>
@@ -253,35 +255,35 @@ export default function FactCheckPage() {
                 <div className="space-y-2 max-h-[500px] overflow-y-auto">
                   {results.map((r) => (
                     <div
-                      key={r.result_id}
+                      key={r.resultId}
                       className="p-3 rounded-lg border cursor-pointer transition-colors"
                       style={{
-                        borderColor: selectedResult?.result_id === r.result_id ? 'var(--primary)' : 'var(--border)',
-                        backgroundColor: selectedResult?.result_id === r.result_id ? 'rgba(26, 54, 93, 0.05)' : 'transparent',
+                        borderColor: selectedResult?.resultId === r.resultId ? 'var(--primary)' : 'var(--border)',
+                        backgroundColor: selectedResult?.resultId === r.resultId ? 'rgba(26, 54, 93, 0.05)' : 'transparent',
                       }}
                       onClick={() => handleSelectResult(r)}
                     >
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-xs font-mono" style={{ color: 'var(--text-primary)' }}>
-                          {r.result_id.slice(0, 8)}...
+                          {r.resultId.slice(0, 8)}...
                         </span>
                         {resultStatusBadge(r.status)}
                       </div>
                       <div className="flex items-center gap-3 text-xs" style={{ color: 'var(--text-secondary)' }}>
-                        <Badge variant="outline" className="text-[10px]">{r.spec_type}</Badge>
-                        <span>Coverage: {r.coverage_pct}%</span>
-                        <span>Gaps: {r.gap_count}</span>
+                        <Badge variant="outline" className="text-[10px]">{r.specType}</Badge>
+                        <span>Coverage: {r.coveragePct}%</span>
+                        <span>Gaps: {r.gapCount}</span>
                       </div>
                       <div className="flex items-center justify-between mt-2">
                         <span className="text-[10px]" style={{ color: 'var(--text-secondary)' }}>
-                          {new Date(r.created_at).toLocaleString('ko-KR')}
+                          {new Date(r.createdAt).toLocaleString('ko-KR')}
                         </span>
                         <Button
                           variant="ghost"
                           size="sm"
                           className="text-[10px] h-6 px-2"
-                          disabled={llmMatching.has(r.result_id)}
-                          onClick={(e) => { e.stopPropagation(); void handleLlmMatch(r.result_id); }}
+                          disabled={llmMatching.has(r.resultId)}
+                          onClick={(e) => { e.stopPropagation(); void handleLlmMatch(r.resultId); }}
                         >
                           <Zap className="w-3 h-3 mr-1" />
                           LLM Match
@@ -302,7 +304,7 @@ export default function FactCheckPage() {
               <Card className="shadow-sm">
                 <CardHeader>
                   <CardTitle className="text-sm">
-                    Gaps for {selectedResult.result_id.slice(0, 8)}...
+                    Gaps for {selectedResult.resultId.slice(0, 8)}...
                     <Badge variant="outline" className="ml-2 text-xs">{filteredGaps.length}</Badge>
                   </CardTitle>
                 </CardHeader>
@@ -310,7 +312,7 @@ export default function FactCheckPage() {
                   <GapList
                     gaps={filteredGaps}
                     onSelectGap={setSelectedGap}
-                    selectedGapId={selectedGap?.gap_id}
+                    selectedGapId={selectedGap?.gapId}
                     filterType={filterType}
                     filterSeverity={filterSeverity}
                     onFilterTypeChange={setFilterType}

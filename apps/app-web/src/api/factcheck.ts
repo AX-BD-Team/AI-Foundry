@@ -15,48 +15,53 @@ function headersNoContentType(organizationId: string): Record<string, string> {
 // --- Local Types ---
 
 export interface FactCheckResult {
-  result_id: string;
-  document_id: string;
-  source_document_id: string | null;
-  organization_id: string;
-  spec_type: "api" | "table";
-  total_items: number;
-  matched_items: number;
-  gap_count: number;
-  coverage_pct: number;
+  resultId: string;
+  organizationId: string;
+  specType: "api" | "table" | string;
+  sourceDocumentIds: string[];
+  docDocumentIds: string[];
+  totalSourceItems: number;
+  totalDocItems: number;
+  matchedItems: number;
+  gapCount: number;
+  coveragePct: number;
+  gapsByType: Record<string, number>;
+  gapsBySeverity: Record<string, number>;
   status: "pending" | "completed" | "failed";
-  result_json: string | null;
-  created_at: string;
-  updated_at: string | null;
+  errorMessage?: string;
+  createdAt: string;
+  updatedAt?: string;
 }
 
 export interface FactCheckGap {
-  gap_id: string;
-  result_id: string;
-  document_id: string;
-  organization_id: string;
-  gap_type: "SM" | "MC" | "PM" | "TM" | "MID";
+  gapId: string;
+  resultId: string;
+  organizationId: string;
+  gapType: "SM" | "MC" | "PM" | "TM" | "MID";
   severity: "HIGH" | "MEDIUM" | "LOW";
-  source_item: string;
-  document_item: string | null;
+  sourceItem: string;
+  sourceDocumentId?: string;
+  documentItem?: string | null;
+  documentId?: string | null;
   description: string;
-  evidence: string | null;
-  auto_resolved: boolean;
-  review_status: "pending" | "confirmed" | "dismissed" | "modified";
-  reviewer_id: string | null;
-  reviewer_comment: string | null;
-  reviewed_at: string | null;
-  created_at: string;
+  evidence?: string | null;
+  autoResolved: boolean;
+  reviewStatus: "pending" | "confirmed" | "dismissed" | "modified";
+  reviewerId?: string | null;
+  reviewerComment?: string | null;
+  reviewedAt?: string | null;
+  createdAt: string;
 }
 
 export interface FactCheckSummary {
-  totalResults: number;
-  completedResults: number;
+  organizationId: string;
+  resultCount: number;
+  totalSourceItems: number;
+  totalDocItems: number;
+  totalMatchedItems: number;
   totalGaps: number;
-  highGaps: number;
-  mediumGaps: number;
-  lowGaps: number;
-  avgCoverage: number;
+  overallCoveragePct: number;
+  lastCheckAt: string | null;
 }
 
 export interface FactCheckKpi {
