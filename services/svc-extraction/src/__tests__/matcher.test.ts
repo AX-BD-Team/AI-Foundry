@@ -67,6 +67,8 @@ function makeSourceSpec(apis: SourceApi[] = [], tables: SourceTable[] = []): Sou
   return {
     apis,
     tables,
+    transactions: [],
+    queries: [],
     stats: {
       controllerCount: apis.length > 0 ? 1 : 0,
       endpointCount: apis.length,

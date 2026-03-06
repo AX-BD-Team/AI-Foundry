@@ -26,6 +26,8 @@ function makeSourceSpec(apis: SourceApi[] = [makeSourceApi()]): SourceSpec {
   return {
     apis,
     tables: [],
+    transactions: [],
+    queries: [],
     stats: { controllerCount: 1, endpointCount: apis.length, tableCount: 0, mapperCount: 0 },
   };
 }

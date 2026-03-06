@@ -14,16 +14,15 @@
 
 import { ok, badRequest, notFound } from "@ai-foundry/utils";
 import type { Env } from "../env.js";
-import type { FactCheckGap } from "@ai-foundry/types";
+import type { FactCheckGap, MatchedItem } from "@ai-foundry/types";
 import { aggregateSourceSpec } from "../factcheck/source-aggregator.js";
-import { extractDocSpec } from "../factcheck/doc-spec-extractor.js";
-import { structuralMatch } from "../factcheck/matcher.js";
 import { generateFactCheckReport } from "../factcheck/report.js";
 import { generateApiSpec } from "../export/spec-api.js";
 import { generateTableSpec } from "../export/spec-table.js";
 import { generateCsvSummary } from "../export/spec-summary.js";
 import { classifyAll } from "../export/relevance-scorer.js";
 import { assembleAndStore } from "../export/packager.js";
+import type { MatchResult } from "../factcheck/matcher.js";
 
 // ── D1 row types ────────────────────────────────────────────────
 
@@ -208,13 +207,18 @@ async function handleCreateSpecPackage(
 
   const gaps: FactCheckGap[] = gapRows.map(gapRowToApi);
 
-  // Aggregate source and doc specs
+  // Aggregate source spec (APIs, tables, transactions, queries)
   const sourceSpec = await aggregateSourceSpec(env, organizationId);
-  const docSpec = await extractDocSpec(env, organizationId);
-  const matchResult = structuralMatch(sourceSpec, docSpec);
 
-  // Classify relevance (with empty transactions/queries for now — no D1 storage for those)
-  const relevanceMap = classifyAll(sourceSpec, [], []);
+  // Use cached matchResult from D1 (avoids re-running extractDocSpec + structuralMatch)
+  const matchResult = buildMatchResultFromCache(resultRow.match_result_json);
+
+  // Classify relevance using actual transaction/query data from source
+  const relevanceMap = classifyAll(
+    sourceSpec,
+    sourceSpec.transactions,
+    sourceSpec.queries,
+  );
 
   // Generate API spec entries
   const apiSpecs = generateApiSpec({
@@ -413,6 +417,37 @@ function gapRowToApi(row: GapRow): FactCheckGap {
     ...(row.reviewed_at ? { reviewedAt: row.reviewed_at } : {}),
     createdAt: row.created_at,
   };
+}
+
+/**
+ * Reconstruct MatchResult from cached D1 match_result_json.
+ * The cache stores full matchedItems but only counts for unmatched items.
+ * Export only uses matchedItems for docRef lookup, so empty arrays are fine.
+ */
+function buildMatchResultFromCache(json: string | null): MatchResult {
+  const empty: MatchResult = {
+    matchedItems: [],
+    unmatchedSourceApis: [],
+    unmatchedDocApis: [],
+    unmatchedSourceTables: [],
+    unmatchedDocTables: [],
+  };
+  if (!json) return empty;
+
+  try {
+    const cached = JSON.parse(json) as {
+      matchedItems?: MatchedItem[];
+    };
+    return {
+      matchedItems: cached.matchedItems ?? [],
+      unmatchedSourceApis: [],
+      unmatchedDocApis: [],
+      unmatchedSourceTables: [],
+      unmatchedDocTables: [],
+    };
+  } catch {
+    return empty;
+  }
 }
 
 function safeParseJsonRecord(val: string | null): Record<string, number> {

@@ -47,12 +47,30 @@ export interface SourceTable {
 export interface SourceSpec {
   apis: SourceApi[];
   tables: SourceTable[];
+  /** CodeTransaction entries from @Transactional service methods */
+  transactions: SourceTransaction[];
+  /** MyBatis queries from XML mappers */
+  queries: SourceQuery[];
   stats: {
     controllerCount: number;
     endpointCount: number;
     tableCount: number;
     mapperCount: number;
   };
+}
+
+/** Simplified CodeTransaction for relevance scoring */
+export interface SourceTransaction {
+  className: string;
+  methodName: string;
+  isTransactional: boolean;
+}
+
+/** Simplified MyBatisQuery for relevance scoring */
+export interface SourceQuery {
+  id: string;
+  queryType: "select" | "insert" | "update" | "delete";
+  tables: string[];
 }
 
 // ── Document-side extracted structures ─────────────────────────────

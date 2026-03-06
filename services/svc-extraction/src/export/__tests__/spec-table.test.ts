@@ -33,6 +33,8 @@ function makeSourceSpec(tables: SourceTable[] = [makeSourceTable()]): SourceSpec
   return {
     apis: [],
     tables,
+    transactions: [],
+    queries: [],
     stats: { controllerCount: 0, endpointCount: 0, tableCount: tables.length, mapperCount: 1 },
   };
 }

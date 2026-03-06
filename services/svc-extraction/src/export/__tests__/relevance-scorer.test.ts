@@ -8,8 +8,7 @@ import {
   scoreApi,
   scoreTable,
 } from "../relevance-scorer.js";
-import type { SourceApi, SourceTable } from "../../factcheck/types.js";
-import type { CodeTransaction, MyBatisQuery } from "@ai-foundry/types";
+import type { SourceApi, SourceTable, SourceTransaction, SourceQuery } from "../../factcheck/types.js";
 
 // ── Helpers ─────────────────────────────────────────────────────
 
@@ -38,25 +37,20 @@ function makeSourceTable(overrides: Partial<SourceTable> = {}): SourceTable {
   };
 }
 
-function makeTransaction(overrides: Partial<CodeTransaction> = {}): CodeTransaction {
+function makeTransaction(overrides: Partial<SourceTransaction> = {}): SourceTransaction {
   return {
     className: "VoucherServiceImpl",
     methodName: "issueVoucher",
-    parameters: [],
-    returnType: "void",
     isTransactional: true,
-    readOnly: false,
-    sourceFile: "VoucherServiceImpl.java",
     ...overrides,
   };
 }
 
-function makeQuery(overrides: Partial<MyBatisQuery> = {}): MyBatisQuery {
+function makeQuery(overrides: Partial<SourceQuery> = {}): SourceQuery {
   return {
     id: "selectVoucher",
     queryType: "select",
     tables: ["TB_VOUCHER"],
-    columnNames: ["voucher_id"],
     ...overrides,
   };
 }
@@ -142,7 +136,7 @@ describe("isExternalApi", () => {
 
 describe("isCoreEntity", () => {
   it("3 or more JOIN references -> true", () => {
-    const queries: MyBatisQuery[] = [
+    const queries: SourceQuery[] = [
       makeQuery({ tables: ["TB_VOUCHER", "TB_ORDER"] }),
       makeQuery({ tables: ["TB_VOUCHER", "TB_USER"] }),
       makeQuery({ tables: ["TB_VOUCHER", "TB_PAYMENT"] }),
@@ -151,7 +145,7 @@ describe("isCoreEntity", () => {
   });
 
   it("standalone table (no JOINs) -> false", () => {
-    const queries: MyBatisQuery[] = [
+    const queries: SourceQuery[] = [
       makeQuery({ tables: ["TB_VOUCHER"] }),
       makeQuery({ tables: ["TB_VOUCHER"] }),
     ];
@@ -159,7 +153,7 @@ describe("isCoreEntity", () => {
   });
 
   it("only 2 JOIN references -> false", () => {
-    const queries: MyBatisQuery[] = [
+    const queries: SourceQuery[] = [
       makeQuery({ tables: ["TB_VOUCHER", "TB_ORDER"] }),
       makeQuery({ tables: ["TB_VOUCHER", "TB_USER"] }),
     ];
@@ -167,7 +161,7 @@ describe("isCoreEntity", () => {
   });
 
   it("table not in any queries -> false", () => {
-    const queries: MyBatisQuery[] = [
+    const queries: SourceQuery[] = [
       makeQuery({ tables: ["TB_ORDER", "TB_USER"] }),
     ];
     expect(isCoreEntity("TB_VOUCHER", queries)).toBe(false);
@@ -178,28 +172,28 @@ describe("isCoreEntity", () => {
 
 describe("isTransactionCore", () => {
   it("method matches @Transactional service -> true", () => {
-    const transactions: CodeTransaction[] = [
+    const transactions: SourceTransaction[] = [
       makeTransaction({ methodName: "issueVoucher", isTransactional: true }),
     ];
     expect(isTransactionCore("issueVoucher", transactions)).toBe(true);
   });
 
   it("non-transactional method -> false", () => {
-    const transactions: CodeTransaction[] = [
+    const transactions: SourceTransaction[] = [
       makeTransaction({ methodName: "issueVoucher", isTransactional: false }),
     ];
     expect(isTransactionCore("issueVoucher", transactions)).toBe(false);
   });
 
   it("no matching method -> false", () => {
-    const transactions: CodeTransaction[] = [
+    const transactions: SourceTransaction[] = [
       makeTransaction({ methodName: "cancelOrder", isTransactional: true }),
     ];
     expect(isTransactionCore("issueVoucher", transactions)).toBe(false);
   });
 
   it("partial name match (substring) -> true", () => {
-    const transactions: CodeTransaction[] = [
+    const transactions: SourceTransaction[] = [
       makeTransaction({ methodName: "doIssueVoucher", isTransactional: true }),
     ];
     expect(isTransactionCore("issueVoucher", transactions)).toBe(true);
@@ -210,7 +204,7 @@ describe("isTransactionCore", () => {
 
 describe("isTableTransactionCore", () => {
   it("2+ write queries -> true", () => {
-    const queries: MyBatisQuery[] = [
+    const queries: SourceQuery[] = [
       makeQuery({ queryType: "insert", tables: ["TB_VOUCHER"] }),
       makeQuery({ queryType: "update", tables: ["TB_VOUCHER"] }),
     ];
@@ -218,7 +212,7 @@ describe("isTableTransactionCore", () => {
   });
 
   it("only 1 write query -> false", () => {
-    const queries: MyBatisQuery[] = [
+    const queries: SourceQuery[] = [
       makeQuery({ queryType: "insert", tables: ["TB_VOUCHER"] }),
       makeQuery({ queryType: "select", tables: ["TB_VOUCHER"] }),
     ];
@@ -226,7 +220,7 @@ describe("isTableTransactionCore", () => {
   });
 
   it("no write queries -> false", () => {
-    const queries: MyBatisQuery[] = [
+    const queries: SourceQuery[] = [
       makeQuery({ queryType: "select", tables: ["TB_VOUCHER"] }),
     ];
     expect(isTableTransactionCore("TB_VOUCHER", queries)).toBe(false);
@@ -260,7 +254,7 @@ describe("scoreApi", () => {
 describe("scoreTable", () => {
   it("core entity + write operations -> core", () => {
     const table = makeSourceTable();
-    const queries: MyBatisQuery[] = [
+    const queries: SourceQuery[] = [
       makeQuery({ tables: ["TB_VOUCHER", "TB_ORDER"] }),
       makeQuery({ tables: ["TB_VOUCHER", "TB_USER"] }),
       makeQuery({ tables: ["TB_VOUCHER", "TB_PAYMENT"] }),

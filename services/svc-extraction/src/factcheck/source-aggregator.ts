@@ -10,6 +10,7 @@ import {
   CodeDataModelSchema,
   CodeMapperSchema,
   CodeDdlSchema,
+  CodeTransactionSchema,
 } from "@ai-foundry/types";
 import { createLogger } from "@ai-foundry/utils";
 import type {
@@ -18,6 +19,8 @@ import type {
   SourceApiParam,
   SourceTable,
   SourceTableColumn,
+  SourceTransaction,
+  SourceQuery,
 } from "./types.js";
 import type { Env } from "../env.js";
 
@@ -64,6 +67,8 @@ export async function aggregateSourceSpec(
   const emptySpec: SourceSpec = {
     apis: [],
     tables: [],
+    transactions: [],
+    queries: [],
     stats: { controllerCount: 0, endpointCount: 0, tableCount: 0, mapperCount: 0 },
   };
 
@@ -77,6 +82,8 @@ export async function aggregateSourceSpec(
   // 2. For each document, fetch chunks and filter for source code
   const allApis: SourceApi[] = [];
   const allTables: SourceTable[] = [];
+  const allTransactions: SourceTransaction[] = [];
+  const allQueries: SourceQuery[] = [];
   // VO class name → CodeDataModel fields (for cross-referencing)
   const voMap = new Map<string, Array<{ name: string; type: string; nullable: boolean }>>();
   let controllerCount = 0;
@@ -177,6 +184,15 @@ export async function aggregateSourceSpec(
             });
           }
 
+          // Collect queries for relevance scoring
+          for (const q of mapper.queries) {
+            allQueries.push({
+              id: q.id,
+              queryType: q.queryType,
+              tables: q.tables,
+            });
+          }
+
           // Also add tables from queries that don't have resultMaps
           for (const table of mapper.tables) {
             const alreadyAdded = allTables.some(
@@ -221,8 +237,19 @@ export async function aggregateSourceSpec(
           break;
         }
 
+        case "CodeTransaction": {
+          const result = CodeTransactionSchema.safeParse(parsed);
+          if (!result.success) break;
+          allTransactions.push({
+            className: result.data.className,
+            methodName: result.data.methodName,
+            isTransactional: result.data.isTransactional,
+          });
+          break;
+        }
+
         default:
-          // Skip non-source element types (SourceProjectSummary, CodeTransaction, etc.)
+          // Skip non-source element types (SourceProjectSummary, etc.)
           break;
       }
     }
@@ -258,6 +285,8 @@ export async function aggregateSourceSpec(
   const spec: SourceSpec = {
     apis: filteredApis,
     tables: deduplicatedTables,
+    transactions: allTransactions,
+    queries: allQueries,
     stats: {
       controllerCount,
       endpointCount: filteredApis.length,

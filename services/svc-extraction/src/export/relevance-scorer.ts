@@ -12,8 +12,7 @@
  */
 
 import type { RelevanceCriteria } from "@ai-foundry/types";
-import type { SourceApi, SourceTable, SourceSpec } from "../factcheck/types.js";
-import type { CodeTransaction, MyBatisQuery } from "@ai-foundry/types";
+import type { SourceApi, SourceTable, SourceSpec, SourceTransaction, SourceQuery } from "../factcheck/types.js";
 
 // ── Public API ──────────────────────────────────────────────────
 
@@ -42,7 +41,7 @@ export function classifyRelevance(criteria: {
  */
 export function scoreApi(
   api: SourceApi,
-  transactions: CodeTransaction[],
+  transactions: SourceTransaction[],
 ): RelevanceCriteria {
   const ext = isExternalApi(api);
   const txn = isTransactionCore(api.methodName, transactions);
@@ -69,7 +68,7 @@ export function scoreApi(
  */
 export function scoreTable(
   table: SourceTable,
-  allQueries: MyBatisQuery[],
+  allQueries: SourceQuery[],
 ): RelevanceCriteria {
   const core = isCoreEntity(table.tableName, allQueries);
   // For tables, isTransactionCore checks if this table appears in write queries
@@ -96,8 +95,8 @@ export function scoreTable(
  */
 export function classifyAll(
   sourceSpec: SourceSpec,
-  transactions: CodeTransaction[],
-  queries: MyBatisQuery[],
+  transactions: SourceTransaction[],
+  queries: SourceQuery[],
 ): Map<string, RelevanceCriteria> {
   const result = new Map<string, RelevanceCriteria>();
 
@@ -137,7 +136,7 @@ export function isExternalApi(api: SourceApi): boolean {
  */
 export function isCoreEntity(
   tableName: string,
-  allQueries: MyBatisQuery[],
+  allQueries: SourceQuery[],
 ): boolean {
   let refCount = 0;
   for (const query of allQueries) {
@@ -156,7 +155,7 @@ export function isCoreEntity(
  */
 export function isTransactionCore(
   apiMethodName: string,
-  transactions: CodeTransaction[],
+  transactions: SourceTransaction[],
 ): boolean {
   const normalized = apiMethodName.toLowerCase();
 
@@ -179,7 +178,7 @@ export function isTransactionCore(
  */
 export function isTableTransactionCore(
   tableName: string,
-  allQueries: MyBatisQuery[],
+  allQueries: SourceQuery[],
 ): boolean {
   let writeCount = 0;
   for (const query of allQueries) {

@@ -88,6 +88,8 @@ function makeSourceSpec(apis: SourceApi[] = [], tables: SourceTable[] = []): Sou
   return {
     apis,
     tables,
+    transactions: [],
+    queries: [],
     stats: {
       controllerCount: apis.length > 0 ? 1 : 0,
       endpointCount: apis.length,
@@ -422,7 +424,7 @@ describe("detectGaps", () => {
   // ── PM gaps (parameter mismatch) ──────────────────────────────
 
   describe("PM gaps — 파라미터 불일치", () => {
-    it("소스 필수 파라미터가 문서에 없음 → PM gap (HIGH)", () => {
+    it("소스 필수 파라미터(@RequestBody)가 문서에 없음 → PM gap (LOW, VO 다운그레이드)", () => {
       const srcApi = makeSourceApi({
         path: "/api/v2/payment/process",
         parameters: [
@@ -460,7 +462,7 @@ describe("detectGaps", () => {
 
       const pmGaps = result.gaps.filter((g) => g.gapType === "PM");
       expect(pmGaps).toHaveLength(1);
-      expect(pmGaps[0]!.severity).toBe("HIGH");
+      expect(pmGaps[0]!.severity).toBe("LOW");
       expect(pmGaps[0]!.description).toContain("amount");
       expect(pmGaps[0]!.description).toContain("필수");
     });
@@ -617,6 +619,50 @@ describe("detectGaps", () => {
       // Authorization is filtered by @RequestHeader, only userId remains
       expect(pmGaps).toHaveLength(1);
       expect(pmGaps[0]!.description).toContain("userId");
+    });
+
+    it("@RequestBody VO 파라미터 → PM gap LOW severity", () => {
+      const srcApi = makeSourceApi({
+        path: "/api/v1/store/register",
+        parameters: [
+          { name: "storeVO", type: "StoreVO", required: true, annotation: "@RequestBody" },
+          { name: "userId", type: "Long", required: true, annotation: "@RequestParam" },
+        ],
+      });
+      const docApi = makeDocApi({
+        path: "/api/v1/store/register",
+        parameters: [],
+      });
+
+      const mr: MatchResult = {
+        matchedItems: [{
+          sourceRef: { name: "/api/v1/store/register", type: "api", documentId: "src-doc-1", location: "StoreController.register" },
+          docRef: { name: "/api/v1/store/register", type: "api", documentId: "doc-doc-1", location: "인터페이스설계서.xlsx" },
+          matchScore: 1.0,
+          matchMethod: "exact",
+        }],
+        unmatchedSourceApis: [],
+        unmatchedDocApis: [],
+        unmatchedSourceTables: [],
+        unmatchedDocTables: [],
+      };
+
+      const result = detectGaps(
+        mr,
+        makeSourceSpec([srcApi]),
+        makeDocSpec([docApi]),
+        RESULT_ID,
+        ORG_ID,
+      );
+
+      const pmGaps = result.gaps.filter((g) => g.gapType === "PM");
+      expect(pmGaps).toHaveLength(2);
+      const voGap = pmGaps.find((g) => g.description.includes("storeVO"));
+      const paramGap = pmGaps.find((g) => g.description.includes("userId"));
+      expect(voGap).toBeDefined();
+      expect(voGap!.severity).toBe("LOW"); // @RequestBody → LOW
+      expect(paramGap).toBeDefined();
+      expect(paramGap!.severity).toBe("HIGH"); // @RequestParam required → HIGH
     });
 
     it("@PathVariable 또는 URL {param} → PM gap 제외", () => {

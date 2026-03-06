@@ -62,8 +62,12 @@ async function handleClassify(
   // Aggregate source spec
   const sourceSpec = await aggregateSourceSpec(env, organizationId);
 
-  // Classify all items (empty transactions/queries — we use structural heuristics)
-  const relevanceMap = classifyAll(sourceSpec, [], []);
+  // Classify all items using actual transaction/query data from source
+  const relevanceMap = classifyAll(
+    sourceSpec,
+    sourceSpec.transactions,
+    sourceSpec.queries,
+  );
 
   // Store classifications in D1
   const classifications: Array<{
