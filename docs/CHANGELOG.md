@@ -2,6 +2,21 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 107 — 2026-03-06
+**v0.7.4 Phase 2-B Session 1 — MyBatis XML Parser + FactCheck Types**:
+- ✅ `packages/types/src/factcheck.ts` — FactCheckResult, FactCheckGap, MatchedItem (6 Zod schemas)
+- ✅ `packages/types/src/spec.ts` — CodeMapper, MyBatisResultMap, MyBatisQuery (4 schemas + mapperCount stats)
+- ✅ `packages/types/src/events.ts` — factcheck.requested/completed events + PipelineEventSchema 확장
+- ✅ `svc-ingestion/src/parsing/mybatis-mapper.ts` — Regex-based MyBatis 3 XML parser (namespace, resultMap, queries, tables)
+- ✅ `svc-ingestion/src/parsing/zip-extractor.ts` — XML mapper 라우팅 활성화
+- ✅ `svc-ingestion/src/parsing/classifier.ts` — source_mapper DocumentCategory + CodeMapper 분류
+- ✅ `svc-queue-router/src/index.ts` — factcheck EventType + getTargets 라우팅
+- ✅ `docs/02-design/features/v074-pivot-phase2b.design.md` — Fact Check Engine 전체 설계서
+- ✅ 14 new MyBatis parser tests (273 total svc-ingestion tests)
+- 🏗️ Agent Teams: W1(Types) + W2(Parser) 병렬 실행 → exactOptionalPropertyTypes 수동 보정 1건
+
+**검증**: typecheck 17/17 ✅ | lint 14/14 ✅ | tests 273/273 ✅
+
 ## 세션 105 — 2026-03-06
 **LPON 재파싱 — Unstructured.io API 키 교체 + 타임아웃 증가**:
 - ✅ Unstructured.io API 키 교체: `ktds.axbd@gmail.com` 계정 (default + production env)
