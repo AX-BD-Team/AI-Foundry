@@ -2,6 +2,16 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 109 — 2026-03-06
+**v0.7.4 Phase 2-B Session 2 — Fact Check Core (aggregator + extractor + matcher)**:
+- ✅ `factcheck/types.ts` — 내부 타입 (SourceApi, DocTable, SourceSpec, DocSpec 등)
+- ✅ `factcheck/source-aggregator.ts` — 소스 chunks → SourceSpec 집계 (service binding, VO↔Mapper 교차 참조)
+- ✅ `factcheck/doc-spec-extractor.ts` — 문서 Markdown table → DocSpec 추출 (한/영 keyword 자동 감지)
+- ✅ `factcheck/matcher.ts` — 구조적 매칭 (exact + fuzzy Jaccard ≥ 0.6, path/table 정규화)
+- ✅ 테스트 74건 (aggregator 14 + extractor 27 + matcher 33)
+
+**검증**: typecheck 0 errors ✅ | lint 0 errors ✅ | 190 tests PASS ✅
+
 ## 세션 108 — 2026-03-06
 **LPON Bulk-Approve 533건 + Downstream 파이프라인 완결**:
 - ✅ LPON candidate 551건 → content_depth 기반 분류 (thin<50: 18건 HITL, medium+rich: 533건 approve)
