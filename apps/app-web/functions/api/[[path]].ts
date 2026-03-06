@@ -10,6 +10,9 @@
  *   /api/extract/**  → svc-extraction
  *   /api/analysis/**  → svc-extraction
  *   /api/analyze/**  → svc-extraction
+ *   /api/factcheck/**  → svc-extraction
+ *   /api/specs/**  → svc-extraction
+ *   /api/export/**  → svc-extraction
  *   /api/policies/**  → svc-policy
  *   /api/sessions/**  → svc-policy
  *   /api/skills/**  → svc-skill
@@ -37,6 +40,9 @@ const ROUTE_TABLE: Record<string, string> = {
   extract: "svc-extraction",
   analysis: "svc-extraction",
   analyze: "svc-extraction",
+  factcheck: "svc-extraction",
+  specs: "svc-extraction",
+  export: "svc-extraction",
   policies: "svc-policy",
   sessions: "svc-policy",
   skills: "svc-skill",

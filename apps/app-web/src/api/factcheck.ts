@@ -1,8 +1,8 @@
 import type { ApiResponse } from "@ai-foundry/types";
 import { buildHeaders } from "./headers";
 
-const EXTRACTION_API_BASE =
-  (import.meta.env["VITE_EXTRACTION_API_BASE"] as string | undefined) ?? "/api/extraction";
+const FACTCHECK_API_BASE =
+  (import.meta.env["VITE_FACTCHECK_API_BASE"] as string | undefined) ?? "/api";
 
 function headers(organizationId: string): Record<string, string> {
   return buildHeaders({ organizationId, contentType: "application/json" });
@@ -87,7 +87,7 @@ export async function triggerFactCheck(
   organizationId: string,
   body: { documentId?: string; sourceDocumentId?: string },
 ): Promise<ApiResponse<{ resultId: string; status: string }>> {
-  const res = await fetch(`${EXTRACTION_API_BASE}/factcheck`, {
+  const res = await fetch(`${FACTCHECK_API_BASE}/factcheck`, {
     method: "POST",
     headers: headers(organizationId),
     body: JSON.stringify(body),
@@ -98,7 +98,7 @@ export async function triggerFactCheck(
 export async function fetchResults(
   organizationId: string,
 ): Promise<ApiResponse<{ results: FactCheckResult[] }>> {
-  const res = await fetch(`${EXTRACTION_API_BASE}/factcheck/results`, {
+  const res = await fetch(`${FACTCHECK_API_BASE}/factcheck/results`, {
     headers: headersNoContentType(organizationId),
   });
   return res.json() as Promise<ApiResponse<{ results: FactCheckResult[] }>>;
@@ -108,7 +108,7 @@ export async function fetchResult(
   organizationId: string,
   resultId: string,
 ): Promise<ApiResponse<FactCheckResult>> {
-  const res = await fetch(`${EXTRACTION_API_BASE}/factcheck/${resultId}`, {
+  const res = await fetch(`${FACTCHECK_API_BASE}/factcheck/${resultId}`, {
     headers: headersNoContentType(organizationId),
   });
   return res.json() as Promise<ApiResponse<FactCheckResult>>;
@@ -124,7 +124,7 @@ export async function fetchGaps(
   if (filters?.severity) qs.set("severity", filters.severity);
   if (filters?.reviewStatus) qs.set("review_status", filters.reviewStatus);
   const query = qs.toString();
-  const url = `${EXTRACTION_API_BASE}/factcheck/${resultId}/gaps${query ? `?${query}` : ""}`;
+  const url = `${FACTCHECK_API_BASE}/factcheck/${resultId}/gaps${query ? `?${query}` : ""}`;
   const res = await fetch(url, {
     headers: headersNoContentType(organizationId),
   });
@@ -135,7 +135,7 @@ export async function fetchReport(
   organizationId: string,
   resultId: string,
 ): Promise<ApiResponse<{ markdown: string }>> {
-  const res = await fetch(`${EXTRACTION_API_BASE}/factcheck/${resultId}/report`, {
+  const res = await fetch(`${FACTCHECK_API_BASE}/factcheck/${resultId}/report`, {
     headers: headersNoContentType(organizationId),
   });
   return res.json() as Promise<ApiResponse<{ markdown: string }>>;
@@ -146,7 +146,7 @@ export async function reviewGap(
   gapId: string,
   body: { action: "confirm" | "dismiss" | "modify"; comment?: string },
 ): Promise<ApiResponse<{ gapId: string; reviewStatus: string }>> {
-  const res = await fetch(`${EXTRACTION_API_BASE}/factcheck/gaps/${gapId}/review`, {
+  const res = await fetch(`${FACTCHECK_API_BASE}/factcheck/gaps/${gapId}/review`, {
     method: "POST",
     headers: headers(organizationId),
     body: JSON.stringify(body),
@@ -158,7 +158,7 @@ export async function triggerLlmMatch(
   organizationId: string,
   resultId: string,
 ): Promise<ApiResponse<{ resultId: string; status: string }>> {
-  const res = await fetch(`${EXTRACTION_API_BASE}/factcheck/results/${resultId}/llm-match`, {
+  const res = await fetch(`${FACTCHECK_API_BASE}/factcheck/results/${resultId}/llm-match`, {
     method: "POST",
     headers: headers(organizationId),
   });
@@ -168,7 +168,7 @@ export async function triggerLlmMatch(
 export async function fetchSummary(
   organizationId: string,
 ): Promise<ApiResponse<FactCheckSummary>> {
-  const res = await fetch(`${EXTRACTION_API_BASE}/factcheck/summary`, {
+  const res = await fetch(`${FACTCHECK_API_BASE}/factcheck/summary`, {
     headers: headersNoContentType(organizationId),
   });
   return res.json() as Promise<ApiResponse<FactCheckSummary>>;
@@ -177,7 +177,7 @@ export async function fetchSummary(
 export async function fetchKpi(
   organizationId: string,
 ): Promise<ApiResponse<FactCheckKpi>> {
-  const res = await fetch(`${EXTRACTION_API_BASE}/factcheck/kpi`, {
+  const res = await fetch(`${FACTCHECK_API_BASE}/factcheck/kpi`, {
     headers: headersNoContentType(organizationId),
   });
   return res.json() as Promise<ApiResponse<FactCheckKpi>>;

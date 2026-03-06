@@ -1,8 +1,8 @@
 import type { ApiResponse } from "@ai-foundry/types";
 import { buildHeaders } from "./headers";
 
-const EXTRACTION_API_BASE =
-  (import.meta.env["VITE_EXTRACTION_API_BASE"] as string | undefined) ?? "/api/extraction";
+const SPEC_API_BASE =
+  (import.meta.env["VITE_SPEC_API_BASE"] as string | undefined) ?? "/api";
 
 function headers(organizationId: string): Record<string, string> {
   return buildHeaders({ organizationId, contentType: "application/json" });
@@ -74,7 +74,7 @@ export interface ClassifiedSpecs {
 export async function classifySpecs(
   organizationId: string,
 ): Promise<ApiResponse<{ status: string; classified: number }>> {
-  const res = await fetch(`${EXTRACTION_API_BASE}/specs/classify`, {
+  const res = await fetch(`${SPEC_API_BASE}/specs/classify`, {
     method: "POST",
     headers: headers(organizationId),
   });
@@ -90,7 +90,7 @@ export async function fetchClassified(
   if (filters?.search) qs.set("search", filters.search);
   if (filters?.specType) qs.set("specType", filters.specType);
   const query = qs.toString();
-  const url = `${EXTRACTION_API_BASE}/specs/classified${query ? `?${query}` : ""}`;
+  const url = `${SPEC_API_BASE}/specs/classified${query ? `?${query}` : ""}`;
   const res = await fetch(url, {
     headers: headersNoContentType(organizationId),
   });

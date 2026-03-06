@@ -1,8 +1,8 @@
 import type { ApiResponse } from "@ai-foundry/types";
 import { buildHeaders } from "./headers";
 
-const EXTRACTION_API_BASE =
-  (import.meta.env["VITE_EXTRACTION_API_BASE"] as string | undefined) ?? "/api/extraction";
+const EXPORT_API_BASE =
+  (import.meta.env["VITE_EXPORT_API_BASE"] as string | undefined) ?? "/api";
 
 function headers(organizationId: string): Record<string, string> {
   return buildHeaders({ organizationId, contentType: "application/json" });
@@ -42,7 +42,7 @@ export async function createSpecPackage(
   organizationId: string,
   body?: { description?: string },
 ): Promise<ApiResponse<{ packageId: string; status: string }>> {
-  const res = await fetch(`${EXTRACTION_API_BASE}/export/spec-package`, {
+  const res = await fetch(`${EXPORT_API_BASE}/export/spec-package`, {
     method: "POST",
     headers: headers(organizationId),
     body: JSON.stringify(body ?? {}),
@@ -53,7 +53,7 @@ export async function createSpecPackage(
 export async function fetchPackages(
   organizationId: string,
 ): Promise<ApiResponse<{ packages: ExportPackage[] }>> {
-  const res = await fetch(`${EXTRACTION_API_BASE}/export/packages`, {
+  const res = await fetch(`${EXPORT_API_BASE}/export/packages`, {
     headers: headersNoContentType(organizationId),
   });
   return res.json() as Promise<ApiResponse<{ packages: ExportPackage[] }>>;
@@ -63,7 +63,7 @@ export async function fetchPackage(
   organizationId: string,
   packageId: string,
 ): Promise<ApiResponse<ExportPackage>> {
-  const res = await fetch(`${EXTRACTION_API_BASE}/export/${packageId}`, {
+  const res = await fetch(`${EXPORT_API_BASE}/export/${packageId}`, {
     headers: headersNoContentType(organizationId),
   });
   return res.json() as Promise<ApiResponse<ExportPackage>>;
@@ -73,7 +73,7 @@ export async function downloadApiSpec(
   organizationId: string,
   packageId: string,
 ): Promise<Blob> {
-  const res = await fetch(`${EXTRACTION_API_BASE}/export/${packageId}/api-spec`, {
+  const res = await fetch(`${EXPORT_API_BASE}/export/${packageId}/api-spec`, {
     headers: headersNoContentType(organizationId),
   });
   if (!res.ok) throw new Error(`Download failed: ${res.status}`);
@@ -84,7 +84,7 @@ export async function downloadTableSpec(
   organizationId: string,
   packageId: string,
 ): Promise<Blob> {
-  const res = await fetch(`${EXTRACTION_API_BASE}/export/${packageId}/table-spec`, {
+  const res = await fetch(`${EXPORT_API_BASE}/export/${packageId}/table-spec`, {
     headers: headersNoContentType(organizationId),
   });
   if (!res.ok) throw new Error(`Download failed: ${res.status}`);
@@ -95,7 +95,7 @@ export async function downloadReport(
   organizationId: string,
   packageId: string,
 ): Promise<Blob> {
-  const res = await fetch(`${EXTRACTION_API_BASE}/export/${packageId}/report`, {
+  const res = await fetch(`${EXPORT_API_BASE}/export/${packageId}/report`, {
     headers: headersNoContentType(organizationId),
   });
   if (!res.ok) throw new Error(`Download failed: ${res.status}`);
@@ -106,7 +106,7 @@ export async function downloadSummary(
   organizationId: string,
   packageId: string,
 ): Promise<Blob> {
-  const res = await fetch(`${EXTRACTION_API_BASE}/export/${packageId}/summary`, {
+  const res = await fetch(`${EXPORT_API_BASE}/export/${packageId}/summary`, {
     headers: headersNoContentType(organizationId),
   });
   if (!res.ok) throw new Error(`Download failed: ${res.status}`);
