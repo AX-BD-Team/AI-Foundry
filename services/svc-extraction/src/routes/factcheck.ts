@@ -724,6 +724,7 @@ function emptyKpi(): Record<string, unknown> {
   return {
     apiCoverage: 0, apiCoverageTarget: 80, apiCoveragePass: false,
     tableCoverage: 0, tableCoverageTarget: 80, tableCoveragePass: false,
+    apiDocCompleteness: 0, tableDocCompleteness: 0,
     gapPrecision: 0, gapPrecisionTarget: 75, gapPrecisionPass: false,
     reviewerAcceptance: 0, reviewerAcceptanceTarget: 70, reviewerAcceptancePass: false,
     specEditTimeReduction: 0, specEditTimeReductionTarget: 30, specEditTimeReductionPass: false,
@@ -864,10 +865,18 @@ async function handleGetKpi(
   const totalDocApis = split.apiMatched + split.unmatchedDocApis;
   const totalDocTables = split.tableMatched + split.unmatchedDocTables;
 
-  const apiCoverage = totalSourceApis > 0
+  // PRD SS8.2: Coverage = matched / 문서 기재 항목 수 (분모 = document items)
+  const apiCoverage = totalDocApis > 0
+    ? Math.round((split.apiMatched / totalDocApis) * 1000) / 10
+    : 0;
+  const tableCoverage = totalDocTables > 0
+    ? Math.round((split.tableMatched / totalDocTables) * 1000) / 10
+    : 0;
+  // Supplementary: documentation completeness = matched / source items
+  const apiDocCompleteness = totalSourceApis > 0
     ? Math.round((split.apiMatched / totalSourceApis) * 1000) / 10
     : 0;
-  const tableCoverage = totalSourceTables > 0
+  const tableDocCompleteness = totalSourceTables > 0
     ? Math.round((split.tableMatched / totalSourceTables) * 1000) / 10
     : 0;
 
@@ -916,6 +925,8 @@ async function handleGetKpi(
     specEditTimeReduction: 0,
     specEditTimeReductionTarget: 30,
     specEditTimeReductionPass: false,
+    apiDocCompleteness,
+    tableDocCompleteness,
     apiDetail: {
       sourceApis: totalSourceApis,
       documentApis: totalDocApis,

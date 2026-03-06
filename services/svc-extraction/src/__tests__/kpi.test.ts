@@ -81,10 +81,16 @@ describe("parseMatchResultForKpi", () => {
     expect(result.unmatchedSourceApis).toBe(284);
     expect(result.unmatchedSourceTables).toBe(0);
 
-    // Coverage calculation
+    // Coverage calculation — PRD SS8.2: matched / document items
+    const totalDocApis = result.apiMatched + result.unmatchedDocApis;
+    const apiCov = Math.round((result.apiMatched / totalDocApis) * 1000) / 10;
+    expect(apiCov).toBe(89.9); // 98 / 109 = 89.9%
+    expect(totalDocApis).toBe(109);
+
+    // Documentation completeness — supplementary: matched / source items
     const totalSourceApis = result.apiMatched + result.unmatchedSourceApis;
-    const apiCov = Math.round((result.apiMatched / totalSourceApis) * 1000) / 10;
-    expect(apiCov).toBe(25.7);
+    const apiDocComp = Math.round((result.apiMatched / totalSourceApis) * 1000) / 10;
+    expect(apiDocComp).toBe(25.7);
     expect(totalSourceApis).toBe(382);
   });
 });
