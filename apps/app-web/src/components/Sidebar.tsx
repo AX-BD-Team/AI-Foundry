@@ -18,6 +18,10 @@ import {
   Sun,
   Building2,
   LogOut,
+  Code,
+  GitCompareArrows,
+  FileJson,
+  PackageOpen,
 } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -36,6 +40,7 @@ interface MenuItem {
 const ORGANIZATIONS = [
   { id: 'Miraeasset', label: '미래에셋 퇴직연금', labelEn: 'Miraeasset Pension' },
   { id: 'org-mirae-pension', label: '미래에셋 (분석)', labelEn: 'Miraeasset (Analyzed)' },
+  { id: 'LPON', label: 'LPON 온누리상품권', labelEn: 'LPON Gift Certificate' },
   { id: 'org-001', label: '파일럿', labelEn: 'Pilot' },
 ] as const;
 
@@ -83,6 +88,30 @@ export const Sidebar: React.FC = () => {
       label: '분석 리포트',
       labelEn: 'Analysis Report',
       path: '/analysis-report',
+    },
+    {
+      icon: <Code className="w-5 h-5" />,
+      label: '소스코드 업로드',
+      labelEn: 'Source Upload',
+      path: '/source-upload',
+    },
+    {
+      icon: <GitCompareArrows className="w-5 h-5" />,
+      label: '팩트 체크',
+      labelEn: 'Fact Check',
+      path: '/fact-check',
+    },
+    {
+      icon: <FileJson className="w-5 h-5" />,
+      label: 'Spec 카탈로그',
+      labelEn: 'Spec Catalog',
+      path: '/specs',
+    },
+    {
+      icon: <PackageOpen className="w-5 h-5" />,
+      label: 'Export 센터',
+      labelEn: 'Export Center',
+      path: '/export',
     },
     {
       icon: <CheckSquare className="w-5 h-5" />,

@@ -63,6 +63,7 @@ function mockEnv(): Env {
     ENVIRONMENT: "development",
     SERVICE_NAME: "svc-extraction",
     INTERNAL_API_SECRET: "test-secret",
+    R2_SPEC_PACKAGES: {} as unknown as R2Bucket,
   };
 }
 

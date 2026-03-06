@@ -15,6 +15,8 @@ import { handleExtract } from "./routes/extract.js";
 import { handleAnalysisRoutes } from "./routes/analysis.js";
 import { handleCompareRoutes } from "./routes/compare.js";
 import { handleFactcheckRoutes } from "./routes/factcheck.js";
+import { handleExportRoutes } from "./routes/export.js";
+import { handleSpecRoutes } from "./routes/spec.js";
 import { processQueueEvent } from "./queue/handler.js";
 
 export default {
@@ -172,6 +174,30 @@ export default {
           if (denied) return denied;
         }
         const resp = await handleFactcheckRoutes(request, env, ctx, path, method, url);
+        if (resp) return resp;
+      }
+
+      // /export/* routes
+      if (path.startsWith("/export")) {
+        const rbacCtx = extractRbacContext(request);
+        if (rbacCtx) {
+          const action = method === "GET" ? "read" : "execute";
+          const denied = await checkPermission(env, rbacCtx.role, "extraction", action);
+          if (denied) return denied;
+        }
+        const resp = await handleExportRoutes(request, env, ctx, path, method, url);
+        if (resp) return resp;
+      }
+
+      // /specs/* routes
+      if (path.startsWith("/specs")) {
+        const rbacCtx = extractRbacContext(request);
+        if (rbacCtx) {
+          const action = method === "GET" ? "read" : "execute";
+          const denied = await checkPermission(env, rbacCtx.role, "extraction", action);
+          if (denied) return denied;
+        }
+        const resp = await handleSpecRoutes(request, env, ctx, path, method, url);
         if (resp) return resp;
       }
 

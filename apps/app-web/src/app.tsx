@@ -21,6 +21,11 @@ const AnalysisReportPage = lazy(() => import("./pages/analysis-report"));
 const AuditPage = lazy(() => import("./pages/audit"));
 const GuidePage = lazy(() => import("./pages/guide"));
 const SettingsPage = lazy(() => import("./pages/settings"));
+const SourceUploadPage = lazy(() => import("./pages/source-upload"));
+const FactCheckPage = lazy(() => import("./pages/fact-check"));
+const SpecCatalogPage = lazy(() => import("./pages/spec-catalog"));
+const SpecDetailPage = lazy(() => import("./pages/spec-detail"));
+const ExportCenterPage = lazy(() => import("./pages/export-center"));
 const NotFoundPage = lazy(() => import("./pages/not-found"));
 
 function LoadingFallback() {
@@ -64,6 +69,11 @@ export function App() {
             <Route path="/trust" element={<ProtectedRoute><Layout><TrustDashboardPage /></Layout></ProtectedRoute>} />
             <Route path="/audit" element={<ProtectedRoute><Layout><AuditPage /></Layout></ProtectedRoute>} />
             <Route path="/guide" element={<ProtectedRoute><Layout><GuidePage /></Layout></ProtectedRoute>} />
+            <Route path="/source-upload" element={<ProtectedRoute><Layout><SourceUploadPage /></Layout></ProtectedRoute>} />
+            <Route path="/fact-check" element={<ProtectedRoute><Layout><FactCheckPage /></Layout></ProtectedRoute>} />
+            <Route path="/specs" element={<ProtectedRoute><Layout><SpecCatalogPage /></Layout></ProtectedRoute>} />
+            <Route path="/specs/:id" element={<ProtectedRoute><Layout><SpecDetailPage /></Layout></ProtectedRoute>} />
+            <Route path="/export" element={<ProtectedRoute><Layout><ExportCenterPage /></Layout></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Layout><SettingsPage /></Layout></ProtectedRoute>} />
             <Route path="*" element={<ProtectedRoute><Layout><NotFoundPage /></Layout></ProtectedRoute>} />
           </Routes>

@@ -32,6 +32,11 @@ queue = "ai-foundry-pipeline"
 binding = "SVC_INGESTION"
 service = "svc-ingestion"
 
+# R2 bucket for spec package storage (Phase 2-C)
+[[r2_buckets]]
+binding = "R2_SPEC_PACKAGES"
+bucket_name = "ai-foundry-skill-packages"
+
 [vars]
 ENVIRONMENT = "development"
 SERVICE_NAME = "svc-extraction"
@@ -65,6 +70,10 @@ queue = "ai-foundry-pipeline-staging"
 binding = "SVC_INGESTION"
 service = "svc-ingestion-staging"
 
+[[env.staging.r2_buckets]]
+binding = "R2_SPEC_PACKAGES"
+bucket_name = "ai-foundry-skill-packages-staging"
+
 # ---------------------------------------------------------------------------
 # Production environment
 # ---------------------------------------------------------------------------
@@ -91,3 +100,7 @@ queue = "ai-foundry-pipeline"
 [[env.production.services]]
 binding = "SVC_INGESTION"
 service = "svc-ingestion"
+
+[[env.production.r2_buckets]]
+binding = "R2_SPEC_PACKAGES"
+bucket_name = "ai-foundry-skill-packages"

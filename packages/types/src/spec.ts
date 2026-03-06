@@ -150,3 +150,96 @@ export type MyBatisResultMap = z.infer<typeof MyBatisResultMapSchema>;
 export type MyBatisQuery = z.infer<typeof MyBatisQuerySchema>;
 export type CodeMapper = z.infer<typeof CodeMapperSchema>;
 export type SourceAnalysisResult = z.infer<typeof SourceAnalysisResultSchema>;
+
+// === Spec Export Types (v0.7.4 Phase 2-C) ===
+
+export const ApiParamSpecSchema = z.object({
+  name: z.string(),
+  type: z.string(),
+  required: z.boolean(),
+  source: z.enum(["path", "query", "body", "header"]).optional(),
+  description: z.string().optional(),
+});
+
+export const FactCheckRefSchema = z.object({
+  totalGaps: z.number().int(),
+  highGaps: z.number().int(),
+  gapIds: z.array(z.string()),
+  coveragePct: z.number(),
+});
+
+export const ApiSpecEntrySchema = z.object({
+  specId: z.string(),
+  endpoint: z.string(),
+  httpMethod: z.string(),
+  controllerClass: z.string(),
+  methodName: z.string(),
+  sourceLocation: z.string(),
+  parameters: z.array(ApiParamSpecSchema),
+  returnType: z.string(),
+  documentRef: z.string().optional(),
+  factCheck: FactCheckRefSchema,
+  relevance: z.enum(["core", "non-core", "unknown"]),
+  confidence: z.number().min(0).max(1),
+});
+
+export const TableColumnSpecSchema = z.object({
+  name: z.string(),
+  dataType: z.string(),
+  nullable: z.boolean(),
+  isPrimaryKey: z.boolean(),
+  isForeignKey: z.boolean().optional(),
+  foreignKeyRef: z.string().optional(),
+  description: z.string().optional(),
+});
+
+export const TableSpecEntrySchema = z.object({
+  specId: z.string(),
+  tableName: z.string(),
+  sourceLocation: z.string(),
+  columns: z.array(TableColumnSpecSchema),
+  documentRef: z.string().optional(),
+  factCheck: FactCheckRefSchema,
+  relevance: z.enum(["core", "non-core", "unknown"]),
+  confidence: z.number().min(0).max(1),
+});
+
+export const SpecPackageManifestSchema = z.object({
+  packageId: z.string(),
+  organizationId: z.string(),
+  resultId: z.string().optional(),
+  createdAt: z.string(),
+  version: z.string().default("1.0.0"),
+  stats: z.object({
+    totalApis: z.number().int(),
+    coreApis: z.number().int(),
+    totalTables: z.number().int(),
+    coreTables: z.number().int(),
+    totalGaps: z.number().int(),
+    highGaps: z.number().int(),
+    apiCoveragePct: z.number(),
+    tableCoveragePct: z.number(),
+  }),
+  files: z.array(z.object({
+    name: z.string(),
+    r2Key: z.string(),
+    contentType: z.string(),
+    sizeBytes: z.number().int(),
+  })),
+});
+
+export const RelevanceCriteriaSchema = z.object({
+  isExternalApi: z.boolean(),
+  isCoreEntity: z.boolean(),
+  isTransactionCore: z.boolean(),
+  score: z.number().int().min(0).max(3),
+  relevance: z.enum(["core", "non-core", "unknown"]),
+});
+
+export type ApiParamSpec = z.infer<typeof ApiParamSpecSchema>;
+export type FactCheckRef = z.infer<typeof FactCheckRefSchema>;
+export type ApiSpecEntry = z.infer<typeof ApiSpecEntrySchema>;
+export type TableColumnSpec = z.infer<typeof TableColumnSpecSchema>;
+export type TableSpecEntry = z.infer<typeof TableSpecEntrySchema>;
+export type SpecPackageManifest = z.infer<typeof SpecPackageManifestSchema>;
+export type RelevanceCriteria = z.infer<typeof RelevanceCriteriaSchema>;

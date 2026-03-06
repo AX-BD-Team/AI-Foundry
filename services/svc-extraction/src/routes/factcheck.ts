@@ -20,6 +20,8 @@ import { llmSemanticMatch } from "../factcheck/llm-matcher.js";
 import { aggregateSourceSpec } from "../factcheck/source-aggregator.js";
 import { extractDocSpec } from "../factcheck/doc-spec-extractor.js";
 import { structuralMatch } from "../factcheck/matcher.js";
+import type { MatchResult } from "../factcheck/matcher.js";
+import type { SourceApi, SourceTable } from "../factcheck/types.js";
 import type { FactCheckGap } from "@ai-foundry/types";
 
 // ── D1 row types ──────────────────────────────────────────────────
@@ -535,15 +537,15 @@ async function handleLlmMatch(
   }
 
   // Build sliced MatchResult for batch processing
-  const batchMatchResult: import("../factcheck/matcher.js").MatchResult = {
+  const batchMatchResult: MatchResult = {
     matchedItems: [],
     unmatchedSourceApis: batch
       .filter((b) => b.type === "api")
-      .map((b) => b.item as import("../factcheck/types.js").SourceApi),
+      .map((b) => b.item as SourceApi),
     unmatchedDocApis: [],
     unmatchedSourceTables: batch
       .filter((b) => b.type === "table")
-      .map((b) => b.item as import("../factcheck/types.js").SourceTable),
+      .map((b) => b.item as SourceTable),
     unmatchedDocTables: [],
   };
 
@@ -587,7 +589,6 @@ async function handleLlmMatch(
       .bind(resultId)
       .first<{ gap_count: number; active_gaps: number }>();
 
-    const resolvedCount = (statsRow?.gap_count ?? 0) - (statsRow?.active_gaps ?? 0);
     const newMatchedCount = resultRow.matched_items + llmResult.newMatches.length;
     const totalSourceItems = resultRow.total_source_items;
     const newCoverage = totalSourceItems > 0

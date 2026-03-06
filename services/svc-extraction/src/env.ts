@@ -14,6 +14,9 @@ export interface Env {
   ENVIRONMENT: string;
   SERVICE_NAME: string;
 
+  // R2 bucket for spec package storage (Phase 2-C)
+  R2_SPEC_PACKAGES: R2Bucket;
+
   // Secrets (set via `wrangler secret put`)
   INTERNAL_API_SECRET: string;
 }
