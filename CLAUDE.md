@@ -292,3 +292,11 @@ bun run typecheck && bun run lint
 3. 작은 단위 커밋 + 명확한 커밋 메시지(Conventional Commits)
 4. 보안/권한/감사 설계를 초기에 반영
 
+### 요구사항 관리 (GOV-003)
+- **ID**: `AIF-REQ-{NNN}` (일련번호, 결번 허용)
+- **분류**: [유형/도메인] — 유형: Feature/Bug/Improvement/Chore, 도메인: Pipeline/UX/Infra/Governance/Data/Integration
+- **우선순위**: P0(즉시) / P1(이번 마일스톤) / P2(다음) / P3(백로그)
+- **상태**: OPEN → TRIAGED → PLANNED → IN_PROGRESS → DONE / REJECTED
+- **등록처**: SPEC.md §7 "Requirements Backlog"
+- 새 작업/버그 발견 시 SPEC.md §7에 등록 → TRIAGED 후 Sprint에 배치
+

@@ -348,7 +348,36 @@
 
 ---
 
-## 7) Risks & Assumptions
+## 7) Requirements Backlog
+
+> GOV-003 요구사항 관리 표준 적용. ID: `AIF-REQ-{NNN}`, 우선순위: P0~P3.
+> 상태: OPEN → TRIAGED → PLANNED → IN_PROGRESS → DONE / REJECTED
+
+### 분류 체계
+
+**유형**: Feature / Bug / Improvement / Chore
+**도메인**: Pipeline / UX / Infra / Governance / Data / Integration
+
+### 미완료 항목 (Phase 2-D, Phase 3에서 이관)
+
+| ID | 유형 | 도메인 | 우선순위 | 상태 | 제목 |
+|----|------|--------|:--------:|:----:|------|
+| AIF-REQ-001 | Improvement | Pipeline | P2 | TRIAGED | SCDSA002 비표준 XLSX 파싱 조사 (메뉴구조도, 테이블정의서) |
+| AIF-REQ-002 | Improvement | Pipeline | P3 | TRIAGED | Anthropic vs OpenAI extraction 품질 비교 (크레딧 충전 후) |
+| AIF-REQ-003 | Feature | Data | P2 | TRIAGED | 추가 문서 업로드 (764건 XLSX 중 선별) |
+| AIF-REQ-004 | Bug | Pipeline | P2 | TRIAGED | PDF 대용량 문서 파싱 Unstructured.io 524 timeout 해결 |
+| AIF-REQ-005 | Feature | Integration | P1 | TRIAGED | MCP adapter 실제 클라이언트(Claude Desktop) E2E 테스트 |
+| AIF-REQ-006 | Feature | Integration | P2 | TRIAGED | OpenAPI adapter 외부 시스템 연동 검증 |
+
+### 백로그 (신규 등록)
+
+| ID | 유형 | 도메인 | 우선순위 | 상태 | 제목 |
+|----|------|--------|:--------:|:----:|------|
+| — | — | — | — | — | (등록 대기) |
+
+---
+
+## 8) Risks & Assumptions
 
 - PRD가 docx 단일 문서이므로 초기에 구조화 전환 필요
 - Neo4j/Cloudflare/Anthropic 연동의 초기 비용/제약 확인 필요
@@ -356,7 +385,7 @@
 
 ---
 
-## 8) Decision Log (요약)
+## 9) Decision Log (요약)
 
 - 2026-02-26: 신규 repo 생성 및 PRD seed 문서 반입
 - 2026-02-26: Discovery-X 기반 Claude Code 운영 체계(.claude skills/agents) 이식
