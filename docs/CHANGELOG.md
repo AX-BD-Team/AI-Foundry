@@ -2,6 +2,17 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 125 — 2026-03-08
+**CLAUDE.md 품질 감사 + 현행화 — 6개 파일 검증, 4개 파일 9건 수정**:
+- CLAUDE.md 품질 감사: 6파일 평가, 평균 74점 (Grade B)
+- ✅ `CLAUDE.md`: 브랜치명 `master` → `main` 수정
+- ✅ `CLAUDE.md`: Phase 상태 "Phase 3 진행중" → "Phase 4 진행중" (SPEC.md 기준)
+- ✅ `CLAUDE.md`: PRD 참조 v0.6 → v0.7.4 (latest) + v0.6
+- ✅ `ralph/CLAUDE_test.md`: 테스트 프레임워크 "Bun test" → "Vitest"
+- ✅ `ralph/CLAUDE_feature.md`, `ralph/CLAUDE_refactor.md`: git add -A → 구체적 파일, bun test → bun run test
+- ✅ `ax-02-end` 스킬에 Phase 0 "CLAUDE.md Currency Check" 자동 검증 단계 추가
+- Agent Teams (2 workers) 병렬 수정으로 효율화
+
 ## 세션 124 — 2026-03-06
 **Phase 2-E 데모 준비 — 전체 데모 리허설 + BUG 6건 수정**:
 - **BUG-1**: `/specs/classified` 응답 shape 불일치 → enriched ClassifiedSpecs 반환으로 재작성
