@@ -6,9 +6,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **AI Foundry** (v0.6, Draft) — a domain knowledge extraction platform that reverse-engineers SI project deliverables (ERD, screen designs, API specs, ISP, requirements docs) to extract tacit knowledge and package it as reusable **AI Skill assets**. Built by KTDS AX BD팀. Pilot domain: 퇴직연금 (Retirement Pension).
 
-Full product requirements and technical design are in `docs/AI_Foundry_PRD_TDS_v0.6.docx`. This is the authoritative reference for all design decisions.
+Full product requirements and technical design are in `docs/AI_Foundry_PRD_TDS_v0.7.4.docx` (latest) and `docs/AI_Foundry_PRD_TDS_v0.6.docx`. This is the authoritative reference for all design decisions.
 
-> **Status**: Phase 3 Sprint 3 완료. 12 Workers + Pages 배포, 1,072 tests, staging/production 환경 분리. 퇴직연금 실문서 파일럿: 13/15 문서 파싱, policies 134+, terms 1,441, skills 171. 멀티 프로바이더 LLM (Anthropic/OpenAI/Google/Workers AI) fallback + MCP Server (Streamable HTTP) 완비.
+> **Status**: Phase 4 Sprint 2 완료. 12 Workers + Pages 배포, 1,072 tests, staging/production 환경 분리. 퇴직연금 실문서 파일럿: 13/15 문서 파싱, policies 134+, terms 1,441, skills 171. 멀티 프로바이더 LLM (Anthropic/OpenAI/Google/Workers AI) fallback + MCP Server (Streamable HTTP) 완비.
 
 ---
 
@@ -162,7 +162,7 @@ Stage 5: Skill Packaging
 5 roles: `Analyst` (upload/run), `Reviewer` (HITL policy review), `Developer` (Skill integration), `Client` (read-only), `Executive` (dashboards). Details in PRD §18.
 
 ## Development Phases
-Phase 1 ✅ → 2 ✅ → **3 (진행중)** → 4. 각 Phase 상세는 PRD §44 및 `SPEC.md` 참조.
+Phase 1 ✅ → 2 ✅ → 3 ✅ → **4 (진행중)**. 각 Phase 상세는 PRD §44 및 `SPEC.md` 참조.
 
 ---
 
@@ -234,7 +234,7 @@ bun run typecheck && bun run lint
 
 ### 커밋 & 배포
 - Conventional Commits: `feat:`, `fix:`, `docs:`, `refactor:`, `style:`, `chore:`
-- `master` 단일 브랜치 운영, 직접 push
+- `main` 단일 브랜치 운영, 직접 push
 - 배포: `/ax-02-end`에 git push 포함. `/ax-03-deploy --preview`는 프리뷰 전용
 
 ### 스킬

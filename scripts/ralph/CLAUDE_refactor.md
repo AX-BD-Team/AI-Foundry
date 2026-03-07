@@ -34,7 +34,7 @@ find . -name "*.ts" -not -path "*/node_modules/*" | xargs wc -l | sort -rn | hea
 
 ### 4. 검증 (기능 변경 없음 확인)
 ```bash
-bun test               # 기존 테스트 모두 통과해야 함
+bun run test            # 기존 테스트 모두 통과해야 함 (turbo → vitest)
 bun run typecheck
 bun run lint
 ```

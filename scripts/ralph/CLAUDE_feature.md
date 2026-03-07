@@ -41,7 +41,7 @@ bun test               # 단위 테스트
 
 ### 4. 커밋 (체크 통과 시에만)
 ```bash
-git add -A
+git add [변경된 파일들]
 git commit -m "feat(scope): 태스크명"
 ```
 scope = 변경된 패키지/앱 이름 (예: feat(packages/types): 분석 타입 추가)

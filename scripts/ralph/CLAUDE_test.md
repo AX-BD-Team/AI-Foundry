@@ -5,15 +5,15 @@
 구현된 코드에서 테스트가 없거나 부족한 부분을 찾아 테스트를 작성한다.
 
 ## 프로젝트 컨텍스트
-- **테스트 프레임워크**: Bun test
-- **커버리지 확인**: `bun test --coverage`
+- **테스트 프레임워크**: Vitest (via Turborepo: `bun run test`)
+- **커버리지 확인**: `bun run test -- --coverage` (또는 서비스별: `vitest run --coverage`)
 - **타입체크**: `bun run typecheck`
 
 ## 매 이터레이션 실행 순서
 
 ### 1. 커버리지 현황 파악
 ```bash
-bun test --coverage 2>&1 | tail -30
+bun run test -- --coverage 2>&1 | tail -30
 ```
 커버리지가 낮은 파일/모듈을 우선순위로 선정
 
@@ -34,7 +34,7 @@ bun run typecheck           # 타입 체크
 
 ### 5. 커밋
 ```bash
-git add -A
+git add [변경된 *.test.ts 파일들]
 git commit -m "test(scope): 테스트 추가 - [대상 모듈명]"
 ```
 
