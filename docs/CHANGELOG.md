@@ -12,6 +12,8 @@
 - ✅ `ralph/CLAUDE_feature.md`, `ralph/CLAUDE_refactor.md`: git add -A → 구체적 파일, bun test → bun run test
 - ✅ `ax-02-end` 스킬에 Phase 0 "CLAUDE.md Currency Check" 자동 검증 단계 추가
 - Agent Teams (2 workers) 병렬 수정으로 효율화
+- ✅ `/ax-13-selfcheck` 실행: 6항목 점검 → C2 FAIL(`/ralph` 누락), C5 WARN(timeout 미설정) 해소
+- ✅ `.claude/settings.json`: hook timeout 4건 추가 (PreToolUse 5s, PostToolUse 60s/5s)
 
 ## 세션 124 — 2026-03-06
 **Phase 2-E 데모 준비 — 전체 데모 리허설 + BUG 6건 수정**:
