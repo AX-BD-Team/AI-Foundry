@@ -99,6 +99,7 @@ export const PERMISSIONS: Record<Role, Partial<Record<Resource, Action[]>>> = {
   },
   Executive: {
     ...ALL_READ,
+    skill: ["read", "download"],
   },
 };
 
