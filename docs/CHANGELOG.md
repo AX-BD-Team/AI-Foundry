@@ -2,6 +2,18 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 136 — 2026-03-08
+**Neo4j backfill 스크립트 작성 — batch runner + 로컬 테스트 완료**:
+- ✅ `scripts/backfill-neo4j.sh` batch runner 스크립트 추가 (local/staging/production 지원)
+  - dry run → 확인 → 반복 curl (remaining=0까지 자동 반복)
+  - batch 단위 처리로 30s timeout 회피
+- ✅ 로컬 테스트: D1 마이그레이션 적용 → 테스트 데이터 3건 seed → dry run/backfill 모두 정상
+- ✅ Production D1 조회: 3,752건 backfill 대상 (32,670 terms), 128건 이미 synced
+- ✅ neo4j/health URL 파싱 방어 코드 (이미 134b에서 커밋됨 확인)
+
+**검증 결과**:
+- ✅ typecheck 17/17 통과, lint 14/14 통과
+
 ## 세션 134b — 2026-03-08
 **LPON 5-Stage 파이프라인 완료 — 벌크 승인 333건 + skill backfill + org_id 버그 수정**:
 - ✅ Production D1 조회로 LPON 파이프라인 실제 상태 확인 (SPEC.md "미확인" → 이미 Stage 4까지 진행)

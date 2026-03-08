@@ -72,7 +72,7 @@
   - Stage 1 (Ingestion): 85/88 parsed
   - Stage 2 (Extraction): 111건 completed (중복 6건 cancelled 처리)
   - Stage 3 (Policy): 848건 approved (세션 134에서 333건 벌크 승인)
-  - Stage 4 (Ontology): 848건 completed + 1건 processing (stuck), terms 7,332건
+  - Stage 4 (Ontology): 848건 completed, terms 7,332건. Neo4j backfill 스크립트 준비 (3,752건 대기)
   - Stage 5 (Skill): 859건 draft (344건은 큐 파이프라인 + 수동 backfill 병행 생성)
   - 버그 수정: svc-skill queue handler INSERT에 organization_id 누락 → 수정
   - Wave 2 (Archive 127건): 미착수 (별도 세션)
