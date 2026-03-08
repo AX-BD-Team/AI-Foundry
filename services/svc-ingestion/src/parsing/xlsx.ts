@@ -15,6 +15,7 @@ export type SiSubtype =
   | "요구사항"
   | "업무규칙"
   | "코드정의"
+  | "정책정의"
   | "공통"
   | "unknown";
 
@@ -29,6 +30,7 @@ const SI_PATTERNS: Array<{ pattern: RegExp; subtype: SiSubtype }> = [
   { pattern: /요구\s*사항/i, subtype: "요구사항" },
   { pattern: /업무\s*규칙/i, subtype: "업무규칙" },
   { pattern: /코드\s*정의/i, subtype: "코드정의" },
+  { pattern: /정책\s*(?:정의|관리)/i, subtype: "정책정의" },
   { pattern: /공통\s*(?:설계|정의|모듈)/i, subtype: "공통" },
 ];
 

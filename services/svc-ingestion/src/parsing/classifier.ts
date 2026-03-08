@@ -31,6 +31,7 @@ const SI_SUBTYPE_CATEGORY: Partial<Record<SiSubtype, DocumentCategory>> = {
   "코드정의": "erd",
   "요구사항": "requirements",
   "업무규칙": "requirements",
+  "정책정의": "requirements",
   "인터페이스설계": "api_spec",
   "배치설계": "process",
   "단위테스트": "process",
@@ -69,6 +70,11 @@ export function classifyXlsxElements(
     // extractProgramMeta output
     if (el.type === "XlProgramMeta") {
       return { category: "screen_design", confidence: 0.9 };
+    }
+
+    // parsePolicyWorkbook output: XlPolicy, XlTerm, XlTransactionType
+    if (el.type === "XlPolicy" || el.type === "XlTerm" || el.type === "XlTransactionType") {
+      return { category: "requirements", confidence: 0.95 };
     }
   }
 
