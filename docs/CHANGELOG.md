@@ -2,6 +2,18 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 150 — 2026-03-09
+**ax 플러그인 인프라 개선 — GOV-011~014 미연동 해소 + ax-06-team 단순화**:
+- ✅ GOV-011~014 미연동 해소: 각 표준에 시행 도구 연결 (ax-04-lint, health-check.sh, bun audit 등)
+- ✅ 양방향 참조 보완: 8개 표준 파일에 "관련 표준" 섹션 추가 (GOV-011~014 + GOV-002/006/007/009 역참조)
+- ✅ ax-06-team 단순화: 275줄→217줄 (21% 감소) — 환경 감지 삭제, launcher PANES 배열+루프 통합, 중복 노트 제거
+- ✅ ax-07-gov 설명 갱신: "10개 표준"→"15개 표준"
+- ✅ INDEX.md 시행 컬럼 4건 업데이트
+- ✅ ax-13-selfcheck 7/7 PASS
+
+**검증 결과**:
+- ✅ selfcheck 7/7 PASS (C1~C7 전부 통과)
+
 ## 세션 149 — 2026-03-09
 **AIF-REQ-009 완료: R2 .skill.json domain 859건 일괄 갱신**:
 - ✅ R2 `ai-foundry-skill-packages` 859건 `.skill.json` domain 수정 (pension → giftvoucher)
