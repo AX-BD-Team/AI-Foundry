@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Full product requirements and technical design are in `docs/AI_Foundry_PRD_TDS_v0.7.4.docx` (latest) and `docs/AI_Foundry_PRD_TDS_v0.6.docx`. This is the authoritative reference for all design decisions.
 
-> **Status**: Phase 4 Sprint 2 완료. 12 Workers + Pages 배포, 1,095+ tests, staging/production 환경 분리. 퇴직연금 실문서 파일럿: 13/15 문서 파싱, policies 2,827, terms 1,441. LPON 온누리상품권: 85/88 파싱, policies 848, skills 859. Production: policies 3,675, skills 3,924 (2-org). 멀티 프로바이더 LLM (Anthropic/OpenAI/Google/Workers AI) fallback + MCP Server (Streamable HTTP) 완비.
+> **Status**: Phase 4 Sprint 2 완료. 12 Workers + Pages 배포, 1,586 tests (93 test files), staging/production 환경 분리. 퇴직연금 실문서 파일럿: 13/15 문서 파싱, policies 2,827, terms 1,441. LPON 온누리상품권: 85/88 파싱, policies 848, ontologies 848, terms 7,332, skills 859. Production: policies 3,675, skills 3,924 (2-org). 멀티 프로바이더 LLM (Anthropic/OpenAI/Google/Workers AI) fallback + MCP Server (Streamable HTTP) 완비.
 
 ---
 
@@ -293,6 +293,8 @@ bun run typecheck && bun run lint
 4. 보안/권한/감사 설계를 초기에 반영
 
 ### 요구사항 관리 (GOV-003)
+> 이 프로젝트의 오버라이드. 글로벌 표준: `~/.claude/standards/requirements-governance.md`
+
 - **ID**: `AIF-REQ-{NNN}` (일련번호, 결번 허용)
 - **분류**: [유형/도메인] — 유형: Feature/Bug/Improvement/Chore, 도메인: Pipeline/UX/Infra/Governance/Data/Integration
 - **우선순위**: P0(즉시) / P1(이번 마일스톤) / P2(다음) / P3(백로그)
