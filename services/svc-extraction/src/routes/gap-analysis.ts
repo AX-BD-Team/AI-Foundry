@@ -18,6 +18,61 @@ import type { SourceSpec } from "../factcheck/types.js";
 import { buildTermMappings, findBestTermMatch } from "../factcheck/term-matcher.js";
 import type { TermMapping } from "../factcheck/term-matcher.js";
 
+// ── Cache ─────────────────────────────────────────────────────────
+
+const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
+
+async function getCachedOverview(env: Env, orgId: string): Promise<GapOverview | null> {
+  const { results } = await env.DB_EXTRACTION.prepare(
+    `SELECT snapshot_json, expires_at FROM gap_analysis_snapshots
+     WHERE organization_id = ? AND perspective_type = 'all'
+     LIMIT 1`,
+  )
+    .bind(orgId)
+    .all<{ snapshot_json: string; expires_at: string }>();
+
+  const row = results[0];
+  if (!row) return null;
+
+  // Check TTL
+  if (new Date(row.expires_at).getTime() < Date.now()) return null;
+
+  const parsed = safeParseJson(row.snapshot_json);
+  if (!parsed || !isRecord(parsed)) return null;
+  return parsed as unknown as GapOverview;
+}
+
+async function cacheOverview(env: Env, orgId: string, overview: GapOverview): Promise<void> {
+  const expiresAt = new Date(Date.now() + CACHE_TTL_MS).toISOString();
+  await env.DB_EXTRACTION.prepare(
+    `INSERT OR REPLACE INTO gap_analysis_snapshots
+       (snapshot_id, organization_id, perspective_type, snapshot_json, source_stats_json, findings_json, created_at, expires_at)
+     VALUES (?, ?, 'all', ?, ?, ?, datetime('now'), ?)`,
+  )
+    .bind(
+      `gap-${orgId}-all`,
+      orgId,
+      JSON.stringify(overview),
+      JSON.stringify(overview.sourceStats),
+      JSON.stringify(overview.findings),
+      expiresAt,
+    )
+    .run();
+}
+
+async function handleCacheInvalidation(request: Request, env: Env): Promise<Response> {
+  const orgId = request.headers.get("X-Organization-Id");
+  if (!orgId) return badRequest("X-Organization-Id header required");
+
+  await env.DB_EXTRACTION.prepare(
+    `DELETE FROM gap_analysis_snapshots WHERE organization_id = ?`,
+  )
+    .bind(orgId)
+    .run();
+
+  return ok({ deleted: true, organizationId: orgId });
+}
+
 // ── Types ─────────────────────────────────────────────────────────
 
 interface PerspectiveSummary {
@@ -77,12 +132,15 @@ interface FindingSummary {
 export async function handleGapAnalysisRoutes(
   request: Request,
   env: Env,
-  _ctx: ExecutionContext,
+  ctx: ExecutionContext,
   path: string,
   method: string,
 ): Promise<Response | null> {
   if (method === "GET" && path === "/gap-analysis/overview") {
-    return handleOverview(request, env);
+    return handleOverview(request, env, ctx);
+  }
+  if (method === "DELETE" && path === "/gap-analysis/cache") {
+    return handleCacheInvalidation(request, env);
   }
   return null;
 }
@@ -92,9 +150,18 @@ export async function handleGapAnalysisRoutes(
 async function handleOverview(
   request: Request,
   env: Env,
+  ctx: ExecutionContext,
 ): Promise<Response> {
   const orgId = request.headers.get("X-Organization-Id");
   if (!orgId) return badRequest("X-Organization-Id header required");
+
+  // Cache check (skip with ?refresh=true)
+  const url = new URL(request.url);
+  const refresh = url.searchParams.get("refresh") === "true";
+  if (!refresh) {
+    const cached = await getCachedOverview(env, orgId);
+    if (cached) return ok(cached);
+  }
 
   // Fetch source spec + term mappings once, reuse for process + architecture perspectives
   const [sourceSpec, termMappings] = await Promise.all([
@@ -127,6 +194,8 @@ async function handleOverview(
     },
     generatedAt: new Date().toISOString(),
   };
+
+  ctx.waitUntil(cacheOverview(env, orgId, overview));
 
   return ok(overview);
 }
