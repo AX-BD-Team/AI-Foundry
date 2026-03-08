@@ -79,7 +79,7 @@ describe("parsePolicySheet", () => {
     const first = policies[0]!;
     expect(first.policyCode).toBe("PP1000");
     expect(first.category).toBe("발행");
-    expect(first.condition).toBe("온누리상품권 전자식 발행");
+    expect(first.condition).toBe("발행 > 상품권 > 전자식");
     expect(first.criteria).toBe("온누리상품권 전자식 발행");
     expect(first.outcome).toBe("전자식 온누리상품권을 발행하는 정책");
     expect(first.source).toBe("정책");
@@ -175,7 +175,7 @@ describe("parsePolicySheet", () => {
     const sheet = wb.Sheets["정책시트"]!;
     const policies = parsePolicySheet(sheet, "정책시트");
 
-    expect(policies[0]!.condition).toBe("온누리상품권 전자식 발행");
+    expect(policies[0]!.condition).toBe("발행 > 상품권 > 전자식");
     expect(policies[0]!.outcome).toBe("전자식 온누리상품권을 발행하는 정책");
     expect(policies[0]!.source).toBe("정책시트");
   });
