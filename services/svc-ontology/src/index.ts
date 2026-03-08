@@ -23,6 +23,7 @@ import {
 import type { Env } from "./env.js";
 import { handleNormalize } from "./routes/normalize.js";
 import { handleGetTerm, handleListTerms, handleGetGraph, handleTermsStats, handleGraphVisualization } from "./routes/terms.js";
+import { handleBackfillNeo4j } from "./routes/backfill.js";
 import { processQueueEvent } from "./queue/handler.js";
 
 /** Diagnostic: test Neo4j Query API v2 connectivity and report config. */
@@ -127,6 +128,11 @@ export default {
       if (method === "POST" && path === "/internal/queue-event") {
         const body: unknown = await request.json();
         return await processQueueEvent(body, env, ctx);
+      }
+
+      // POST /admin/backfill-neo4j — backfill NULL neo4j_graph_id records
+      if (method === "POST" && path === "/admin/backfill-neo4j") {
+        return await handleBackfillNeo4j(request, env);
       }
 
       // POST /normalize — normalize terms against the ontology
