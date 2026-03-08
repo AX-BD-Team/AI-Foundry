@@ -2,6 +2,23 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 130 — 2026-03-08
+**온누리상품권 도메인 파일럿 요구사항 등록 + D106 정책 파서 Agent Team**:
+- AIF-REQ-001 REJECTED (DRM 암호화 파일 파싱 제외)
+- 온누리상품권 분석 요구사항 5건 등록 (AIF-REQ-007~011, P0×2 + P1×3)
+  - 인터뷰 형식 AskUserQuestion 4회로 목적/범위/상세레벨/결과물 구체화
+- Agent Team `lpon-analysis` (2 workers): 문서 인벤토리 + API 갭 분석 리포트
+  - W1: LPON 548파일/3.9GB 인벤토리 + 파싱 전략 수립 → `LPON-파싱전략.md`
+  - W2: 284 API 갭 분석 정리 → `LPON-API갭분석리포트.md` (매칭 6.8%, HIGH 25건)
+- Agent Team `d106-parser` (2 workers): 정책 파서 구현 + 테스트
+  - W1: `parsing/policy.ts` (334 LOC) — PolicyTriple/TermDefinition/TransactionType 추출
+  - W2: `__tests__/policy.test.ts` (474 LOC) — 23 tests, 72 assertions
+  - 리더: condition 기대값 불일치 수정 (분류 계층 체인 방식 채택)
+- `xlsx.ts` SiSubtype `"정책정의"` + `classifier.ts` 매핑 추가
+
+**검증 결과**:
+- ✅ typecheck 통과 / 23/23 tests pass (svc-ingestion policy parser)
+
 ## 세션 129 — 2026-03-08
 **LPON org 전환 후 Spec/FactCheck 점검 — Agent Team 병렬 분석**:
 - Agent Team (2 workers): W1 코드+FactCheck 점검, W2 문서분석+현황 정리
