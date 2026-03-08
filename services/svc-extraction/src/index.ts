@@ -18,6 +18,8 @@ import { handleFactcheckRoutes } from "./routes/factcheck.js";
 import { handleExportRoutes } from "./routes/export.js";
 import { handleSpecRoutes } from "./routes/spec.js";
 import { handleGapAnalysisRoutes } from "./routes/gap-analysis.js";
+import { handleGapExport } from "./routes/gap-export.js";
+import { handleTraceMatrix } from "./routes/gap-matrix.js";
 import { processQueueEvent } from "./queue/handler.js";
 
 export default {
@@ -196,6 +198,13 @@ export default {
         if (rbacCtx) {
           const denied = await checkPermission(env, rbacCtx.role, "extraction", "read");
           if (denied) return denied;
+        }
+        // Sub-routes with dedicated handlers
+        if (method === "GET" && path === "/gap-analysis/export") {
+          return handleGapExport(request, env);
+        }
+        if (method === "GET" && path === "/gap-analysis/trace-matrix") {
+          return handleTraceMatrix(request, env);
         }
         const resp = await handleGapAnalysisRoutes(request, env, ctx, path, method);
         if (resp) return resp;

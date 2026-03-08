@@ -5,7 +5,7 @@
  *
  * Aggregates existing data from:
  * - fact_check_results/gaps → API + Table perspectives
- * - analyses + extraction_chunks → Process + Architecture perspectives
+ * - analyses (summary_json) + aggregateSourceSpec() → Process + Architecture perspectives
  * - diagnosis_findings → cross-cutting findings
  *
  * Part of AIF-REQ-010.
@@ -13,6 +13,10 @@
 
 import { ok, badRequest } from "@ai-foundry/utils";
 import type { Env } from "../env.js";
+import { aggregateSourceSpec } from "../factcheck/source-aggregator.js";
+import type { SourceSpec } from "../factcheck/types.js";
+import { buildTermMappings, findBestTermMatch } from "../factcheck/term-matcher.js";
+import type { TermMapping } from "../factcheck/term-matcher.js";
 
 // ── Types ─────────────────────────────────────────────────────────
 
@@ -43,7 +47,16 @@ interface GapOverview {
     table: PerspectiveSummary;
   };
   findings: FindingSummary;
+  sourceStats: SourceStats;
   generatedAt: string;
+}
+
+interface SourceStats {
+  controllerCount: number;
+  endpointCount: number;
+  tableCount: number;
+  mapperCount: number;
+  transactionCount: number;
 }
 
 interface FindingSummary {
@@ -83,10 +96,16 @@ async function handleOverview(
   const orgId = request.headers.get("X-Organization-Id");
   if (!orgId) return badRequest("X-Organization-Id header required");
 
+  // Fetch source spec + term mappings once, reuse for process + architecture perspectives
+  const [sourceSpec, termMappings] = await Promise.all([
+    aggregateSourceSpec(env, orgId),
+    buildTermMappings(env, orgId),
+  ]);
+
   const [apiTable, process, architecture, findings] = await Promise.all([
     buildApiTablePerspectives(env, orgId),
-    buildProcessPerspective(env, orgId),
-    buildArchitecturePerspective(env, orgId),
+    buildProcessPerspective(env, orgId, sourceSpec, termMappings),
+    buildArchitecturePerspective(env, orgId, sourceSpec, termMappings),
     buildFindingsSummary(env, orgId),
   ]);
 
@@ -99,6 +118,13 @@ async function handleOverview(
       table: apiTable.table,
     },
     findings,
+    sourceStats: {
+      controllerCount: sourceSpec.stats.controllerCount,
+      endpointCount: sourceSpec.stats.endpointCount,
+      tableCount: sourceSpec.stats.tableCount,
+      mapperCount: sourceSpec.stats.mapperCount,
+      transactionCount: sourceSpec.transactions.length,
+    },
     generatedAt: new Date().toISOString(),
   };
 
@@ -128,7 +154,6 @@ async function buildApiTablePerspectives(
   env: Env,
   orgId: string,
 ): Promise<{ api: PerspectiveSummary; table: PerspectiveSummary }> {
-  // Aggregate latest factcheck results per spec_type
   const { results: aggRows } = await env.DB_EXTRACTION.prepare(
     `SELECT
        CASE WHEN spec_type = 'mixed' THEN 'api' ELSE spec_type END AS spec_type,
@@ -143,7 +168,6 @@ async function buildApiTablePerspectives(
     .bind(orgId)
     .all<FactCheckAggRow>();
 
-  // Get latest completed result IDs for gap detail
   const { results: resultIds } = await env.DB_EXTRACTION.prepare(
     `SELECT result_id FROM fact_check_results
      WHERE organization_id = ? AND status = 'completed'
@@ -154,7 +178,6 @@ async function buildApiTablePerspectives(
 
   const rids = resultIds.map((r) => r.result_id);
 
-  // Fetch top gap items
   const apiItems: PerspectiveItem[] = [];
   const tableItems: PerspectiveItem[] = [];
 
@@ -172,7 +195,6 @@ async function buildApiTablePerspectives(
 
     for (const row of gapRows) {
       const item = gapRowToItem(row);
-      // Determine if API or Table based on source_item content
       const sourceObj = safeParseJson(row.source_item);
       if (isRecord(sourceObj)) {
         if ("path" in sourceObj || "httpMethods" in sourceObj || "methodName" in sourceObj) {
@@ -243,7 +265,7 @@ function gapRowToItem(row: GapItemRow): PerspectiveItem {
   };
 }
 
-// ── Process perspective (from analyses) ───────────────────────────
+// ── Process perspective (analyses + source transactions/APIs) ──────
 
 interface AnalysisSummaryRow {
   document_id: string;
@@ -253,11 +275,21 @@ interface AnalysisSummaryRow {
   summary_json: string;
 }
 
+interface DocProcess {
+  documentCount: number;
+  category: string;
+  avgScore: number;
+  scores: number[];
+  steps: string[];
+}
+
 async function buildProcessPerspective(
   env: Env,
   orgId: string,
+  sourceSpec: SourceSpec,
+  termMappings: TermMapping[],
 ): Promise<PerspectiveSummary> {
-  // Document-side processes (from analyses table)
+  // ── Document side: processes from analyses ──
   const { results: analysisRows } = await env.DB_EXTRACTION.prepare(
     `SELECT document_id, process_count, entity_count, rule_count, summary_json
      FROM analyses
@@ -266,13 +298,7 @@ async function buildProcessPerspective(
     .bind(orgId)
     .all<AnalysisSummaryRow>();
 
-  // Aggregate document processes from summary_json
-  const docProcesses = new Map<string, {
-    documentCount: number;
-    category: string;
-    avgScore: number;
-    scores: number[];
-  }>();
+  const docProcesses = new Map<string, DocProcess>();
 
   for (const row of analysisRows) {
     const summary = safeParseJson(row.summary_json) as {
@@ -280,6 +306,7 @@ async function buildProcessPerspective(
         name: string;
         importanceScore: number;
         category: string;
+        steps?: string[];
       }>;
     } | null;
     if (!summary?.processes) continue;
@@ -289,40 +316,122 @@ async function buildProcessPerspective(
         entry.documentCount++;
         entry.scores.push(proc.importanceScore);
         entry.avgScore = entry.scores.reduce((a, b) => a + b, 0) / entry.scores.length;
+        if (proc.steps) entry.steps.push(...proc.steps);
       } else {
         docProcesses.set(proc.name, {
           documentCount: 1,
           category: proc.category,
           avgScore: proc.importanceScore,
           scores: [proc.importanceScore],
+          steps: proc.steps ? [...proc.steps] : [],
         });
       }
     }
   }
 
-  // Source-side: count source_controller + source_transaction chunks
-  const txCountRow = await env.DB_EXTRACTION.prepare(
-    `SELECT COUNT(DISTINCT c.chunk_id) AS total_processes
-     FROM extraction_chunks c
-     JOIN extractions e ON c.extraction_id = e.id
-     WHERE e.organization_id = ? AND e.status = 'completed'
-       AND c.chunk_type IN ('process', 'api')`,
-  )
-    .bind(orgId)
-    .first<{ total_processes: number }>();
+  // ── Source side: aggregate from SourceSpec ──
+  // Build a set of source "process units" from controllers + transactions
+  const sourceProcessUnits = new Map<string, {
+    type: "controller" | "transaction";
+    className: string;
+    methods: string[];
+    endpointCount: number;
+    sourceFile: string;
+  }>();
 
-  const sourceProcessCount = txCountRow?.total_processes ?? 0;
-  const docProcessCount = docProcesses.size;
+  // Group APIs by controller class → each controller is a "process unit"
+  for (const api of sourceSpec.apis) {
+    const key = api.controllerClass;
+    const entry = sourceProcessUnits.get(key);
+    if (entry) {
+      if (!entry.methods.includes(api.methodName)) {
+        entry.methods.push(api.methodName);
+      }
+      entry.endpointCount++;
+    } else {
+      sourceProcessUnits.set(key, {
+        type: "controller",
+        className: api.controllerClass,
+        methods: [api.methodName],
+        endpointCount: 1,
+        sourceFile: api.sourceFile,
+      });
+    }
+  }
 
-  // Build items — document processes that may or may not map to code
+  // Add standalone transactions (not already covered by controllers)
+  for (const tx of sourceSpec.transactions) {
+    const key = `${tx.className}.${tx.methodName}`;
+    if (!sourceProcessUnits.has(tx.className)) {
+      sourceProcessUnits.set(key, {
+        type: "transaction",
+        className: tx.className,
+        methods: [tx.methodName],
+        endpointCount: 0,
+        sourceFile: "",
+      });
+    }
+  }
+
+  // ── Cross-reference matching ──
+  // For each doc process, try to find a matching source unit
+  const matchedSourceKeys = new Set<string>();
   const items: PerspectiveItem[] = [];
+
+  const sourceUnitKeys = [...sourceProcessUnits.keys()];
+
   for (const [name, data] of docProcesses) {
+    const normalizedName = normalizeName(name);
+    let matched = false;
+    let matchDetail = "";
+
+    // 1) Direct name normalization matching
+    for (const [key, unit] of sourceProcessUnits) {
+      const normalizedClass = normalizeName(unit.className);
+      if (
+        normalizedClass.includes(normalizedName)
+        || normalizedName.includes(normalizedClass)
+        || unit.methods.some((m) => normalizedName.includes(normalizeName(m)))
+      ) {
+        matched = true;
+        matchedSourceKeys.add(key);
+        matchDetail = `→ ${unit.className} (${unit.methods.length} methods)`;
+        break;
+      }
+    }
+
+    // 2) Fallback: indirect matching via fact_check term mappings
+    if (!matched && termMappings.length > 0) {
+      const termMatch = findBestTermMatch(name, sourceUnitKeys, termMappings);
+      if (termMatch) {
+        matched = true;
+        matchedSourceKeys.add(termMatch.sourceName);
+        matchDetail = `→ ${termMatch.sourceName} (용어매칭, 신뢰도 ${Math.round(termMatch.confidence * 100)}%)`;
+      }
+    }
+
     items.push({
       name,
-      source: "document",
-      status: data.category === "mega" || data.category === "core" ? "matched" : "gap-in-code",
+      source: matched ? "both" : "document",
+      status: matched ? "matched" : "gap-in-code",
       severity: data.avgScore >= 0.7 ? "HIGH" : data.avgScore >= 0.4 ? "MEDIUM" : "LOW",
-      detail: `${data.category} 프로세스, 중요도 ${Math.round(data.avgScore * 100)}%, ${data.documentCount}개 문서`,
+      detail: matched
+        ? `${data.category} 프로세스, 중요도 ${Math.round(data.avgScore * 100)}% ${matchDetail}`
+        : `${data.category} 프로세스, 중요도 ${Math.round(data.avgScore * 100)}%, 소스 매칭 없음`,
+    });
+  }
+
+  // Source-only items (code exists but no document process)
+  for (const [key, unit] of sourceProcessUnits) {
+    if (matchedSourceKeys.has(key)) continue;
+    items.push({
+      name: unit.className,
+      source: "code",
+      status: "gap-in-doc",
+      severity: unit.endpointCount > 3 ? "HIGH" : unit.endpointCount > 0 ? "MEDIUM" : "LOW",
+      detail: unit.type === "controller"
+        ? `Controller, ${unit.endpointCount} endpoints, ${unit.methods.length} methods`
+        : `@Transactional service method`,
     });
   }
 
@@ -331,28 +440,30 @@ async function buildProcessPerspective(
     return sevOrder[a.severity] - sevOrder[b.severity];
   });
 
-  // Coverage = how many doc processes can be traced to code
   const matchedCount = items.filter((i) => i.status === "matched").length;
+  const totalUnique = docProcesses.size + (sourceProcessUnits.size - matchedSourceKeys.size);
 
   return {
-    asIsCount: docProcessCount,
-    toBeCount: sourceProcessCount,
+    asIsCount: docProcesses.size,
+    toBeCount: sourceProcessUnits.size,
     matchedCount,
-    gapCount: docProcessCount - matchedCount,
-    coveragePct: docProcessCount > 0
-      ? Math.round((matchedCount / docProcessCount) * 1000) / 10
+    gapCount: totalUnique - matchedCount,
+    coveragePct: totalUnique > 0
+      ? Math.round((matchedCount / totalUnique) * 1000) / 10
       : 0,
     items: items.slice(0, 100),
   };
 }
 
-// ── Architecture perspective (from extraction_chunks) ─────────────
+// ── Architecture perspective (analyses + source tables/models) ─────
 
 async function buildArchitecturePerspective(
   env: Env,
   orgId: string,
+  sourceSpec: SourceSpec,
+  termMappings: TermMapping[],
 ): Promise<PerspectiveSummary> {
-  // Document-side entities (from analyses)
+  // ── Document side: entities from analyses ──
   const { results: analysisRows } = await env.DB_EXTRACTION.prepare(
     `SELECT document_id, entity_count, summary_json
      FROM analyses
@@ -361,7 +472,6 @@ async function buildArchitecturePerspective(
     .bind(orgId)
     .all<{ document_id: string; entity_count: number; summary_json: string }>();
 
-  // Aggregate doc entities from summary_json
   const docEntities = new Map<string, {
     documentCount: number;
     type: string;
@@ -391,29 +501,94 @@ async function buildArchitecturePerspective(
     }
   }
 
-  // Source-side: data models + DDL tables
-  const sourceCountRow = await env.DB_EXTRACTION.prepare(
-    `SELECT COUNT(DISTINCT c.chunk_id) AS total_entities
-     FROM extraction_chunks c
-     JOIN extractions e ON c.extraction_id = e.id
-     WHERE e.organization_id = ? AND e.status = 'completed'
-       AND c.chunk_type IN ('entity', 'relationship')`,
-  )
-    .bind(orgId)
-    .first<{ total_entities: number }>();
+  // ── Source side: tables from SourceSpec ──
+  // Build table map (deduplicated by tableName)
+  const sourceTables = new Map<string, {
+    tableName: string;
+    columnCount: number;
+    voClassName: string | undefined;
+    source: string;
+    sourceFile: string;
+  }>();
 
-  const sourceEntityCount = sourceCountRow?.total_entities ?? 0;
-  const docEntityCount = docEntities.size;
+  for (const t of sourceSpec.tables) {
+    const existing = sourceTables.get(t.tableName);
+    if (!existing || t.columns.length > existing.columnCount) {
+      const entry: {
+        tableName: string;
+        columnCount: number;
+        voClassName: string | undefined;
+        source: string;
+        sourceFile: string;
+      } = {
+        tableName: t.tableName,
+        columnCount: t.columns.length,
+        voClassName: t.voClassName ?? undefined,
+        source: t.source,
+        sourceFile: t.sourceFile,
+      };
+      sourceTables.set(t.tableName, entry);
+    }
+  }
 
-  // Build items
+  // ── Cross-reference matching ──
+  const matchedTableKeys = new Set<string>();
   const items: PerspectiveItem[] = [];
+  const tableKeys = [...sourceTables.keys()];
+
   for (const [name, data] of docEntities) {
+    const normalizedName = normalizeName(name);
+    let matched = false;
+    let matchDetail = "";
+
+    // 1) Direct name normalization matching
+    for (const [key, table] of sourceTables) {
+      const normalizedTable = normalizeName(key);
+      const normalizedVo = table.voClassName ? normalizeName(table.voClassName) : "";
+
+      if (
+        normalizedTable.includes(normalizedName)
+        || normalizedName.includes(normalizedTable)
+        || (normalizedVo && (normalizedVo.includes(normalizedName) || normalizedName.includes(normalizedVo)))
+      ) {
+        matched = true;
+        matchedTableKeys.add(key);
+        matchDetail = `→ ${key} (${table.columnCount} columns, ${table.source})`;
+        if (table.voClassName) matchDetail += ` [VO: ${table.voClassName}]`;
+        break;
+      }
+    }
+
+    // 2) Fallback: indirect matching via fact_check term mappings
+    if (!matched && termMappings.length > 0) {
+      const termMatch = findBestTermMatch(name, tableKeys, termMappings);
+      if (termMatch) {
+        matched = true;
+        matchedTableKeys.add(termMatch.sourceName);
+        matchDetail = `→ ${termMatch.sourceName} (용어매칭, 신뢰도 ${Math.round(termMatch.confidence * 100)}%)`;
+      }
+    }
+
     items.push({
       name,
-      source: "document",
-      status: data.documentCount > 1 ? "matched" : "gap-in-code",
+      source: matched ? "both" : "document",
+      status: matched ? "matched" : "gap-in-code",
       severity: data.attributes > 5 ? "HIGH" : data.attributes > 2 ? "MEDIUM" : "LOW",
-      detail: `${data.type}, ${data.attributes}개 속성, ${data.documentCount}개 문서에서 언급`,
+      detail: matched
+        ? `${data.type}, ${data.attributes}개 속성 ${matchDetail}`
+        : `${data.type}, ${data.attributes}개 속성, ${data.documentCount}개 문서 — 소스 매칭 없음`,
+    });
+  }
+
+  // Source-only tables (code exists but no document entity)
+  for (const [key, table] of sourceTables) {
+    if (matchedTableKeys.has(key)) continue;
+    items.push({
+      name: key,
+      source: "code",
+      status: "gap-in-doc",
+      severity: table.columnCount > 10 ? "HIGH" : table.columnCount > 5 ? "MEDIUM" : "LOW",
+      detail: `${table.source} 테이블, ${table.columnCount} columns${table.voClassName ? `, VO: ${table.voClassName}` : ""}`,
     });
   }
 
@@ -423,14 +598,15 @@ async function buildArchitecturePerspective(
   });
 
   const matchedCount = items.filter((i) => i.status === "matched").length;
+  const totalUnique = docEntities.size + (sourceTables.size - matchedTableKeys.size);
 
   return {
-    asIsCount: docEntityCount,
-    toBeCount: sourceEntityCount,
+    asIsCount: docEntities.size,
+    toBeCount: sourceTables.size,
     matchedCount,
-    gapCount: docEntityCount - matchedCount,
-    coveragePct: docEntityCount > 0
-      ? Math.round((matchedCount / docEntityCount) * 1000) / 10
+    gapCount: totalUnique - matchedCount,
+    coveragePct: totalUnique > 0
+      ? Math.round((matchedCount / totalUnique) * 1000) / 10
       : 0,
     items: items.slice(0, 100),
   };
@@ -511,4 +687,29 @@ function safeParseJson(str: string | null | undefined): unknown {
 
 function isRecord(v: unknown): v is Record<string, unknown> {
   return typeof v === "object" && v !== null && !Array.isArray(v);
+}
+
+/**
+ * Normalize a name for fuzzy matching:
+ * - lowercase
+ * - strip common suffixes (Controller, Service, VO, DTO, Mapper, Impl)
+ * - remove underscores, hyphens, spaces
+ * - split camelCase/PascalCase into segments
+ *
+ * "BalanceController" → "balance"
+ * "TB_ACCOUNT_INFO" → "tbaccountinfo"
+ * "계좌조회" → "계좌조회"
+ */
+function normalizeName(name: string): string {
+  let s = name;
+  // Remove package prefix (com.foo.bar.ClassName → ClassName)
+  const dotIdx = s.lastIndexOf(".");
+  if (dotIdx >= 0) s = s.slice(dotIdx + 1);
+  // Strip common suffixes
+  s = s.replace(/(Controller|Service|Impl|VO|DTO|Mapper|Repository|Dao)$/gi, "");
+  // lowercase
+  s = s.toLowerCase();
+  // Remove separators
+  s = s.replace(/[_\-\s]/g, "");
+  return s;
 }
