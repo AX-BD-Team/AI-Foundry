@@ -13,9 +13,15 @@ import {
   ArrowRightLeft,
   RefreshCw,
   FileWarning,
+  Code2,
+  Database,
+  FileCode,
+  Download,
+  ArrowUpDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { useMemo, useCallback } from "react";
 import { useOrganization } from "@/contexts/OrganizationContext";
 import { fetchGapOverview } from "@/api/gap-analysis";
 import type {
@@ -23,6 +29,13 @@ import type {
   PerspectiveSummary,
   PerspectiveItem,
 } from "@/api/gap-analysis";
+
+// ── Filter & Sort types ──────────────────────────────────────────
+
+type StatusFilter = PerspectiveItem["status"] | "all";
+type SeverityFilter = PerspectiveItem["severity"] | "all";
+type SourceFilter = PerspectiveItem["source"] | "all";
+type SortBy = "severity" | "name";
 
 // ── Tab config ─────────────────────────────────────────────────────
 
@@ -148,6 +161,12 @@ export default function GapAnalysisPage() {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<PerspectiveKey>("api");
 
+  // Filter & Sort state
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [severityFilter, setSeverityFilter] = useState<SeverityFilter>("all");
+  const [sourceFilter, setSourceFilter] = useState<SourceFilter>("all");
+  const [sortBy, setSortBy] = useState<SortBy>("severity");
+
   const loadData = async () => {
     setLoading(true);
     try {
@@ -170,6 +189,57 @@ export default function GapAnalysisPage() {
 
   const activeTabConfig = TABS.find((t) => t.key === activeTab)!;
   const perspective = data?.perspectives[activeTab] ?? null;
+
+  // Reset filters when switching tabs
+  const handleTabChange = useCallback((key: PerspectiveKey) => {
+    setActiveTab(key);
+    setStatusFilter("all");
+    setSeverityFilter("all");
+    setSourceFilter("all");
+  }, []);
+
+  // Filtered + sorted items
+  const SEVERITY_ORDER: Record<string, number> = { HIGH: 0, MEDIUM: 1, LOW: 2 };
+  const filteredItems = useMemo(() => {
+    if (!perspective) return [];
+    let items = perspective.items;
+    if (statusFilter !== "all") {
+      items = items.filter((i) => i.status === statusFilter);
+    }
+    if (severityFilter !== "all") {
+      items = items.filter((i) => i.severity === severityFilter);
+    }
+    if (sourceFilter !== "all") {
+      items = items.filter((i) => i.source === sourceFilter);
+    }
+    return [...items].sort((a, b) => {
+      if (sortBy === "name") return a.name.localeCompare(b.name);
+      return (SEVERITY_ORDER[a.severity] ?? 3) - (SEVERITY_ORDER[b.severity] ?? 3);
+    });
+  }, [perspective, statusFilter, severityFilter, sourceFilter, sortBy]);
+
+  // CSV export
+  const exportCsv = useCallback(() => {
+    if (filteredItems.length === 0) return;
+    const header = "name,source,status,severity,detail";
+    const escape = (v: string) => `"${v.replace(/"/g, '""')}"`;
+    const rows = filteredItems.map((i) =>
+      [i.name, i.source, i.status, i.severity, i.detail ?? ""]
+        .map(escape)
+        .join(","),
+    );
+    const bom = "\uFEFF";
+    const csv = bom + [header, ...rows].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const date = new Date().toISOString().slice(0, 10);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `gap-analysis-${activeTab}-${date}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success(`${filteredItems.length}건 CSV 내보내기 완료`);
+  }, [filteredItems, activeTab]);
 
   return (
     <div className="space-y-6 max-w-[1400px]">
@@ -195,6 +265,27 @@ export default function GapAnalysisPage() {
         </Button>
       </div>
 
+      {/* Source Stats Banner */}
+      {data?.sourceStats && (
+        <Card className="shadow-sm bg-muted/30">
+          <CardContent className="py-3 px-5">
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Code2 className="w-3.5 h-3.5" />
+                <span>소스코드 구조</span>
+              </div>
+              <div className="flex gap-5 text-xs">
+                <span><FileCode className="w-3 h-3 inline mr-1" />{data.sourceStats.controllerCount} Controllers</span>
+                <span><Plug className="w-3 h-3 inline mr-1" />{data.sourceStats.endpointCount} Endpoints</span>
+                <span><Database className="w-3 h-3 inline mr-1" />{data.sourceStats.tableCount} Tables</span>
+                <span>{data.sourceStats.mapperCount} Mappers</span>
+                <span>{data.sourceStats.transactionCount} Transactions</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Overview Cards */}
       {data && (
         <div className="grid grid-cols-4 gap-4">
@@ -205,7 +296,7 @@ export default function GapAnalysisPage() {
             return (
               <button
                 key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
+                onClick={() => handleTabChange(tab.key)}
                 className="text-left transition-all duration-200"
               >
                 <Card
@@ -324,25 +415,99 @@ export default function GapAnalysisPage() {
             <Card className="shadow-sm">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm flex items-center justify-between">
-                  <span>갭 항목 상세 ({perspective.items.length}건)</span>
-                  <div className="flex gap-1">
-                    {(["HIGH", "MEDIUM", "LOW"] as const).map((sev) => {
-                      const count = perspective.items.filter((i) => i.severity === sev).length;
-                      return count > 0 ? (
-                        <span key={sev}>{severityBadge(sev)} <span className="text-[10px] text-muted-foreground">{count}</span></span>
-                      ) : null;
-                    })}
+                  <span>
+                    갭 항목 상세 ({filteredItems.length}
+                    {filteredItems.length !== perspective.items.length
+                      ? ` / ${perspective.items.length}`
+                      : ""}
+                    건)
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 px-2 text-[11px]"
+                      onClick={() => setSortBy((prev) => (prev === "severity" ? "name" : "severity"))}
+                    >
+                      <ArrowUpDown className="w-3 h-3 mr-1" />
+                      {sortBy === "severity" ? "심각도순" : "이름순"}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-6 px-2 text-[11px]"
+                      onClick={exportCsv}
+                      disabled={filteredItems.length === 0}
+                    >
+                      <Download className="w-3 h-3 mr-1" />
+                      CSV
+                    </Button>
                   </div>
                 </CardTitle>
               </CardHeader>
               <CardContent>
+                {/* Filter controls */}
+                <div className="space-y-2 mb-3">
+                  {/* Status filter */}
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-[10px] text-muted-foreground w-10 shrink-0">Status</span>
+                    {(["all", "matched", "gap-in-doc", "gap-in-code", "mismatch"] as const).map((s) => (
+                      <Badge
+                        key={s}
+                        className="text-[10px] cursor-pointer select-none transition-opacity"
+                        variant={statusFilter === s ? "default" : "outline"}
+                        style={
+                          statusFilter === s && s !== "all"
+                            ? { backgroundColor: `${statusColor(s)}20`, color: statusColor(s), border: `1px solid ${statusColor(s)}` }
+                            : undefined
+                        }
+                        onClick={() => setStatusFilter(s)}
+                      >
+                        {s === "all" ? "전체" : statusLabel(s)}
+                      </Badge>
+                    ))}
+                  </div>
+                  {/* Severity filter */}
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-[10px] text-muted-foreground w-10 shrink-0">Severity</span>
+                    {(["all", "HIGH", "MEDIUM", "LOW"] as const).map((s) => (
+                      <Badge
+                        key={s}
+                        className="text-[10px] cursor-pointer select-none transition-opacity"
+                        variant={severityFilter === s ? "default" : "outline"}
+                        onClick={() => setSeverityFilter(s)}
+                      >
+                        {s === "all" ? "전체" : s}
+                      </Badge>
+                    ))}
+                  </div>
+                  {/* Source filter */}
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-[10px] text-muted-foreground w-10 shrink-0">Source</span>
+                    {(["all", "document", "code", "both"] as const).map((s) => (
+                      <Badge
+                        key={s}
+                        className="text-[10px] cursor-pointer select-none transition-opacity"
+                        variant={sourceFilter === s ? "default" : "outline"}
+                        onClick={() => setSourceFilter(s)}
+                      >
+                        {s === "all" ? "전체" : sourceLabel(s as PerspectiveItem["source"])}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+
                 {perspective.items.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground text-sm">
                     분석 데이터가 없어요. 먼저 문서 업로드 + FactCheck를 실행해 주세요.
                   </div>
+                ) : filteredItems.length === 0 ? (
+                  <div className="text-center py-6 text-muted-foreground text-sm">
+                    필터 조건에 맞는 항목이 없어요.
+                  </div>
                 ) : (
                   <div className="space-y-1 max-h-[600px] overflow-auto">
-                    {perspective.items.map((item, idx) => (
+                    {filteredItems.map((item, idx) => (
                       <GapItemRow key={`${item.name}-${idx}`} item={item} />
                     ))}
                   </div>
@@ -442,6 +607,15 @@ function SummaryCard({
   );
 }
 
+function sourceLabel(source: PerspectiveItem["source"]): string {
+  switch (source) {
+    case "document": return "Doc";
+    case "code": return "Code";
+    case "both": return "Both";
+    default: return source;
+  }
+}
+
 function GapItemRow({ item }: { item: PerspectiveItem }) {
   return (
     <div
@@ -460,6 +634,12 @@ function GapItemRow({ item }: { item: PerspectiveItem }) {
         )}
       </div>
       <div className="flex items-center gap-2 shrink-0">
+        <Badge
+          variant="outline"
+          className="text-[10px]"
+        >
+          {sourceLabel(item.source)}
+        </Badge>
         <Badge
           className="text-[10px]"
           style={{

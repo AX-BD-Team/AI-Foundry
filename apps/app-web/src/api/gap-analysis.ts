@@ -41,6 +41,14 @@ export interface FindingSummary {
   }>;
 }
 
+export interface SourceStats {
+  controllerCount: number;
+  endpointCount: number;
+  tableCount: number;
+  mapperCount: number;
+  transactionCount: number;
+}
+
 export interface GapOverview {
   organizationId: string;
   perspectives: {
@@ -50,6 +58,7 @@ export interface GapOverview {
     table: PerspectiveSummary;
   };
   findings: FindingSummary;
+  sourceStats: SourceStats;
   generatedAt: string;
 }
 
