@@ -54,7 +54,7 @@ const TRANSACTION_SHEET_RE = /거래유형/;
 
 const POLICY_HEADER_KEYWORDS = ["정책코드", "정책구분"];
 const TERM_HEADER_KEYWORDS = ["용어", "영문"];
-const TRANSACTION_HEADER_KEYWORDS = ["거래코드", "거래명"];
+const TRANSACTION_HEADER_KEYWORDS = ["거래코드", "거래구분코드", "거래명", "거래구분명"];
 
 const HEADER_SCAN_ROWS = 10;
 const MAX_CELL_LENGTH = 2000;
@@ -108,11 +108,11 @@ export function parsePolicySheet(
   const range = XLSX.utils.decode_range(ref);
 
   // Resolve column indices from header names
-  const colCode = findColumnIndex(headers, ["정책코드"]);
+  const colCode = findColumnIndex(headers, ["정책코드", "정책 코드"]);
   const colCategory = findColumnIndex(headers, ["정책구분"]);
-  const colClass1 = findColumnIndex(headers, ["분류#1", "분류1"]);
-  const colClass2 = findColumnIndex(headers, ["분류#2", "분류2"]);
-  const colClass3 = findColumnIndex(headers, ["분류#3", "분류3"]);
+  const colClass1 = findColumnIndex(headers, ["분류#1", "분류1", "구분#1"]);
+  const colClass2 = findColumnIndex(headers, ["분류#2", "분류2", "구분#2"]);
+  const colClass3 = findColumnIndex(headers, ["분류#3", "분류3", "구분#3"]);
   const colContent = findColumnIndex(headers, ["내용"]);
   const colDescription = findColumnIndex(headers, ["정책설명"]);
 
@@ -155,6 +155,10 @@ export function parsePolicySheet(
     });
   }
 
+  // Strict filtering: discard if no row has a valid policyCode
+  const hasAnyCode = results.some((p) => p.policyCode.length > 0);
+  if (!hasAnyCode) return [];
+
   return results;
 }
 
@@ -175,7 +179,7 @@ export function parseTermSheet(
 
   const colName = findColumnIndex(headers, ["용어", "용어명"]);
   const colEnglish = findColumnIndex(headers, ["영문명", "영문"]);
-  const colDefinition = findColumnIndex(headers, ["정의", "설명"]);
+  const colDefinition = findColumnIndex(headers, ["정의", "설명", "내용"]);
 
   const results: TermDefinition[] = [];
 
@@ -207,8 +211,8 @@ export function parseTransactionTypeSheet(
 
   const range = XLSX.utils.decode_range(ref);
 
-  const colCode = findColumnIndex(headers, ["거래코드", "코드"]);
-  const colName = findColumnIndex(headers, ["거래명"]);
+  const colCode = findColumnIndex(headers, ["거래코드", "거래구분코드", "코드"]);
+  const colName = findColumnIndex(headers, ["거래명", "거래구분명"]);
   const colDisplay = findColumnIndex(headers, ["APP표시명", "표시명", "APP 표시명"]);
 
   const results: TransactionType[] = [];
