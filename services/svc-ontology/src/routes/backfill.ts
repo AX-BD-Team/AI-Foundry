@@ -109,31 +109,39 @@ export async function handleBackfillNeo4j(
       continue;
     }
 
-    // Build Neo4j statements — same pattern as normalize.ts
-    const statements = terms.map((t) => ({
-      statement:
-        "MERGE (t:Term {uri: $uri}) SET t.label = $label, t.ontologyId = $ontologyId, t.definition = $definition, t.type = $type " +
-        "WITH t MERGE (o:Ontology {id: $ontologyId}) MERGE (o)-[:HAS_TERM]->(t)",
-      parameters: {
-        uri: t.skos_uri,
-        label: t.label,
-        ontologyId: ont.ontology_id,
-        definition: t.definition ?? "",
-        type: t.term_type,
-      } as Record<string, unknown>,
+    // Build Neo4j statements — UNWIND batch for efficiency (2 calls per ontology)
+    const termParams = terms.map((t) => ({
+      uri: t.skos_uri,
+      label: t.label,
+      definition: t.definition ?? "",
+      type: t.term_type,
     }));
 
-    // Ontology → Policy relationship
-    statements.push({
-      statement:
-        "MERGE (o:Ontology {id: $ontologyId}) SET o.policyId = $policyId, o.skosScheme = $skosScheme " +
-        "WITH o MERGE (p:Policy {id: $policyId}) MERGE (o)-[:EXTRACTED_FROM]->(p)",
-      parameters: {
-        ontologyId: ont.ontology_id,
-        policyId: ont.policy_id,
-        skosScheme: ont.skos_concept_scheme ?? "",
-      } as Record<string, unknown>,
-    });
+    const statements = [
+      // Statement 1: UNWIND all terms in a single Cypher call
+      {
+        statement:
+          "UNWIND $terms AS t " +
+          "MERGE (term:Term {uri: t.uri}) SET term.label = t.label, term.ontologyId = $ontologyId, term.definition = t.definition, term.type = t.type " +
+          "WITH term " +
+          "MERGE (o:Ontology {id: $ontologyId}) MERGE (o)-[:HAS_TERM]->(term)",
+        parameters: {
+          terms: termParams,
+          ontologyId: ont.ontology_id,
+        } as Record<string, unknown>,
+      },
+      // Statement 2: Ontology → Policy relationship
+      {
+        statement:
+          "MERGE (o:Ontology {id: $ontologyId}) SET o.policyId = $policyId, o.skosScheme = $skosScheme " +
+          "WITH o MERGE (p:Policy {id: $policyId}) MERGE (o)-[:EXTRACTED_FROM]->(p)",
+        parameters: {
+          ontologyId: ont.ontology_id,
+          policyId: ont.policy_id,
+          skosScheme: ont.skos_concept_scheme ?? "",
+        } as Record<string, unknown>,
+      },
+    ];
 
     try {
       const neo4jResponse = await neo4jQuery(env, statements);
