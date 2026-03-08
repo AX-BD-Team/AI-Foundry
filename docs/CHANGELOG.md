@@ -2,6 +2,23 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 135 — 2026-03-08
+**Neo4j 연결 조사 — 근본 원인 발견 및 수정**:
+- 🔍 D1 조회: 3,386건 ontology 전부 `neo4j_graph_id = NULL` → Neo4j에 데이터 0건 확인
+- 🔍 근본 원인: default env `NEO4J_URI` secret이 `neo4j+s://` (Bolt 프로토콜)로 설정됨
+  - Workers Fetch API는 HTTP/HTTPS만 지원 → `neo4j+s://` fetch 불가 → graceful degradation으로 무음 실패
+  - Production env secret은 `https://`로 올바르게 설정되어 있었음
+  - Production queue-router가 `svc-ontology` (default env)를 바인딩 → 잘못된 URI 사용
+- ✅ `NEO4J_URI` secret 수정: `neo4j+s://` → `https://c22f7f0f.databases.neo4j.io`
+- ✅ `/neo4j/health` 진단 엔드포인트 추가 (secret 검증 + Cypher ping + latency 측정)
+- ✅ wrangler.toml 주석 수정: 잘못된 `:7474` 포트 참조 제거
+- ✅ default + production 양쪽 배포 완료, Neo4j 연결 검증 OK (latency ~800ms)
+
+**검증 결과**:
+- ✅ typecheck / lint 통과
+- ✅ `/neo4j/health` → `{"status":"ok"}` (default + production 양쪽)
+- ⏳ 기존 3,386건 Neo4j backfill 대기
+
 ## 세션 134 — 2026-03-08
 **LPON AIF-REQ-007/008 Agent Team — triage 검증 + 정책 추론**:
 - Agent Team 2 worker 병렬 실행 (tmux split)

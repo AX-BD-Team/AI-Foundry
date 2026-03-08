@@ -73,7 +73,7 @@
   - Stage 2 (Extraction): 85/85 extracted (parsed 100% 추출 완료, 이벤트 누락 0건)
   - Stage 3 (Policy): 848 정책 (candidate 333 + approved 515), 67/85 문서 정책 보유
   - 정책 미보유 18건: 소스코드 ZIP(6) + 관리문서(12) — 구조상 정책 추출 불가
-  - Stage 4 (Ontology): Neo4j Workers Fetch 프로토콜 제약 확인 필요
+  - Stage 4 (Ontology): ✅ Neo4j 연결 수정 완료 (default env URI neo4j+s:// → https://). D1 528건 존재, Neo4j backfill 대기
   - HITL 리뷰: candidate 333건 batch-approve 대기
   - Wave 2 (Archive 127건): 미착수 (별도 세션)
 - **LPON FactCheck**: 🔧 소스코드↔문서 API 커버리지 분석 진행
