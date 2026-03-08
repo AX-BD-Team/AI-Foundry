@@ -50,6 +50,7 @@ async function executeLoop(
   messages: MessageParam[],
   systemPrompt: string,
   env: Env,
+  organizationId: string,
 ): Promise<Omit<AgentResult, "provider">> {
   const toolsUsed: string[] = [];
   let turns = 0;
@@ -77,7 +78,7 @@ async function executeLoop(
 
       let result: string;
       try {
-        result = await executeTool(toolName, toolInput, env);
+        result = await executeTool(toolName, toolInput, env, organizationId);
       } catch (e) {
         result = JSON.stringify({ success: false, error: String(e) });
       }
@@ -106,6 +107,7 @@ export async function runAgentLoop(
   history: Array<{ role: "user" | "assistant"; content: string }>,
   systemPrompt: string,
   env: Env,
+  organizationId: string,
 ): Promise<AgentResult> {
   const buildMessages = (): MessageParam[] => [
     ...history.map((m) => ({ role: m.role, content: m.content }) as MessageParam),
@@ -149,7 +151,7 @@ export async function runAgentLoop(
   for (let i = 0; i < providers.length; i++) {
     const provider = providers[i]!;
     try {
-      const result = await executeLoop(provider.caller, buildMessages(), systemPrompt, env);
+      const result = await executeLoop(provider.caller, buildMessages(), systemPrompt, env, organizationId);
       return { ...result, provider: provider.name };
     } catch (e) {
       lastError = e;

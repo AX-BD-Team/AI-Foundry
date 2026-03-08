@@ -85,11 +85,12 @@ export async function handleChat(
 
   const rbacCtx = extractRbacContext(request);
   const effectiveRole = role ?? rbacCtx?.role;
+  const organizationId = rbacCtx?.organizationId ?? request.headers.get("X-Organization-Id") ?? "default";
 
   const systemPrompt = buildSystemPrompt({ page, role: effectiveRole });
 
   try {
-    const result = await runAgentLoop(message, history, systemPrompt, env);
+    const result = await runAgentLoop(message, history, systemPrompt, env, organizationId);
 
     logger.info("Agent response", {
       turns: result.turns,

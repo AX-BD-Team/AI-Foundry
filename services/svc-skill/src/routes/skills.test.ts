@@ -6,6 +6,7 @@ import { parseTags, rowToSummary, rowToDetail, type SkillRow } from "./skills.js
 const baseRow: SkillRow = {
   skill_id: "sk-001",
   ontology_id: "ont-001",
+  organization_id: "org-test",
   domain: "퇴직연금",
   subdomain: "중도인출",
   language: "ko",

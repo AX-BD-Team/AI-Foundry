@@ -77,9 +77,9 @@
   - FactCheck 실행: resultId 3건 (v1/v2/v3), 총 1,128건 처리
   - LLM Match: 98건 매칭, 1,030건 갭 확인 (소스 API 대비 문서 커버리지 ~8.7%)
   - Gap 패턴: /gift/*, /manual/*, /chargeDealing/*, /v2/messages/* 다수 미문서화
-- **Multi-Org 코드 점검**: 🔧 12개 이슈 발견 (HIGH 4, MEDIUM 5, LOW 3)
-  - HIGH: skills 테이블 org_id 누락, HITL 통계/품질트렌드/Trust 쿼리 org 필터 누락
-  - MEDIUM: Neo4j org 격리 미흡, governance agent Miraeasset 하드코딩, 용어/비용 통계 org 필터 누락
+- **Multi-Org 코드 점검**: ✅ TD-02~08 해소 (7/12 이슈 해결, 잔여 5건은 LOW/기존)
+  - ~~HIGH 4건~~: skills org_id 추가, HITL 통계/품질트렌드/Trust 쿼리 org 필터 추가 — **모두 해소**
+  - ~~MEDIUM 3건~~: Neo4j org 격리, governance agent 하드코딩 제거 — **모두 해소**
   - 상세: SPEC.md §8 Tech Debt 참조
 - **Cross-Org Comparison UI**: ✅ analysis-report 4번째 탭 구현 (조직 선택 → 비교 → 4-Group 대시보드)
 - **Repo Bootstrap**: ✅
@@ -414,13 +414,13 @@
 | ID | 위치 | 내용 | 영향 | 등록일 |
 |----|------|------|------|--------|
 | TD-01 | `svc-governance/src/routes/cost.ts` | cost 집계 미구현 (TODO) | 비용 대시보드 부정확 | 2026-03-08 |
-| TD-02 | `infra/migrations/db-skill/0001_init.sql` | skills 테이블 organization_id 컬럼 없음 | 멀티 org 시 Skill 데이터 격리 불가 | 2026-03-08 |
-| TD-03 | `svc-policy/src/routes/stats.ts` | HITL 통계 3개 쿼리 org 필터 누락 | 전체 org 데이터 혼재 | 2026-03-08 |
-| TD-04 | `svc-policy/src/routes/quality-trend.ts` | 정책 품질 트렌드 쿼리 org 필터 누락 | 전체 org 데이터 혼재 | 2026-03-08 |
-| TD-05 | `svc-governance/src/routes/trust.ts` | Trust 평가 집계 org 필터 누락 | 전체 org 데이터 혼재 | 2026-03-08 |
-| TD-06 | `svc-skill/src/routes/skills.ts:301-348` | 4개 통계 쿼리 org 필터 누락 (TD-02 선행) | 전체 org 데이터 혼재 | 2026-03-08 |
-| TD-07 | `svc-ontology/src/neo4j/client.ts` | Neo4j 노드에 organizationId 프로퍼티 미저장 | 그래프 레벨 org 격리 불가 | 2026-03-08 |
-| TD-08 | `svc-governance/src/agent/tools.ts:107` | "Miraeasset" org 하드코딩 | Agent 도구 LPON 미지원 | 2026-03-08 |
+| ~~TD-02~~ | `infra/migrations/db-skill/0003_add_org_id.sql` | ✅ skills 테이블 organization_id 컬럼 추가 | 해소 | 2026-03-08 |
+| ~~TD-03~~ | `svc-policy/src/routes/stats.ts` | ✅ HITL 통계 3개 쿼리 org 필터 추가 (JOIN policies) | 해소 | 2026-03-08 |
+| ~~TD-04~~ | `svc-policy/src/routes/quality-trend.ts` | ✅ 정책 품질 트렌드 쿼리 org 필터 추가 | 해소 | 2026-03-08 |
+| ~~TD-05~~ | `svc-governance/src/routes/trust.ts` | ✅ Trust 평가 집계 org 필터 추가 + 마이그레이션 | 해소 | 2026-03-08 |
+| ~~TD-06~~ | `svc-skill/src/routes/skills.ts` | ✅ 5개 통계 쿼리 + INSERT org 필터 추가 | 해소 | 2026-03-08 |
+| ~~TD-07~~ | `svc-ontology/src/neo4j/client.ts` | ✅ Neo4j 6종 노드 organizationId SET 추가 | 해소 | 2026-03-08 |
+| ~~TD-08~~ | `svc-governance/src/agent/tools.ts` | ✅ "Miraeasset" 하드코딩 제거 → 동적 organizationId | 해소 | 2026-03-08 |
 
 ### 가정 (Assumptions)
 

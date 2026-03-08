@@ -195,7 +195,8 @@ export async function upsertAnalysisGraph(
       statement:
         "MERGE (p:Process {name: $name, documentId: $documentId}) " +
         "SET p.category = $category, p.importanceScore = $importanceScore, " +
-        "    p.isCore = $isCore, p.analysisId = $analysisId",
+        "    p.isCore = $isCore, p.analysisId = $analysisId, " +
+        "    p.organizationId = $organizationId",
       parameters: {
         name: p.name,
         documentId: input.documentId,
@@ -203,6 +204,7 @@ export async function upsertAnalysisGraph(
         importanceScore: p.importanceScore,
         isCore: p.isCore,
         analysisId: input.analysisId,
+        organizationId: input.organizationId,
       } as Record<string, unknown>,
     });
   }
@@ -212,12 +214,15 @@ export async function upsertAnalysisGraph(
     statements.push({
       statement:
         "MERGE (parent:Process {name: $parentName, documentId: $documentId}) " +
+        "SET parent.organizationId = $organizationId " +
         "MERGE (sub:SubProcess {name: $subName, documentId: $documentId}) " +
+        "SET sub.organizationId = $organizationId " +
         "MERGE (parent)-[:HAS_SUBPROCESS]->(sub)",
       parameters: {
         parentName: edge.parentProcessName,
         subName: edge.subProcessName,
         documentId: input.documentId,
+        organizationId: input.organizationId,
       } as Record<string, unknown>,
     });
   }
@@ -229,16 +234,18 @@ export async function upsertAnalysisGraph(
       statement:
         "MERGE (p:Process {name: $processName, documentId: $documentId}) " +
         "MERGE (m:Method {name: $methodName, processName: $processName, documentId: $documentId}) " +
-        "SET m.triggerCondition = $triggerCondition " +
+        "SET m.triggerCondition = $triggerCondition, m.organizationId = $organizationId " +
         "MERGE (p)-[:HAS_METHOD]->(m) " +
         "WITH m " +
         "MERGE (c:Condition {description: $triggerCondition, documentId: $documentId}) " +
+        "SET c.organizationId = $organizationId " +
         "MERGE (m)-[:TRIGGERED_BY]->(c)",
       parameters: {
         processName: m.processName,
         methodName: m.methodName,
         triggerCondition: m.triggerCondition,
         documentId: input.documentId,
+        organizationId: input.organizationId,
       } as Record<string, unknown>,
     });
   }
@@ -248,12 +255,14 @@ export async function upsertAnalysisGraph(
     statements.push({
       statement:
         "MERGE (actor:Actor {name: $actorName, documentId: $documentId}) " +
+        "SET actor.organizationId = $organizationId " +
         "MERGE (p:Process {name: $processName, documentId: $documentId}) " +
         "MERGE (actor)-[:PARTICIPATES_IN]->(p)",
       parameters: {
         actorName: a.actorName,
         processName: a.processName,
         documentId: input.documentId,
+        organizationId: input.organizationId,
       } as Record<string, unknown>,
     });
   }
@@ -264,13 +273,14 @@ export async function upsertAnalysisGraph(
       statement:
         "MERGE (df:DiagnosisFinding {findingId: $findingId}) " +
         "SET df.type = $type, df.severity = $severity, df.finding = $finding, " +
-        "    df.analysisId = $analysisId",
+        "    df.analysisId = $analysisId, df.organizationId = $organizationId",
       parameters: {
         findingId: f.findingId,
         type: f.type,
         severity: f.severity,
         finding: f.finding,
         analysisId: input.analysisId,
+        organizationId: input.organizationId,
       } as Record<string, unknown>,
     });
 
@@ -297,13 +307,14 @@ export async function upsertAnalysisGraph(
         statement:
           "MERGE (r:Requirement {requirementId: $reqId}) " +
           "SET r.name = $name, r.description = $desc, r.source = $source, " +
-          "    r.analysisId = $analysisId",
+          "    r.analysisId = $analysisId, r.organizationId = $organizationId",
         parameters: {
           reqId: req.requirementId,
           name: req.name,
           desc: req.description ?? "",
           source: req.source ?? "",
           analysisId: input.analysisId,
+          organizationId: input.organizationId,
         } as Record<string, unknown>,
       });
 

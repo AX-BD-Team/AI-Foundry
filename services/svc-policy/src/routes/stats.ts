@@ -28,39 +28,45 @@ interface SessionSummaryRow {
 }
 
 export async function handleGetHitlStats(
-  _request: Request,
+  request: Request,
   env: Env,
 ): Promise<Response> {
   try {
     const db = env.DB_POLICY;
+    const organizationId = request.headers.get("X-Organization-Id") ?? "unknown";
 
-    // Run all queries in parallel
+    // Run all queries in parallel — JOIN to policies for org isolation
     const [actionSummary, sessionSummary, reviewerRows] = await Promise.all([
       db.prepare(`
         SELECT
           COUNT(*) AS total_actions,
-          SUM(CASE WHEN action = 'approve' THEN 1 ELSE 0 END) AS approve_count,
-          SUM(CASE WHEN action = 'reject' THEN 1 ELSE 0 END) AS reject_count,
-          SUM(CASE WHEN action = 'modify' THEN 1 ELSE 0 END) AS modify_count
-        FROM hitl_actions
-      `).first<ActionSummaryRow>(),
+          SUM(CASE WHEN ha.action = 'approve' THEN 1 ELSE 0 END) AS approve_count,
+          SUM(CASE WHEN ha.action = 'reject' THEN 1 ELSE 0 END) AS reject_count,
+          SUM(CASE WHEN ha.action = 'modify' THEN 1 ELSE 0 END) AS modify_count
+        FROM hitl_actions ha
+        JOIN hitl_sessions hs ON ha.session_id = hs.session_id
+        JOIN policies p ON hs.policy_id = p.policy_id
+        WHERE p.organization_id = ?
+      `).bind(organizationId).first<ActionSummaryRow>(),
 
       db.prepare(`
         SELECT
           COUNT(*) AS total_sessions,
-          SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) AS completed_sessions,
+          SUM(CASE WHEN hs.status = 'completed' THEN 1 ELSE 0 END) AS completed_sessions,
           AVG(CASE
-            WHEN completed_at IS NOT NULL AND opened_at IS NOT NULL
-            THEN (julianday(completed_at) - julianday(opened_at)) * 86400
+            WHEN hs.completed_at IS NOT NULL AND hs.opened_at IS NOT NULL
+            THEN (julianday(hs.completed_at) - julianday(hs.opened_at)) * 86400
             ELSE NULL
           END) AS avg_duration_seconds,
-          SUM(CASE WHEN opened_at >= datetime('now', '-7 days') THEN 1 ELSE 0 END) AS weekly_total,
+          SUM(CASE WHEN hs.opened_at >= datetime('now', '-7 days') THEN 1 ELSE 0 END) AS weekly_total,
           SUM(CASE
-            WHEN opened_at >= datetime('now', '-7 days') AND status = 'completed'
+            WHEN hs.opened_at >= datetime('now', '-7 days') AND hs.status = 'completed'
             THEN 1 ELSE 0 END
           ) AS weekly_completed
-        FROM hitl_sessions
-      `).first<SessionSummaryRow>(),
+        FROM hitl_sessions hs
+        JOIN policies p ON hs.policy_id = p.policy_id
+        WHERE p.organization_id = ?
+      `).bind(organizationId).first<SessionSummaryRow>(),
 
       db.prepare(`
         SELECT
@@ -74,10 +80,12 @@ export async function handleGetHitlStats(
           SUM(CASE WHEN a.action = 'modify' THEN 1 ELSE 0 END) AS modify_count
         FROM hitl_actions a
         JOIN hitl_sessions s ON a.session_id = s.session_id
+        JOIN policies p ON s.policy_id = p.policy_id
+        WHERE p.organization_id = ?
         GROUP BY a.reviewer_id
         ORDER BY review_count DESC
         LIMIT 10
-      `).all<ReviewerRow>(),
+      `).bind(organizationId).all<ReviewerRow>(),
     ]);
 
     const totalActions = actionSummary?.total_actions ?? 0;

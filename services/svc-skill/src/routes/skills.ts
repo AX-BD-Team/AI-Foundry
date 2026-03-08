@@ -44,6 +44,7 @@ const CreateSkillRequestSchema = z.object({
 export interface SkillRow {
   skill_id: string;
   ontology_id: string;
+  organization_id: string;
   domain: string;
   subdomain: string | null;
   language: string;
@@ -122,17 +123,19 @@ export async function handleCreateSkill(
   }
 
   // Insert catalog record into D1
+  const organizationId = request.headers.get("X-Organization-Id") ?? "unknown";
   try {
     await env.DB_SKILL.prepare(
       `INSERT INTO skills (
-        skill_id, ontology_id, domain, subdomain, language, version,
+        skill_id, ontology_id, organization_id, domain, subdomain, language, version,
         r2_key, policy_count, trust_level, trust_score, tags, author,
         status, content_depth, created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'draft', ?, ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'draft', ?, ?, ?)`,
     )
       .bind(
         skillId,
         ontologyId,
+        organizationId,
         domain,
         subdomain ?? null,
         metadata.language,
@@ -154,7 +157,6 @@ export async function handleCreateSkill(
   }
 
   // Emit skill.packaged event
-  const organizationId = request.headers.get("X-Organization-Id") ?? "unknown";
   const event: SkillPackagedEvent = {
     eventId: crypto.randomUUID(),
     occurredAt: now,
@@ -202,6 +204,7 @@ export async function handleListSkills(
   env: Env,
 ): Promise<Response> {
   const url = new URL(request.url);
+  const organizationId = request.headers.get("X-Organization-Id") ?? "unknown";
   const domain = url.searchParams.get("domain");
   const subdomain = url.searchParams.get("subdomain");
   const status = url.searchParams.get("status");
@@ -213,8 +216,8 @@ export async function handleListSkills(
   const limit = Math.min(Number(url.searchParams.get("limit") ?? "50"), 100);
   const offset = Number(url.searchParams.get("offset") ?? "0");
 
-  let whereClause = "WHERE 1=1";
-  const binds: (string | number)[] = [];
+  let whereClause = "WHERE organization_id = ?";
+  const binds: (string | number)[] = [organizationId];
 
   if (domain) {
     whereClause += " AND domain = ?";
@@ -270,12 +273,14 @@ export async function handleListSkills(
 // ── GET /skills/search/tags ──────────────────────────────────────────
 
 export async function handleSearchTags(
-  _request: Request,
+  request: Request,
   env: Env,
 ): Promise<Response> {
+  const organizationId = request.headers.get("X-Organization-Id") ?? "unknown";
   const result = await env.DB_SKILL.prepare(
-    "SELECT DISTINCT tags FROM skills WHERE status != 'archived'",
+    "SELECT DISTINCT tags FROM skills WHERE organization_id = ? AND status != 'archived'",
   )
+    .bind(organizationId)
     .all<{ tags: string }>();
 
   const rows = result.results ?? [];
@@ -294,13 +299,16 @@ export async function handleSearchTags(
 // ── GET /skills/stats ────────────────────────────────────────────────
 
 export async function handleGetSkillStats(
-  _request: Request,
+  request: Request,
   env: Env,
 ): Promise<Response> {
+  const organizationId = request.headers.get("X-Organization-Id") ?? "unknown";
+
   // Total skills and total policies
   const totals = await env.DB_SKILL.prepare(
-    "SELECT COUNT(*) as total_skills, COALESCE(SUM(policy_count), 0) as total_policies FROM skills",
+    "SELECT COUNT(*) as total_skills, COALESCE(SUM(policy_count), 0) as total_policies FROM skills WHERE organization_id = ?",
   )
+    .bind(organizationId)
     .first<{ total_skills: number; total_policies: number }>();
 
   const totalSkills = totals?.total_skills ?? 0;
@@ -308,8 +316,9 @@ export async function handleGetSkillStats(
 
   // By trust level
   const trustRows = await env.DB_SKILL.prepare(
-    "SELECT trust_level, COUNT(*) as cnt FROM skills GROUP BY trust_level",
+    "SELECT trust_level, COUNT(*) as cnt FROM skills WHERE organization_id = ? GROUP BY trust_level",
   )
+    .bind(organizationId)
     .all<{ trust_level: string; cnt: number }>();
 
   const byTrustLevel: Record<string, number> = { unreviewed: 0, reviewed: 0, validated: 0 };
@@ -319,8 +328,9 @@ export async function handleGetSkillStats(
 
   // By domain
   const domainRows = await env.DB_SKILL.prepare(
-    "SELECT domain, COUNT(*) as cnt FROM skills GROUP BY domain",
+    "SELECT domain, COUNT(*) as cnt FROM skills WHERE organization_id = ? GROUP BY domain",
   )
+    .bind(organizationId)
     .all<{ domain: string; cnt: number }>();
 
   const byDomain: Record<string, number> = {};
@@ -330,8 +340,9 @@ export async function handleGetSkillStats(
 
   // Top tags — aggregate from all non-archived skills
   const tagRows = await env.DB_SKILL.prepare(
-    "SELECT tags FROM skills WHERE status != 'archived'",
+    "SELECT tags FROM skills WHERE organization_id = ? AND status != 'archived'",
   )
+    .bind(organizationId)
     .all<{ tags: string }>();
 
   const tagCounts = new Map<string, number>();
@@ -353,8 +364,9 @@ export async function handleGetSkillStats(
        SUM(CASE WHEN content_depth >= 150 THEN 1 ELSE 0 END) as rich,
        SUM(CASE WHEN content_depth >= 50 AND content_depth < 150 THEN 1 ELSE 0 END) as medium,
        SUM(CASE WHEN content_depth < 50 THEN 1 ELSE 0 END) as thin
-     FROM skills`,
+     FROM skills WHERE organization_id = ?`,
   )
+    .bind(organizationId)
     .first<{ rich: number; medium: number; thin: number }>();
 
   const byContentDepth = {

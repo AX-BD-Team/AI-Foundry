@@ -2,6 +2,17 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 131 — 2026-03-08
+**TD-02~08 멀티 org 통계 쿼리 org 필터 수정 (3팀 병렬)**:
+- **팀A (TD-02+06)**: skills 테이블 `organization_id` 컬럼 추가 마이그레이션 + 5개 통계 쿼리/INSERT org 필터
+- **팀B (TD-03+04+05)**: HITL stats 3개 쿼리 JOIN policies org 필터, quality-trend org 필터, trust_evaluations org 마이그레이션+필터
+- **팀C (TD-07+08)**: Neo4j 6종 노드 organizationId SET 추가, governance agent "Miraeasset" 하드코딩 → 동적 파라미터
+- 마이그레이션 2건: `db-skill/0003_add_org_id.sql`, `db-governance/0003_add_trust_org_id.sql`
+- 10 files changed, +109 -48 lines
+
+**검증 결과**:
+- ✅ typecheck 17/17 / lint 14/14 (0 errors) / test 15/15
+
 ## 세션 130 — 2026-03-08
 **온누리상품권 도메인 파일럿 요구사항 등록 + D106 정책 파서 Agent Team**:
 - AIF-REQ-001 REJECTED (DRM 암호화 파일 파싱 제외)

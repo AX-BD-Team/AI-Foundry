@@ -13,14 +13,17 @@ interface TrustAggRow {
 
 /** GET /trust — aggregated trust dashboard metrics */
 export async function handleGetTrust(
-  _request: Request,
+  request: Request,
   env: Env,
 ): Promise<Response> {
+  const organizationId = request.headers.get("X-Organization-Id") ?? "unknown";
+
   const result = await env.DB_GOVERNANCE.prepare(
     `SELECT target_type, level, COUNT(*) AS cnt, AVG(score) AS avg_score
      FROM trust_evaluations
+     WHERE organization_id = ?
      GROUP BY target_type, level`,
-  ).all();
+  ).bind(organizationId).all();
 
   const rows = (result.results ?? []) as unknown as TrustAggRow[];
 
@@ -61,15 +64,16 @@ export async function handleCreateTrustEvaluation(
   }
 
   const { targetType, targetId, level, score, evaluator, notes } = parsed.data;
+  const organizationId = request.headers.get("X-Organization-Id") ?? "unknown";
   const evaluationId = crypto.randomUUID();
   const createdAt = new Date().toISOString();
 
   await env.DB_GOVERNANCE.prepare(
     `INSERT INTO trust_evaluations
-      (eval_id, target_type, target_id, level, score, evaluator, notes, evaluated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      (eval_id, target_type, target_id, level, score, evaluator, notes, evaluated_at, organization_id)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   )
-    .bind(evaluationId, targetType, targetId, level, score, evaluator, notes ?? null, createdAt)
+    .bind(evaluationId, targetType, targetId, level, score, evaluator, notes ?? null, createdAt, organizationId)
     .run();
 
   logger.info("Trust evaluation recorded", { evaluationId, targetType, targetId, level, score });

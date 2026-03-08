@@ -99,12 +99,13 @@ async function fetchService(
   service: Fetcher,
   path: string,
   secret: string,
+  organizationId: string,
 ): Promise<ToolCallResult> {
   try {
     const res = await service.fetch(new Request(`https://internal${path}`, {
       headers: {
         "X-Internal-Secret": secret,
-        "X-Organization-Id": "Miraeasset",
+        "X-Organization-Id": organizationId,
       },
     }));
     const body = await res.json() as Record<string, unknown>;
@@ -122,24 +123,25 @@ export async function executeTool(
   toolName: string,
   input: Record<string, unknown>,
   env: Env,
+  organizationId: string,
 ): Promise<string> {
   let result: ToolCallResult;
 
   switch (toolName) {
     case "get_document_stats":
-      result = await fetchService(env.SVC_INGESTION, "/documents?limit=1", env.INTERNAL_API_SECRET);
+      result = await fetchService(env.SVC_INGESTION, "/documents?limit=1", env.INTERNAL_API_SECRET, organizationId);
       break;
 
     case "get_pipeline_kpi":
-      result = await fetchService(env.SVC_ANALYTICS, "/kpi", env.INTERNAL_API_SECRET);
+      result = await fetchService(env.SVC_ANALYTICS, "/kpi", env.INTERNAL_API_SECRET, organizationId);
       break;
 
     case "get_policy_stats":
-      result = await fetchService(env.SVC_POLICY, "/policies/hitl/stats", env.INTERNAL_API_SECRET);
+      result = await fetchService(env.SVC_POLICY, "/policies/hitl/stats", env.INTERNAL_API_SECRET, organizationId);
       break;
 
     case "get_skill_stats":
-      result = await fetchService(env.SVC_SKILL, "/skills/stats", env.INTERNAL_API_SECRET);
+      result = await fetchService(env.SVC_SKILL, "/skills/stats", env.INTERNAL_API_SECRET, organizationId);
       break;
 
     case "search_skills": {
@@ -148,7 +150,7 @@ export async function executeTool(
       if (input["tag"]) params.set("tag", String(input["tag"]));
       if (input["subdomain"]) params.set("subdomain", String(input["subdomain"]));
       params.set("limit", String(input["limit"] ?? 5));
-      result = await fetchService(env.SVC_SKILL, `/skills?${params.toString()}`, env.INTERNAL_API_SECRET);
+      result = await fetchService(env.SVC_SKILL, `/skills?${params.toString()}`, env.INTERNAL_API_SECRET, organizationId);
       break;
     }
 
@@ -156,7 +158,7 @@ export async function executeTool(
       const params = new URLSearchParams();
       params.set("q", String(input["q"]));
       params.set("limit", String(input["limit"] ?? 5));
-      result = await fetchService(env.SVC_ONTOLOGY, `/terms?${params.toString()}`, env.INTERNAL_API_SECRET);
+      result = await fetchService(env.SVC_ONTOLOGY, `/terms?${params.toString()}`, env.INTERNAL_API_SECRET, organizationId);
       break;
     }
 
@@ -165,6 +167,7 @@ export async function executeTool(
         env.SVC_EXTRACTION,
         `/analysis/${String(input["documentId"])}/summary`,
         env.INTERNAL_API_SECRET,
+        organizationId,
       );
       break;
 
