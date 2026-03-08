@@ -2,6 +2,21 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 144 — 2026-03-08
+**AIF-REQ-009: MCP 어댑터 전체 리뷰 + 8개 이슈 개선 + 테스트 보강 + E2E 검증**:
+- ✅ `svc-mcp-server` MCP SDK ^1.12.1 → ^1.27.1 업그레이드
+- ✅ `svc-mcp-server` production service binding 수정 (svc-skill → svc-skill-production)
+- ✅ `svc-mcp-server` per-IP rate limiting 추가 (60 req/min, in-memory Map)
+- ✅ `svc-skill` MCP adapter KV 캐시 (TTL 1h, X-Cache HIT/MISS 헤더)
+- ✅ `svc-skill` benchmark 평가 병렬화 (for loop → Promise.all)
+- ✅ `svc-skill` Skill publish API (PATCH /skills/:id/status, POST /admin/bulk-publish)
+- ✅ 테스트 보강 +20개: rate limiting(3), tools/call 에러(2), KV cache(3), publish API(12)
+- ✅ Production E2E 6/6 PASS (health → discovery → adapter → initialize → tools/list → auth rejection)
+- ✅ Staging + Production 전 서비스 INTERNAL_API_SECRET 재설정 (e2e-test-secret-2026)
+
+**검증 결과**:
+- ✅ typecheck 17/17, lint 14/14, tests 1,586/1,586 (15 packages)
+
 ## 세션 143 — 2026-03-08
 **AIF-REQ-008 DONE 처리 + 미커밋 코드 정리 (svc-skill, svc-mcp-server)**:
 - ✅ AIF-REQ-008 상태 변경: IN_PROGRESS → DONE (policies 848 전량 approved, Neo4j 3,880건 synced)

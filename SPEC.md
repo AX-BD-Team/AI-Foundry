@@ -62,7 +62,8 @@
 - **Multi-Provider LLM**: ✅ Anthropic→OpenAI→Google→Workers AI 4-provider fallback 구현 + 검증
 - **Phase 3 Sprint 1**: ✅ Skill Evaluate endpoint (POST+GET) + D1 마이그레이션 + 3환경 배포 + E2E 검증
 - **Phase 3 Sprint 2**: ✅ Skill 검색 API (q/tag/subdomain/sort + total) + 태그/통계 엔드포인트 + Marketplace UX + Skill Detail 페이지
-- **Phase 3 Sprint 3**: ✅ svc-mcp-server — MCP Server Worker (Streamable HTTP 2025-03-26 spec, @modelcontextprotocol/sdk, 12 tests, 3환경 배포)
+- **Phase 3 Sprint 3**: ✅ svc-mcp-server — MCP Server Worker (Streamable HTTP 2025-03-26 spec, @modelcontextprotocol/sdk 1.27.1, 35 tests, 3환경 배포)
+- **MCP 어댑터 개선**: ✅ AIF-REQ-009 — SDK 1.27.1 업그레이드, KV 캐시(TTL 1h), rate limiting(60/min/IP), benchmark 병렬화, publish API(PATCH+bulk), E2E 6/6 PASS(production)
 - **Gap Analysis Cache**: ✅ 0007 마이그레이션 3환경 적용 + overview 캐싱 (TTL 1h, refresh/invalidate 엔드포인트)
 - **분석 보고서 동적화**: ✅ AIF-REQ-011 — 하드코딩 보고서→API/DB 동적 콘텐츠 + 버전별 스냅샷 + 마크다운 문서 자동 생성 (LPON 10 + Miraeasset 14 섹션)
 - **Phase 4 Sprint 1**: ✅ Tier 1 문서 11건 투입 — 7/11 파싱 성공, SCDSA002 4건 encrypted 상태. Queue 전파 fix + SCDSA002 탐지 + 배치 자동화 완료
