@@ -241,14 +241,15 @@ export async function processQueueEvent(
   try {
     await env.DB_SKILL.prepare(
       `INSERT INTO skills (
-        skill_id, ontology_id, domain, subdomain, language, version,
+        skill_id, ontology_id, organization_id, domain, subdomain, language, version,
         r2_key, policy_count, trust_level, trust_score, tags, author,
         status, content_depth, created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'draft', ?, ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'draft', ?, ?, ?)`,
     )
       .bind(
         skillId,
         ontologyId,
+        policyData.organizationId,
         metadata.domain,
         null,
         metadata.language,
