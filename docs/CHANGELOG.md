@@ -2,6 +2,22 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 147 — 2026-03-08
+**요구사항 관리 체계화 + SPEC↔MEMORY 동기화 패턴 정립**:
+- ✅ SPEC §6 Execution Plan ↔ REQ 체크박스 동기화 (MCP REQ-005 `[x]`, SCDSA002 REQ-001 `[x] ~~REJECTED~~`, REQ-002/003/004 상태 주석)
+- ✅ AIF-REQ-014/015 신규 등록 (DONE): Phase 4 Sprint 1-2 소급 등록 (세션 071~085)
+- ✅ AIF-REQ-016 신규 등록 (IN_PROGRESS): LPON FactCheck 소스코드↔문서 API 커버리지 분석
+- ✅ TD-02~08 해소 세션 보충 (세션 131), TD-09 (세션 133) — 리스크 관리 표준 준수
+- ✅ SPEC §5 Current Phase 명칭 통일 (`v0.7.4 Pivot Phase 2-E` → `Phase 4 Sprint 2`)
+- ✅ SPEC §5 LPON Stage 4 Neo4j backfill 해소 반영 + Stage 5 published 수치 반영
+- ✅ 글로벌 표준 3건 갱신:
+  - `requirements-governance.md` §5: Execution Plan↔REQ 동기화 + 완료 항목 소급 등록
+  - `risk-governance.md` §5: TD 해소 추적 필수 규칙 + 레거시 참조 수정
+  - `project-governance.md` §6: SPEC↔MEMORY 동기화 패턴 (역할 정의, drift 패턴, 주기적 점검)
+- ✅ 세션 스킬 2건 갱신: `/ax-01-start` step 2b (REQ/TD 정합성 점검), `/ax-02-end` Phase 3b (REQ 일괄 갱신)
+- ✅ 글로벌 CLAUDE.md: 요구사항/리스크/SPEC↔MEMORY 표준 참조 3건 추가
+**변경 파일**: SPEC.md (프로젝트) + 글로벌 표준 3건 + 스킬 2건 + CLAUDE.md (user scope)
+
 ## 세션 146 — 2026-03-08
 **요구사항/TD 점검 및 상태 보정 — SPEC.md + MEMORY.md 일괄 정리**:
 - ✅ AIF-REQ-009: IN_PROGRESS → DONE (KV 3환경, 515건 published, MCP E2E 7/7 PASS)

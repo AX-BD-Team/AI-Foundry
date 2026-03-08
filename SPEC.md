@@ -53,7 +53,7 @@
 ## 5) Current Status
 
 - **Last Updated**: 2026-03-08
-- **Current Phase**: v0.7.4 Pivot Phase 2-E 완료 — Pilot Core 8/8 기능 구현 (97%), KPI 공식 PRD 정렬 완료 (API 95.4%, Table 100%)
+- **Current Phase**: Phase 4 Sprint 2 완료 — 12 Workers + Pages 배포, 2-org 파일럿 (퇴직연금 + 온누리상품권), policies 3,675 / skills 3,924
 - **Production E2E**: ✅ 8/8 PASS (synthetic) + 7/7 PASS (real-doc) + Batch 3: 7/11 parsed (SCDSA002 4건 → encrypted 상태)
 - **Real Document Pilot**: ✅ 20/26 문서 파싱 완료 (Batch 1: 4건, Batch 2: 9/11건, Batch 3: 7/11건)
 - **Production Data**: policies 3,675 approved (LPON 848 + Miraeasset 2,827), skills 3,924 (LPON 859 + Miraeasset 3,065). 2-org
@@ -75,8 +75,8 @@
   - Stage 1 (Ingestion): 85/88 parsed
   - Stage 2 (Extraction): 111건 completed (중복 6건 cancelled 처리)
   - Stage 3 (Policy): 848건 approved (세션 134에서 333건 벌크 승인)
-  - Stage 4 (Ontology): 848건 completed, terms 7,332건. Neo4j backfill 스크립트 준비 (3,752건 대기)
-  - Stage 5 (Skill): 859건 draft (344건은 큐 파이프라인 + 수동 backfill 병행 생성)
+  - Stage 4 (Ontology): 848건 completed, terms 7,332건. Neo4j 3,880건 전량 synced (TD-12 해소, 세션 136b)
+  - Stage 5 (Skill): 859건 생성 → 515건 published (KV 3환경, MCP E2E 7/7 PASS)
   - 버그 수정: svc-skill queue handler INSERT에 organization_id 누락 → 수정
   - Wave 2 (Archive 127건): 미착수 (별도 세션)
 - **LPON FactCheck**: 🔧 소스코드↔문서 API 커버리지 분석 진행
@@ -349,10 +349,10 @@
 - [x] 멀티 프로바이더 LLM (Anthropic→OpenAI→Google→Workers AI fallback)
 - [x] HITL 47건+34건 승인 — policies 134+, terms 1,441, skills 171
 - [x] 퇴직연금 대표 문서 11건 업로드 (9/11 parsed, 2건 SCDSA002 비표준)
-- [ ] SCDSA002 비표준 XLSX 조사 (메뉴구조도, 테이블정의서)
-- [ ] Anthropic 크레딧 충전 후 품질 비교 (Anthropic vs OpenAI extraction)
-- [ ] 추가 문서 업로드 (764건 XLSX 중 선별)
-- [ ] PDF 대용량 문서 파싱 (Unstructured.io 524 timeout 해결)
+- [x] ~~SCDSA002 비표준 XLSX 조사~~ (AIF-REQ-001 REJECTED: DRM 암호화 파일 파싱 제외)
+- [ ] Anthropic 크레딧 충전 후 품질 비교 (AIF-REQ-002 TRIAGED)
+- [ ] 추가 문서 업로드 764건 XLSX 중 선별 (AIF-REQ-003 TRIAGED)
+- [ ] PDF 대용량 문서 파싱 Unstructured.io 524 timeout 해결 (AIF-REQ-004 TRIAGED)
 
 ### ✅ Phase 3 — MCP/OpenAPI 실사용 (완료)
 - [x] Sprint 1: Skill Evaluate 엔드포인트 (POST /skills/:id/evaluate + GET /evaluations)
@@ -360,8 +360,8 @@
 - [x] Sprint 1: D1 skill_evaluations 테이블 + 3환경 배포 + E2E 검증
 - [x] Sprint 2: Skill 검색 API + Marketplace UX + Detail 페이지
 - [x] Sprint 3: MCP Server Worker + Skill 버전 관리
-- [ ] MCP adapter를 실제 MCP 클라이언트(Claude Desktop 등)에서 테스트
-- [ ] OpenAPI adapter 외부 시스템 연동 검증
+- [x] MCP adapter를 실제 MCP 클라이언트(Claude Desktop 등)에서 테스트 (AIF-REQ-005 DONE)
+- [ ] OpenAPI adapter 외부 시스템 연동 검증 (AIF-REQ-006 TRIAGED)
 
 ### ✅ Phase 4 — Real Document Pipeline (완료)
 - [x] Sprint 1: screen-design-parser + Batch 3 (7/11 파싱) + Queue fix + SCDSA002 탐지 + 배치 자동화
@@ -402,6 +402,14 @@
 | AIF-REQ-012 | Feature | Integration | P2 | TRIAGED | 온누리상품권 고객 발표용 PPT + 벤치마크 비교 보고서 |
 | AIF-REQ-013 | Feature | UX | P1 | DONE | Cross-Org Comparison 대시보드 — 조직 비교 + 4-Group 시각화, org별 보고서 분리 |
 
+### Phase 4 실문서 파이프라인 (신규 등록)
+
+| ID | 유형 | 도메인 | 우선순위 | 상태 | 제목 |
+|----|------|--------|:--------:|:----:|------|
+| AIF-REQ-014 | Feature | Pipeline | P0 | DONE | Phase 4 Sprint 1 실문서 파이프라인 — screen-design-parser + Batch 3 (7/11 파싱) + Queue fix + SCDSA002 탐지 + 배치 자동화 (세션 071~078) |
+| AIF-REQ-015 | Feature | Pipeline | P0 | DONE | Phase 4 Sprint 2 벌크 승인 + 파이프라인 완결 — bulk-approve 3,046건 + Tier 2+3 87건 업로드 (26,825 terms, 3,104 skills) (세션 079~085) |
+| AIF-REQ-016 | Feature | Data | P1 | IN_PROGRESS | LPON FactCheck 소스코드↔문서 API 커버리지 분석 — 1,128건 처리, 98건 매칭, 커버리지 ~8.7% (세션 107+) |
+
 ---
 
 ## 8) Risks & Constraints
@@ -423,14 +431,14 @@
 | ID | 위치 | 내용 | 영향 | 등록일 |
 |----|------|------|------|--------|
 | TD-01 | `svc-governance/src/routes/cost.ts` | cost 집계 미구현 (TODO) | 비용 대시보드 부정확 | 2026-03-08 |
-| ~~TD-02~~ | `infra/migrations/db-skill/0003_add_org_id.sql` | ✅ skills 테이블 organization_id 컬럼 추가 | 해소 | 2026-03-08 |
-| ~~TD-03~~ | `svc-policy/src/routes/stats.ts` | ✅ HITL 통계 3개 쿼리 org 필터 추가 (JOIN policies) | 해소 | 2026-03-08 |
-| ~~TD-04~~ | `svc-policy/src/routes/quality-trend.ts` | ✅ 정책 품질 트렌드 쿼리 org 필터 추가 | 해소 | 2026-03-08 |
-| ~~TD-05~~ | `svc-governance/src/routes/trust.ts` | ✅ Trust 평가 집계 org 필터 추가 + 마이그레이션 | 해소 | 2026-03-08 |
-| ~~TD-06~~ | `svc-skill/src/routes/skills.ts` | ✅ 5개 통계 쿼리 + INSERT org 필터 추가 | 해소 | 2026-03-08 |
-| ~~TD-07~~ | `svc-ontology/src/neo4j/client.ts` | ✅ Neo4j 6종 노드 organizationId SET 추가 | 해소 | 2026-03-08 |
-| ~~TD-08~~ | `svc-governance/src/agent/tools.ts` | ✅ "Miraeasset" 하드코딩 제거 → 동적 organizationId | 해소 | 2026-03-08 |
-| ~~TD-09~~ | `svc-policy/src/routes/policies.ts`, `reasoning.ts` | ✅ 정책 목록·Reasoning 분석 org 필터 추가 | 해소 | 2026-03-08 |
+| ~~TD-02~~ | `infra/migrations/db-skill/0003_add_org_id.sql` | ✅ skills 테이블 organization_id 컬럼 추가 | 해소 (세션 131) | 2026-03-08 |
+| ~~TD-03~~ | `svc-policy/src/routes/stats.ts` | ✅ HITL 통계 3개 쿼리 org 필터 추가 (JOIN policies) | 해소 (세션 131) | 2026-03-08 |
+| ~~TD-04~~ | `svc-policy/src/routes/quality-trend.ts` | ✅ 정책 품질 트렌드 쿼리 org 필터 추가 | 해소 (세션 131) | 2026-03-08 |
+| ~~TD-05~~ | `svc-governance/src/routes/trust.ts` | ✅ Trust 평가 집계 org 필터 추가 + 마이그레이션 | 해소 (세션 131) | 2026-03-08 |
+| ~~TD-06~~ | `svc-skill/src/routes/skills.ts` | ✅ 5개 통계 쿼리 + INSERT org 필터 추가 | 해소 (세션 131) | 2026-03-08 |
+| ~~TD-07~~ | `svc-ontology/src/neo4j/client.ts` | ✅ Neo4j 6종 노드 organizationId SET 추가 | 해소 (세션 131) | 2026-03-08 |
+| ~~TD-08~~ | `svc-governance/src/agent/tools.ts` | ✅ "Miraeasset" 하드코딩 제거 → 동적 organizationId | 해소 (세션 131) | 2026-03-08 |
+| ~~TD-09~~ | `svc-policy/src/routes/policies.ts`, `reasoning.ts` | ✅ 정책 목록·Reasoning 분석 org 필터 추가 | 해소 (세션 133) | 2026-03-08 |
 | TD-10 | `svc-queue-router` wrangler.toml `[env.production]` | production 서비스 바인딩이 default env Worker를 가리킴 (svc-skill → svc-skill-production 등) | Production 큐 이벤트가 default env Worker로 라우팅 가능 | 2026-03-08 |
 | ~~TD-11~~ | `svc-policy/src/prompts/policy.ts` | ✅ POL-PENSION-* 도메인 코드 하드코딩 → DOMAIN_CONFIGS 동적화 | 해소 (세션 141) | 2026-03-08 |
 | ~~TD-12~~ | `svc-ontology` Neo4j Aura | ✅ 3,880건 ontology neo4j_graph_id NULL → backfill 완료 | 해소 (세션 136b) | 2026-03-08 |
