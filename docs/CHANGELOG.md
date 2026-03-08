@@ -2,6 +2,17 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 149 — 2026-03-09
+**AIF-REQ-009 완료: R2 .skill.json domain 859건 일괄 갱신**:
+- ✅ R2 `ai-foundry-skill-packages` 859건 `.skill.json` domain 수정 (pension → giftvoucher)
+- ✅ `wrangler r2 object get/put` CLI 배치 스크립트로 처리 (에러 0건)
+- ✅ MCP adapter server name 검증: `ai-foundry-skill-pension` → `ai-foundry-skill-giftvoucher`
+- ✅ SPEC.md AIF-REQ-009 "R2 domain 갱신 잔여" 주석 제거 → 완전 DONE
+
+**검증 결과**:
+- ✅ 무작위 3건 R2 domain 검증 (전부 giftvoucher)
+- ✅ MCP adapter production 확인 (serverName: ai-foundry-skill-giftvoucher)
+
 ## 세션 148 — 2026-03-09
 **ax 표준 체계 전수 검토 + 개선 (10건 수정)**:
 - ✅ 전수 검토: GOV 표준 15개 + ax 커맨드 13개 + 프로젝트 스킬 6개 + 에이전트 4개 + CLAUDE.md 3개
