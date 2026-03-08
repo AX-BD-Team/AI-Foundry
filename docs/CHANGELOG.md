@@ -2,6 +2,17 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 151 — 2026-03-09
+**TD-10 해소: 전 서비스 production 서비스 바인딩 cross-env 오염 수정**:
+- ✅ 9개 서비스 wrangler.toml `[env.production]` 서비스 바인딩에 `-production` 접미사 추가 (33건)
+- ✅ svc-policy DO `script_name` 수정 (`svc-policy` → `svc-policy-production`)
+- ✅ svc-mcp-server는 이미 올바름 (변경 불필요)
+- ✅ SPEC.md §8 TD-10 해소 표기 + MEMORY.md 갱신
+
+**검증 결과**:
+- ✅ typecheck 17/17 PASS
+- ✅ 전체 production 바인딩 패턴 검증 (svc-xxx-production 일관성 확인)
+
 ## 세션 150 — 2026-03-09
 **ax 플러그인 인프라 개선 — GOV-011~014 미연동 해소 + ax-06-team 단순화**:
 - ✅ GOV-011~014 미연동 해소: 각 표준에 시행 도구 연결 (ax-04-lint, health-check.sh, bun audit 등)
