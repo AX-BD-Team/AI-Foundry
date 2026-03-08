@@ -231,7 +231,7 @@
   - svc-ontology: 100 tests (100% stmts)
   - svc-security: 153 tests (97.14% stmts)
   - svc-queue-router: 43 tests (100% stmts)
-- **Test Coverage**: 1,586 tests, 12 services + utils (vitest, 93 test files) — svc-ingestion 175, svc-security 153, svc-skill 166, svc-llm-router 134, svc-extraction 116, svc-ontology 100, svc-policy 92, svc-governance 83, svc-queue-router 43, svc-mcp-server 35, svc-analytics 35, svc-notification 26, packages/utils 35
+- **Test Coverage**: 1,586 tests, 12 services + utils (vitest, 93 test files) — svc-extraction 331, svc-ingestion 306, svc-skill 166, svc-security 153, svc-llm-router 134, svc-ontology 110, svc-policy 109, svc-governance 83, svc-analytics 53, svc-queue-router 43, svc-mcp-server 35, svc-notification 28, packages/utils 35
 - **Batch Scripts**: `scripts/batch-upload.sh` (bulk upload + resume + dry-run), `scripts/batch-status.sh` (status query + CSV export + polling)
 - **Frontend**: https://ai-foundry-web.pages.dev (Cloudflare Pages) + https://ai-foundry.minu.best (커스텀 도메인)
   - 10/10 pages real API 연동 완료 (upload, analysis, hitl, audit, skill-catalog, dashboard, ontology, api-console, trust, settings)
@@ -396,10 +396,11 @@
 |----|------|--------|:--------:|:----:|------|
 | AIF-REQ-007 | Feature | Pipeline | P0 | DONE | 온누리상품권 Stage 1-2 triage 완료 (88건/85 parsed/85 extracted, 3건 failed: 쿼터+타임아웃) |
 | AIF-REQ-008 | Feature | Pipeline | P0 | DONE | 온누리상품권 정책 추론 완료 — policies 848 전량 approved, Neo4j 3,880건 synced, HITL 전건 처리 |
-| AIF-REQ-009 | Feature | Pipeline | P1 | IN_PROGRESS | 온누리상품권 Skill 패키징 + MCP 어댑터 (Stage 5, .skill.json + Claude Desktop E2E) |
-| AIF-REQ-010 | Feature | Data | P1 | IN_PROGRESS | SI 산출물 재구성 + As-Is/To-Be Gap 분석 (프로세스/아키텍처/API/테이블 정의서) |
+| AIF-REQ-009 | Feature | Pipeline | P1 | DONE | 온누리상품권 Skill 패키징 + MCP 어댑터 완료 — KV 3환경, 515건 published, MCP E2E 7/7 PASS. R2 domain 갱신 잔여 |
+| AIF-REQ-010 | Feature | Data | P1 | DONE | SI 산출물 재구성 + As-Is/To-Be Gap 분석 완료 — 4-perspective API, 캐싱(TTL 1h), CSV 내보내기, trace matrix |
 | AIF-REQ-011 | Feature | UX | P1 | DONE | 분석 보고서 동적화 — 하드코딩→API/DB, 버전별 스냅샷, 마크다운 문서 자동 생성 (LPON+Miraeasset 동시) |
 | AIF-REQ-012 | Feature | Integration | P2 | TRIAGED | 온누리상품권 고객 발표용 PPT + 벤치마크 비교 보고서 |
+| AIF-REQ-013 | Feature | UX | P1 | DONE | Cross-Org Comparison 대시보드 — 조직 비교 + 4-Group 시각화, org별 보고서 분리 |
 
 ---
 
@@ -430,6 +431,9 @@
 | ~~TD-07~~ | `svc-ontology/src/neo4j/client.ts` | ✅ Neo4j 6종 노드 organizationId SET 추가 | 해소 | 2026-03-08 |
 | ~~TD-08~~ | `svc-governance/src/agent/tools.ts` | ✅ "Miraeasset" 하드코딩 제거 → 동적 organizationId | 해소 | 2026-03-08 |
 | ~~TD-09~~ | `svc-policy/src/routes/policies.ts`, `reasoning.ts` | ✅ 정책 목록·Reasoning 분석 org 필터 추가 | 해소 | 2026-03-08 |
+| TD-10 | `svc-queue-router` wrangler.toml `[env.production]` | production 서비스 바인딩이 default env Worker를 가리킴 (svc-skill → svc-skill-production 등) | Production 큐 이벤트가 default env Worker로 라우팅 가능 | 2026-03-08 |
+| ~~TD-11~~ | `svc-policy/src/prompts/policy.ts` | ✅ POL-PENSION-* 도메인 코드 하드코딩 → DOMAIN_CONFIGS 동적화 | 해소 (세션 141) | 2026-03-08 |
+| ~~TD-12~~ | `svc-ontology` Neo4j Aura | ✅ 3,880건 ontology neo4j_graph_id NULL → backfill 완료 | 해소 (세션 136b) | 2026-03-08 |
 
 ### 가정 (Assumptions)
 

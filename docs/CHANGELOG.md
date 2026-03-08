@@ -2,6 +2,19 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 146 — 2026-03-08
+**요구사항/TD 점검 및 상태 보정 — SPEC.md + MEMORY.md 일괄 정리**:
+- ✅ AIF-REQ-009: IN_PROGRESS → DONE (KV 3환경, 515건 published, MCP E2E 7/7 PASS)
+- ✅ AIF-REQ-010: IN_PROGRESS → DONE (4-perspective API, 캐싱, CSV, trace matrix)
+- ✅ AIF-REQ-013 신규 등록 (DONE): Cross-Org Comparison 대시보드
+- ✅ TD-10 신규 등록 (active): svc-queue-router production 서비스 바인딩 이슈
+- ✅ TD-11/TD-12 등록+해소: policy prompt 동적화 + Neo4j backfill
+- ✅ 테스트 서비스별 분포 보정 (총 1,586 동일, 개별 수치 6개 서비스 업데이트)
+- ✅ MEMORY.md 다음 작업 + 활성 리스크 동기화
+
+**검증 결과**:
+- ✅ typecheck 17/17 (FULL TURBO), tests 1,586/1,586
+
 ## 세션 145 — 2026-03-08
 **AIF-REQ-009: KV 생성 + Skill Publish + MCP E2E 7/7 PASS**:
 - ✅ KV 네임스페이스 3환경 생성 (AI_FOUNDRY_SKILL_CACHE default/staging/production)
