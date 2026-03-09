@@ -23,6 +23,7 @@ import type {
   SourceQuery,
 } from "./types.js";
 import type { Env } from "../env.js";
+import { parseSpringController, parseServiceClass } from "./ast-parser.js";
 
 const logger = createLogger("svc-extraction:source-aggregator");
 
@@ -99,6 +100,28 @@ export async function aggregateSourceSpec(
       continue;
     }
 
+    // ── AST-Priority: try regex-based parsing on raw Java source ──
+    const isJavaSource = doc.file_type === "java"
+      || doc.original_name.endsWith(".java")
+      || firstChunk.classification === "source_controller";
+
+    if (isJavaSource) {
+      const astApis = await tryAstParse(env, doc, allApis);
+      if (astApis.length > 0) {
+        allApis.push(...astApis);
+        controllerCount++;
+        // AST found endpoints — skip LLM CodeController for this doc to avoid duplication
+        // but still process CodeDataModel, CodeMapper, CodeDdl, CodeTransaction from LLM
+        for (const chunk of chunks) {
+          const parsed = safeParseJson(chunk.masked_text);
+          if (!parsed) continue;
+          processNonControllerChunk(chunk, parsed, doc, allTables, allTransactions, allQueries, voMap, mapperCount);
+        }
+        continue;
+      }
+    }
+
+    // ── Fallback: LLM-extracted structured chunks ──
     for (const chunk of chunks) {
       const parsed = safeParseJson(chunk.masked_text);
       if (!parsed) continue;
@@ -376,6 +399,238 @@ async function fetchChunks(
   } catch (err) {
     logger.error("Error fetching chunks", { documentId, error: String(err) });
     return [];
+  }
+}
+
+// ── AST-Priority helpers ────────────────────────────────────────
+
+/**
+ * Try to parse a Java source file from R2 using the regex-based AST parser.
+ * Returns SourceApi[] on success, empty array if the file isn't a Java controller
+ * or if R2 download fails (graceful fallback).
+ */
+async function tryAstParse(
+  env: Env,
+  doc: IngestionDocument,
+  existingApis: SourceApi[],
+): Promise<SourceApi[]> {
+  try {
+    const rawSource = await fetchDocumentContent(env, doc.document_id);
+    if (!rawSource) return [];
+
+    const ctrl = parseSpringController(rawSource, doc.original_name);
+    if (!ctrl || ctrl.endpoints.length === 0) {
+      // Also try service class parsing for call chain info (logged only)
+      const services = parseServiceClass(rawSource, doc.original_name);
+      if (services.length > 0) {
+        logger.info("AST: Service class detected", {
+          className: services[0]?.className,
+          methods: services.length,
+          transactional: services.filter((m) => m.isTransactional).length,
+        });
+      }
+      return [];
+    }
+
+    logger.info("AST: Controller parsed directly", {
+      className: ctrl.className,
+      basePath: ctrl.basePath,
+      endpoints: ctrl.endpoints.length,
+      source: "ast-parser",
+    });
+
+    // Convert to SourceApi[], dedup against existing APIs
+    const existingPaths = new Set(existingApis.map((a) => normForDedup(a.path)));
+    const newApis: SourceApi[] = [];
+
+    for (const ep of ctrl.endpoints) {
+      const fullPath = combinePath(ctrl.basePath, ep.path);
+      if (existingPaths.has(normForDedup(fullPath))) continue;
+
+      const altPaths = buildAlternativePaths(fullPath, ep.methodName, ctrl.basePath);
+      const api: SourceApi = {
+        path: fullPath,
+        httpMethods: ep.httpMethod,
+        methodName: ep.methodName,
+        controllerClass: ctrl.className,
+        parameters: ep.parameters.map((p) => {
+          const param: SourceApiParam = {
+            name: p.name,
+            type: p.type,
+            required: p.required,
+          };
+          if (p.annotation !== undefined) param.annotation = p.annotation;
+          return param;
+        }),
+        returnType: ep.returnType,
+        documentId: doc.document_id,
+        sourceFile: ctrl.sourceFile,
+      };
+      if (ep.swaggerSummary !== undefined) api.swaggerSummary = ep.swaggerSummary;
+      if (altPaths.length > 0) api.alternativePaths = altPaths;
+      newApis.push(api);
+    }
+
+    return newApis;
+  } catch (err) {
+    logger.warn("AST parse failed, falling back to LLM", {
+      documentId: doc.document_id,
+      error: String(err),
+    });
+    return [];
+  }
+}
+
+/** Fetch raw file content from R2 via svc-ingestion download endpoint */
+async function fetchDocumentContent(env: Env, documentId: string): Promise<string | null> {
+  try {
+    const resp = await env.SVC_INGESTION.fetch(
+      `http://internal/documents/${documentId}/download`,
+      {
+        headers: {
+          "X-Internal-Secret": env.INTERNAL_API_SECRET,
+        },
+      },
+    );
+
+    if (!resp.ok) return null;
+
+    const contentType = resp.headers.get("Content-Type") ?? "";
+    // Only process text-based files (Java source code)
+    if (!contentType.includes("text") && !contentType.includes("java")
+        && !contentType.includes("octet-stream")) {
+      return null;
+    }
+
+    return await resp.text();
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Process non-controller chunks (CodeDataModel, CodeMapper, CodeDdl, CodeTransaction).
+ * Used when AST parser handles the controller, but we still need other data from LLM.
+ */
+function processNonControllerChunk(
+  chunk: IngestionChunk,
+  parsed: unknown,
+  doc: IngestionDocument,
+  allTables: SourceTable[],
+  allTransactions: SourceTransaction[],
+  allQueries: SourceQuery[],
+  voMap: Map<string, Array<{ name: string; type: string; nullable: boolean }>>,
+  _mapperCount: number,
+): void {
+  switch (chunk.element_type) {
+    case "CodeDataModel": {
+      const result = CodeDataModelSchema.safeParse(parsed);
+      if (!result.success) break;
+      const dm = result.data;
+      const shortName = extractShortClassName(dm.className);
+      voMap.set(shortName, dm.fields.map((f) => ({
+        name: f.name,
+        type: f.type,
+        nullable: f.nullable,
+      })));
+      break;
+    }
+    case "CodeMapper": {
+      const result = CodeMapperSchema.safeParse(parsed);
+      if (!result.success) break;
+      processMapper(result.data, doc, allTables, allQueries);
+      break;
+    }
+    case "CodeDdl": {
+      const result = CodeDdlSchema.safeParse(parsed);
+      if (!result.success) break;
+      allTables.push({
+        tableName: result.data.tableName,
+        columns: result.data.columns.map((c) => ({
+          name: c.name,
+          sqlType: c.type,
+          nullable: c.nullable,
+          isPrimaryKey: c.isPrimaryKey,
+        })),
+        source: "ddl",
+        documentId: doc.document_id,
+        sourceFile: result.data.sourceFile,
+      });
+      break;
+    }
+    case "CodeTransaction": {
+      const result = CodeTransactionSchema.safeParse(parsed);
+      if (!result.success) break;
+      allTransactions.push({
+        className: result.data.className,
+        methodName: result.data.methodName,
+        isTransactional: result.data.isTransactional,
+      });
+      break;
+    }
+    default:
+      break;
+  }
+}
+
+/** Process a CodeMapper into tables and queries */
+function processMapper(
+  mapper: import("@ai-foundry/types").CodeMapper,
+  doc: IngestionDocument,
+  allTables: SourceTable[],
+  allQueries: SourceQuery[],
+): void {
+  for (const rm of mapper.resultMaps) {
+    const columns: SourceTableColumn[] = rm.columns.map((col) => {
+      const c: SourceTableColumn = {
+        name: col.column,
+        javaProperty: col.property,
+        nullable: true,
+        isPrimaryKey: col.isPrimaryKey,
+      };
+      if (col.jdbcType !== undefined) c.sqlType = col.jdbcType;
+      if (col.javaType !== undefined) c.javaType = col.javaType;
+      return c;
+    });
+
+    const tableName = findTableForResultMap(mapper.tables, rm.id, mapper.queries);
+
+    allTables.push({
+      tableName: tableName ?? rm.id,
+      columns,
+      voClassName: extractShortClassName(rm.type),
+      source: "mybatis",
+      documentId: doc.document_id,
+      sourceFile: mapper.sourceFile,
+    });
+  }
+
+  for (const q of mapper.queries) {
+    allQueries.push({
+      id: q.id,
+      queryType: q.queryType,
+      tables: q.tables,
+    });
+  }
+
+  for (const table of mapper.tables) {
+    const alreadyAdded = allTables.some(
+      (t) => t.tableName === table && t.documentId === doc.document_id,
+    );
+    if (!alreadyAdded) {
+      const queryColumns = collectQueryColumns(mapper.queries, table);
+      allTables.push({
+        tableName: table,
+        columns: queryColumns.map((c) => ({
+          name: c,
+          nullable: true,
+          isPrimaryKey: false,
+        })),
+        source: "mybatis",
+        documentId: doc.document_id,
+        sourceFile: mapper.sourceFile,
+      });
+    }
   }
 }
 

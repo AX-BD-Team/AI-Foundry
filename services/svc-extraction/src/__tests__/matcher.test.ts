@@ -3,6 +3,8 @@ import {
   structuralMatch,
   normalizePath,
   tokenizePath,
+  splitCamelCase,
+  extractResourcePath,
   normalizeTableName,
   camelToSnake,
   matchColumnName,
@@ -484,8 +486,8 @@ describe("structuralMatch", () => {
     expect(result.unmatchedSourceApis).toHaveLength(0);
   });
 
-  it("alternativePaths — fuzzy match 개선 (노이즈 토큰 제거로 Jaccard 향상)", () => {
-    // 앱 프리픽스가 token에 포함되지 않게 alternativePaths 활용
+  it("alternativePaths — camelCase 분리로 fuzzy match 성공", () => {
+    // camelCase 분리로 "joinMember" → [join, member], "joinUser" → [join, user]
     const src = makeSourceSpec([
       makeSourceApi({
         path: "/onnuripay/v1.0/member/joinMember",
@@ -498,11 +500,12 @@ describe("structuralMatch", () => {
     ]);
     const result = structuralMatch(src, doc);
 
-    // 대안 tokens: [member, joinmember] vs [member, joinuser]
-    // intersection=1(member), union=3 → 0.33 (아직 threshold 미달)
-    // 하지만 원본보다 나은 점수
-    expect(result.unmatchedSourceApis).toHaveLength(1);
-    expect(result.unmatchedDocApis).toHaveLength(1);
+    // 대안 tokens: {member, join} vs {member, join, user}
+    // intersection=2(member, join), union=3 → 0.67 ≥ 0.6 → MATCH!
+    expect(result.matchedItems).toHaveLength(1);
+    expect(result.matchedItems[0]?.matchMethod).toBe("fuzzy");
+    expect(result.unmatchedSourceApis).toHaveLength(0);
+    expect(result.unmatchedDocApis).toHaveLength(0);
   });
 });
 
@@ -512,8 +515,8 @@ describe("tokenizePath — noise filtering", () => {
   it("버전 토큰 필터링 (1.0, 2.0 등)", () => {
     const tokens = tokenizePath("/onnuripay/v1.0/auth/login");
     expect(tokens).not.toContain("1");
-    // "1.0" splits into "1" and "0" by the split regex
-    expect(tokens).toContain("onnuripay");
+    // "onnuripay" is now a noise token
+    expect(tokens).not.toContain("onnuripay");
     expect(tokens).toContain("auth");
     expect(tokens).toContain("login");
   });
@@ -531,5 +534,102 @@ describe("tokenizePath — noise filtering", () => {
     expect(tokens).not.toContain("internal");
     expect(tokens).toContain("users");
     expect(tokens).toContain("list");
+  });
+
+  it("controller, service, impl 노이즈 토큰 필터링", () => {
+    const tokens = tokenizePath("/api/controller/service/impl/users");
+    expect(tokens).not.toContain("controller");
+    expect(tokens).not.toContain("service");
+    expect(tokens).not.toContain("impl");
+    expect(tokens).toContain("users");
+  });
+
+  it("앱 이름 노이즈 토큰 필터링 (onnuripay, miraeasset)", () => {
+    const tokens = tokenizePath("/onnuripay/v1.0/charge/issue");
+    expect(tokens).not.toContain("onnuripay");
+    expect(tokens).toContain("charge");
+    expect(tokens).toContain("issue");
+  });
+});
+
+// ── splitCamelCase ──────────────────────────────────────────────
+
+describe("splitCamelCase", () => {
+  it("camelCase → 개별 단어 분리", () => {
+    expect(splitCamelCase("chargeDealing")).toEqual(["charge", "Dealing"]);
+    expect(splitCamelCase("sendGift")).toEqual(["send", "Gift"]);
+  });
+
+  it("연속 대문자 처리 (HTTPStatus → HTTP + Status)", () => {
+    expect(splitCamelCase("HTTPStatus")).toEqual(["HTTP", "Status"]);
+  });
+
+  it("전부 소문자면 분리 없음", () => {
+    expect(splitCamelCase("charge")).toEqual(["charge"]);
+  });
+
+  it("전부 대문자면 분리 없음", () => {
+    expect(splitCamelCase("API")).toEqual(["API"]);
+  });
+
+  it("복합 camelCase 분리", () => {
+    expect(splitCamelCase("giftStatusList")).toEqual(["gift", "Status", "List"]);
+  });
+});
+
+// ── tokenizePath + camelCase ────────────────────────────────────
+
+describe("tokenizePath — camelCase splitting", () => {
+  it("camelCase 토큰을 분리하여 Jaccard 개선", () => {
+    const tokens = tokenizePath("/charge/chargeDealing");
+    expect(tokens).toContain("charge");
+    expect(tokens).toContain("dealing");
+    // 단일 문자 'v' 등은 필터됨
+  });
+
+  it("methodName이 포함된 path에서 의미 토큰 추출", () => {
+    const tokens = tokenizePath("/onnuripay/v1.0/gift/giftStatusList");
+    expect(tokens).toContain("gift");
+    expect(tokens).toContain("status");
+    expect(tokens).toContain("list");
+    expect(tokens).not.toContain("onnuripay");
+  });
+
+  it("소스/문서 간 camelCase 분리로 Jaccard 유사도 향상", () => {
+    const srcTokens = tokenizePath("/charge/chargeDealing");
+    const docTokens = tokenizePath("/charge/dealing");
+    const score = jaccardSimilarity(srcTokens, docTokens);
+    // srcTokens: [charge, dealing] (charge 중복 제거), docTokens: [charge, dealing]
+    // Jaccard should be 1.0 or high
+    expect(score).toBeGreaterThanOrEqual(0.6);
+  });
+});
+
+// ── extractResourcePath ─────────────────────────────────────────
+
+describe("extractResourcePath", () => {
+  it("마지막 2개 의미 세그먼트 추출", () => {
+    expect(extractResourcePath("/onnuripay/v1.0/charge/chargeDealing"))
+      .toBe("charge/chargedealing");
+  });
+
+  it("API 프리픽스와 버전 제거", () => {
+    expect(extractResourcePath("/api/v2/users/orders"))
+      .toBe("users/orders");
+  });
+
+  it("path variable 제거", () => {
+    expect(extractResourcePath("/api/v2/users/{id}/orders"))
+      .toBe("users/orders");
+  });
+
+  it("full URL에서 hostname 제거", () => {
+    expect(extractResourcePath("https://app.example.com/api/v2/gift/send"))
+      .toBe("gift/send");
+  });
+
+  it("세그먼트 1개일 때", () => {
+    expect(extractResourcePath("/api/v2/users"))
+      .toBe("users");
   });
 });

@@ -86,6 +86,28 @@ export function structuralMatch(
     }
   }
 
+  // Step 1.5: Resource path match — extract last 2 meaningful segments and compare
+  for (let si = 0; si < sourceSpec.apis.length; si++) {
+    const srcApi = sourceSpec.apis[si];
+    if (!srcApi || matchedSourceApiIdx.has(si)) continue;
+
+    const allPaths = [srcApi.path, ...(srcApi.alternativePaths ?? [])];
+    const srcResources = allPaths.map(extractResourcePath).filter(Boolean);
+
+    for (let di = 0; di < docSpec.apis.length; di++) {
+      const docApi = docSpec.apis[di];
+      if (!docApi || matchedDocApiIdx.has(di)) continue;
+
+      const docResource = extractResourcePath(docApi.path);
+      if (docResource && srcResources.includes(docResource)) {
+        matchedItems.push(buildApiMatch(srcApi, docApi, 0.85, "exact"));
+        matchedSourceApiIdx.add(si);
+        matchedDocApiIdx.add(di);
+        break;
+      }
+    }
+  }
+
   // Step 2: Fuzzy match on unmatched APIs (primary + alternative paths)
   for (let si = 0; si < sourceSpec.apis.length; si++) {
     const srcApi = sourceSpec.apis[si];
@@ -201,8 +223,10 @@ export function structuralMatch(
 /**
  * Normalize an API path for comparison.
  * - lowercase
+ * - strip hostname
  * - trim slashes
  * - convert path variables ({id}, :id) to `:param`
+ * - normalize version prefixes (v1.0 → 1.0)
  * - deduplicate slashes
  */
 export function normalizePath(path: string): string {
@@ -217,15 +241,53 @@ export function normalizePath(path: string): string {
 }
 
 /**
+ * Extract the "resource identity" from a path — the last two meaningful segments
+ * stripped of params and noise. Used as an additional fuzzy matching signal.
+ *
+ * "/onnuripay/v1.0/charge/chargeDealing" → "charge/chargedealing"
+ * "/api/v2/users/{id}/orders"            → "users/orders"
+ */
+export function extractResourcePath(path: string): string {
+  const segments = path
+    .toLowerCase()
+    .replace(/^https?:\/\/[^/]+/i, "")
+    .split("/")
+    .filter(Boolean)
+    .filter((s) => !RESOURCE_NOISE.test(s) && !/^\{.*\}$/.test(s) && !s.startsWith(":"));
+
+  // Take last 2 meaningful segments
+  return segments.slice(-2).join("/");
+}
+
+const RESOURCE_NOISE = /^(api|rest|v\d+|v?\d+\.\d+|internal|external|onnuripay|miraeasset)$/;
+
+/**
  * Tokenize a path into meaningful segments for fuzzy comparison.
+ * Splits on delimiters AND camelCase boundaries for better Jaccard.
  * Filters noise tokens: API prefixes, version numbers, app names.
  */
 export function tokenizePath(path: string): string[] {
   return path
     .split(/[/\-_.]/)
     .filter(Boolean)
+    .flatMap(splitCamelCase)
     .map((t) => t.toLowerCase())
-    .filter((t) => !NOISE_TOKENS.has(t) && !isVersionToken(t));
+    .filter((t) => t.length > 1 && !NOISE_TOKENS.has(t) && !isVersionToken(t));
+}
+
+/**
+ * Split a camelCase token into individual words.
+ * e.g., "chargeDealing" → ["charge", "Dealing"]
+ *        "sendGift"     → ["send", "Gift"]
+ *        "HTTPStatus"   → ["HTTP", "Status"]
+ */
+export function splitCamelCase(token: string): string[] {
+  // Insert boundary between lowercase→uppercase and between uppercase run→uppercase+lowercase
+  const parts = token.replace(/([a-z])([A-Z])/g, "$1\0$2")
+    .replace(/([A-Z]+)([A-Z][a-z])/g, "$1\0$2")
+    .split("\0")
+    .filter(Boolean);
+  return parts.length > 0 ? parts : [token];
 }
 
 /** Common noise tokens that dilute Jaccard similarity */
@@ -233,6 +295,8 @@ const NOISE_TOKENS = new Set([
   "api", "v1", "v2", "v3", "v4",
   "rest", "internal", "external",
   "param", // from :param normalization
+  "controller", "service", "impl",
+  "onnuripay", "miraeasset", // known app names
 ]);
 
 /** Detect version-like tokens: "1.0", "2.0", "10" */
