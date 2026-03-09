@@ -2,6 +2,19 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 158 — 2026-03-09
+**AIF-REQ-006 DONE — OpenAPI adapter 외부 시스템 연동 검증 완료**:
+- ✅ Production skill.json 다운로드 → OpenAPI 3.0.3 변환 검증
+- ✅ swagger-parser + Swagger 공식 validator 유효성 통과 (개선 전/후 모두)
+- ✅ OpenAPI spec 개선: servers (env 동적), examples (policy 기반), externalDocs, 리치 description
+- ✅ svc-skill 173 tests PASS (+7 신규), typecheck 17/17 PASS
+- ✅ Staging + Production 배포 완료, Production E2E 검증 (enhanced fields 확인)
+
+**검증 결과**:
+- ✅ typecheck 17/17 PASS
+- ✅ svc-skill 173 tests PASS (기존 166 + 신규 7)
+- ✅ swagger-parser validate + validator.swagger.io 0 errors
+
 ## 세션 157 — 2026-03-09
 **AIF-REQ-016 DONE — LPON FactCheck 커버리지 분석 완료**:
 - ✅ AIF-REQ-016 IN_PROGRESS → DONE

@@ -243,7 +243,7 @@
   - svc-ontology: 100 tests (100% stmts)
   - svc-security: 153 tests (97.14% stmts)
   - svc-queue-router: 43 tests (100% stmts)
-- **Test Coverage**: 1,670 tests, 12 services + utils (vitest, 96 test files) — svc-extraction 415, svc-ingestion 306, svc-skill 166, svc-security 153, svc-llm-router 134, svc-ontology 110, svc-policy 109, svc-governance 83, svc-analytics 53, svc-queue-router 43, svc-mcp-server 35, svc-notification 28, packages/utils 35
+- **Test Coverage**: 1,677 tests, 12 services + utils (vitest, 96 test files) — svc-extraction 415, svc-ingestion 306, svc-skill 173, svc-security 153, svc-llm-router 134, svc-ontology 110, svc-policy 109, svc-governance 83, svc-analytics 53, svc-queue-router 43, svc-mcp-server 35, svc-notification 28, packages/utils 35
 - **Batch Scripts**: `scripts/batch-upload.sh` (bulk upload + resume + dry-run), `scripts/batch-status.sh` (status query + CSV export + polling)
 - **Frontend**: https://ai-foundry-web.pages.dev (Cloudflare Pages) + https://ai-foundry.minu.best (커스텀 도메인)
   - 10/10 pages real API 연동 완료 (upload, analysis, hitl, audit, skill-catalog, dashboard, ontology, api-console, trust, settings)
@@ -373,7 +373,7 @@
 - [x] Sprint 2: Skill 검색 API + Marketplace UX + Detail 페이지
 - [x] Sprint 3: MCP Server Worker + Skill 버전 관리
 - [x] MCP adapter를 실제 MCP 클라이언트(Claude Desktop 등)에서 테스트 (AIF-REQ-005 DONE)
-- [ ] OpenAPI adapter 외부 시스템 연동 검증 (AIF-REQ-006 TRIAGED)
+- [x] OpenAPI adapter 외부 시스템 연동 검증 (AIF-REQ-006 DONE)
 
 ### ✅ Phase 4 — Real Document Pipeline (완료)
 - [x] Sprint 1: screen-design-parser + Batch 3 (7/11 파싱) + Queue fix + SCDSA002 탐지 + 배치 자동화
@@ -400,7 +400,7 @@
 | AIF-REQ-003 | Feature | Data | P2 | TRIAGED | 추가 문서 업로드 (764건 XLSX 중 선별) |
 | AIF-REQ-004 | Bug | Pipeline | P2 | TRIAGED | PDF 대용량 문서 파싱 Unstructured.io 524 timeout 해결 |
 | AIF-REQ-005 | Feature | Integration | P1 | DONE | MCP adapter 실제 클라이언트(Claude Desktop) E2E 테스트 |
-| AIF-REQ-006 | Feature | Integration | P2 | TRIAGED | OpenAPI adapter 외부 시스템 연동 검증 |
+| AIF-REQ-006 | Feature | Integration | P2 | DONE | OpenAPI adapter 외부 시스템 연동 검증 — servers/examples/externalDocs 추가, swagger-parser+validator 검증, staging+production 배포 (세션 157) |
 
 ### 온누리상품권 도메인 파일럿 (신규 등록)
 
@@ -421,6 +421,12 @@
 | AIF-REQ-014 | Feature | Pipeline | P0 | DONE | Phase 4 Sprint 1 실문서 파이프라인 — screen-design-parser + Batch 3 (7/11 파싱) + Queue fix + SCDSA002 탐지 + 배치 자동화 (세션 071~078) |
 | AIF-REQ-015 | Feature | Pipeline | P0 | DONE | Phase 4 Sprint 2 벌크 승인 + 파이프라인 완결 — bulk-approve 3,046건 + Tier 2+3 87건 업로드 (26,825 terms, 3,104 skills) (세션 079~085) |
 | AIF-REQ-016 | Feature | Data | P1 | DONE | LPON FactCheck 소스코드↔문서 API 커버리지 분석 — 382 source/109 doc, 115건 매칭(구조 98+LLM 17), 커버리지 30.1%, 외부API 83.7%, 문서역방향 90.4%. AST파서+미문서화 16건 명세 역공학 완료 (세션 107~156) |
+
+### 온누리상품권 산출물 검증 (신규 등록)
+
+| ID | 유형 | 도메인 | 우선순위 | 상태 | 제목 |
+|----|------|--------|:--------:|:----:|------|
+| AIF-REQ-017 | Feature | Data | P0 | IN_PROGRESS | 온누리상품권 분석 산출물 검증 및 문서화 — 역공학 분석 결과 평가·조정, 인터뷰 기반 해석 프로세스, SI 산출물 형태 문서 생성, As-Is vs To-Be 비교, 실효성 검증 |
 
 ---
 
