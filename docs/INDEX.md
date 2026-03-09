@@ -9,7 +9,7 @@
 | AIF-SPEC-001 | 퇴직연금 프로세스 정밀분석 PRD v0.1 | 1.0 | Active | `AI_Foundry_퇴직연금_프로세스_정밀분석_PRD_v0.1.md` |
 | AIF-SPEC-002 | 퇴직연금 프로세스 정밀분석 PRD v0.2 | 1.0 | Active | `AI_Foundry_퇴직연금_프로세스_정밀분석_PRD_v0.2.md` |
 
-## PLAN (9)
+## PLAN (10)
 
 | 코드 | 제목 | 버전 | 상태 | 파일 |
 |------|------|:----:|:----:|------|
@@ -22,6 +22,7 @@
 | AIF-PLAN-007 | Phase 4 Sprint 2 HITL 대량 승인 | 1.0 | Active | `01-plan/features/phase-4-sprint-2.plan.md` |
 | AIF-PLAN-008 | v0.7.4 Pivot Plan | 1.0 | Active | `01-plan/features/v074-pivot.plan.md` |
 | AIF-PLAN-009 | LPON 온누리상품권 온보딩 | 1.0 | Active | `01-plan/features/lpon-onboarding.plan.md` |
+| AIF-PLAN-017 | FactCheck API 커버리지 개선 로드맵 | 1.0 | Active | `01-plan/features/factcheck-coverage-roadmap.plan.md` |
 
 ## DSGN (6)
 
@@ -79,4 +80,4 @@
 
 ---
 
-**통계**: 활성 문서 41개 (SPEC 2 + PLAN 9 + DSGN 6 + ANLS 14 + RPRT 9 + GUID 1), 아카이브 12개
+**통계**: 활성 문서 42개 (SPEC 2 + PLAN 10 + DSGN 6 + ANLS 14 + RPRT 9 + GUID 1), 아카이브 12개

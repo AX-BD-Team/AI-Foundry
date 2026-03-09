@@ -80,12 +80,17 @@
   - 버그 수정: svc-skill queue handler INSERT에 organization_id 누락 → 수정
   - Wave 2 (Archive 127건): 미착수 (별도 세션)
 - **LPON FactCheck**: 🔧 소스코드↔문서 API 커버리지 분석 진행
-  - FactCheck 실행: resultId 10건 (반복 개선), 382 source / 109 doc items
-  - 구조적 매칭: 98건, 보정 커버리지 27.1% (노이즈 21건 auto-dismissed)
+  - FactCheck 실행: resultId 11건 (반복 개선), 382 source / 109 doc items
+  - 구조적 매칭: 98건 + LLM Match 17건 = **115건 총 매칭, 커버리지 30.1%**
+  - Source-aggregator 개선: alternativePaths(4종 대안 경로) + stripAppPrefix + 노이즈 토큰 필터
+  - LLM Semantic Match: 282건 처리 → 17건 신규 매칭 + 265건 confirmed gap + 2건 에러
   - 노이즈 필터: 테이블 7건 (dual/SQL alias/keyword) + API 14건 (test/utility/duplicate)
-  - 0-컬럼 테이블 28건 HIGH→LOW 다운그레이드 (MyBatis SELECT-only)
+  - severity 재분류: HIGH 235 / MEDIUM 11 / LOW 136 (개선된 tokenizer 효과)
   - 도메인별 분류: 회원(79), 충전(49), 선물(42), 거래(40), 메시지(38) 등 17개 도메인
-  - Gap 패턴: /gift/*, /manual/*, /chargeDealing/*, /v2/messages/* 다수 미문서화
+  - Gap 패턴: /gift/*, /manual/*, /chargeDealing/*, /v2/messages/* 다수 미문서화 (LLM confirmed)
+  - **커버리지 분석 시각화**: Recharts 기반 도메인별 갭 차트 + 커버리지 트렌드 + 문서 보완 제안서 (진행현황 탭)
+  - API 3종: `GET /factcheck/domain-summary`, `/trend`, `/document-suggestions`
+  - 개선 로드맵: AIF-PLAN-017 (매칭 고도화 → AST 분석 → 문서 보완 제안, 3단계)
 - **Multi-Org 코드 점검**: ✅ TD-02~08 해소 (7/12 이슈 해결, 잔여 5건은 LOW/기존)
   - ~~HIGH 4건~~: skills org_id 추가, HITL 통계/품질트렌드/Trust 쿼리 org 필터 추가 — **모두 해소**
   - ~~MEDIUM 3건~~: Neo4j org 격리, governance agent 하드코딩 제거 — **모두 해소**
@@ -234,7 +239,7 @@
   - svc-ontology: 100 tests (100% stmts)
   - svc-security: 153 tests (97.14% stmts)
   - svc-queue-router: 43 tests (100% stmts)
-- **Test Coverage**: 1,613 tests, 12 services + utils (vitest, 94 test files) — svc-extraction 358, svc-ingestion 306, svc-skill 166, svc-security 153, svc-llm-router 134, svc-ontology 110, svc-policy 109, svc-governance 83, svc-analytics 53, svc-queue-router 43, svc-mcp-server 35, svc-notification 28, packages/utils 35
+- **Test Coverage**: 1,628 tests, 12 services + utils (vitest, 94 test files) — svc-extraction 373, svc-ingestion 306, svc-skill 166, svc-security 153, svc-llm-router 134, svc-ontology 110, svc-policy 109, svc-governance 83, svc-analytics 53, svc-queue-router 43, svc-mcp-server 35, svc-notification 28, packages/utils 35
 - **Batch Scripts**: `scripts/batch-upload.sh` (bulk upload + resume + dry-run), `scripts/batch-status.sh` (status query + CSV export + polling)
 - **Frontend**: https://ai-foundry-web.pages.dev (Cloudflare Pages) + https://ai-foundry.minu.best (커스텀 도메인)
   - 10/10 pages real API 연동 완료 (upload, analysis, hitl, audit, skill-catalog, dashboard, ontology, api-console, trust, settings)
@@ -411,7 +416,7 @@
 |----|------|--------|:--------:|:----:|------|
 | AIF-REQ-014 | Feature | Pipeline | P0 | DONE | Phase 4 Sprint 1 실문서 파이프라인 — screen-design-parser + Batch 3 (7/11 파싱) + Queue fix + SCDSA002 탐지 + 배치 자동화 (세션 071~078) |
 | AIF-REQ-015 | Feature | Pipeline | P0 | DONE | Phase 4 Sprint 2 벌크 승인 + 파이프라인 완결 — bulk-approve 3,046건 + Tier 2+3 87건 업로드 (26,825 terms, 3,104 skills) (세션 079~085) |
-| AIF-REQ-016 | Feature | Data | P1 | IN_PROGRESS | LPON FactCheck 소스코드↔문서 API 커버리지 분석 — 1,128건 처리, 98건 매칭, 커버리지 ~8.7% (세션 107+) |
+| AIF-REQ-016 | Feature | Data | P1 | IN_PROGRESS | LPON FactCheck 소스코드↔문서 API 커버리지 분석 — 382 source/109 doc, 115건 매칭(구조 98+LLM 17), 커버리지 30.1% (세션 107~153) |
 
 ---
 

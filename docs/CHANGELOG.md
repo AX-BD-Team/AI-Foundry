@@ -2,6 +2,20 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 154 — 2026-03-09
+**FactCheck 커버리지 분석 시각화 + 개선 로드맵**:
+- ✅ Backend: `GET /factcheck/domain-summary`, `/trend`, `/document-suggestions` API 3종 (svc-extraction)
+- ✅ Frontend: `FactCheckAnalysisSection.tsx` (NEW) — Recharts 기반 도메인별 갭 차트 + 커버리지 트렌드 + 문서 보완 제안 테이블
+- ✅ `ProjectStatusTab.tsx`에 FactCheck 분석 섹션 통합
+- ✅ Recharts 3.8 도입 (`apps/app-web/package.json`)
+- ✅ `PolicyQualityChart.tsx` Recharts v3 타입 호환성 수정
+- ✅ `factcheck.ts` inline `import()` → 상단 import 리팩토링
+- ✅ AIF-PLAN-017 FactCheck 커버리지 개선 로드맵 문서 (3단계: 매칭 고도화 → AST 분석 → 문서 보완 제안)
+- ✅ docs/INDEX.md 갱신 (PLAN 9→10, 통계 41→42)
+
+**검증 결과**:
+- ✅ typecheck 17/17 PASS | lint 14/14 PASS | tests 373 PASS (svc-extraction)
+
 ## 세션 153 — 2026-03-09
 **AIF-REQ-012 3축 벤치마크 비교 보고서 페이지 (DONE)**:
 - ✅ `svc-analytics/src/routes/benchmark.ts` (NEW, 260L): GET /reports/benchmark — 2-org 병렬 D1 쿼리 + AI vs Manual 비교 계산
