@@ -12,16 +12,20 @@
 - ✅ 1,731 tests (98 files), svc-ingestion 340 tests (+34 신규)
 - 신규 파일 4개: pdf-splitter.ts, pptx-splitter.ts, pdf-splitter.test.ts, pptx-splitter.test.ts
 - AIF-REQ-017 상태: IN_PROGRESS → DONE (산출물 Export API 6종 완료, PDCA Match Rate 90.6%)
-- AIF-REQ-004 상태: TRIAGED → IN_PROGRESS → **DONE** (staging 배포 + 실문서 검증 3/3 PASS)
-- Staging 실문서 검증: PDF 2.3MB→200chunks, PPTX 5.3MB→191chunks, PPTX 5.4MB→193chunks
+- ✅ PARSE_TIMEOUT_MS 300s→60s 감소 (전체 fallback 사이클 15분→4분)
+- ✅ PPTX >10MB size guard — Worker 메모리 한계 대응 (unzipSync 스킵)
+- AIF-REQ-004 상태: TRIAGED → IN_PROGRESS → **DONE**
+- Production 실문서 검증 **8/8 전량 성공** (이전 0/8 전패):
+  - 15.9MB PPTX→200, 7.2MB→390, 5.2MB→386, 5.0MB→382 (슬라이드 분할)
+  - 2.8MB PDF→200, 2.2MB→200, 2.0MB→200 (fast fallback)
+  - 1.9MB PPTX→181 (직접 파싱 + fast fallback)
 - C-01 제약(30s timeout) 해소 확인
 
 **검증 결과**:
 - ✅ typecheck 17/17 PASS
-- ✅ svc-ingestion 340/340 tests PASS
-- ✅ svc-analytics 73/73 tests PASS (deliverables mock order fix)
+- ✅ svc-ingestion 341/341 tests PASS (신규 35)
 - ✅ lint clean
-- ✅ staging 실문서 검증 3/3 PASS (기존 524/AbortError 문서)
+- ✅ Production 실문서 8/8 PASS (기존 524/AbortError 전량)
 
 ---
 

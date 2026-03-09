@@ -243,7 +243,7 @@
   - svc-ontology: 100 tests (100% stmts)
   - svc-security: 153 tests (97.14% stmts)
   - svc-queue-router: 43 tests (100% stmts)
-- **Test Coverage**: 1,731 tests, 12 services + utils (vitest, 98 test files) — svc-extraction 415, svc-ingestion 340, svc-skill 173, svc-security 153, svc-llm-router 134, svc-ontology 110, svc-policy 109, svc-governance 83, svc-analytics 73, svc-queue-router 43, svc-mcp-server 35, svc-notification 28, packages/utils 35
+- **Test Coverage**: 1,732 tests, 12 services + utils (vitest, 98 test files) — svc-extraction 415, svc-ingestion 341, svc-skill 173, svc-security 153, svc-llm-router 134, svc-ontology 110, svc-policy 109, svc-governance 83, svc-analytics 73, svc-queue-router 43, svc-mcp-server 35, svc-notification 28, packages/utils 35
 - **Batch Scripts**: `scripts/batch-upload.sh` (bulk upload + resume + dry-run), `scripts/batch-status.sh` (status query + CSV export + polling)
 - **Frontend**: https://ai-foundry-web.pages.dev (Cloudflare Pages) + https://ai-foundry.minu.best (커스텀 도메인)
   - 10/10 pages real API 연동 완료 (upload, analysis, hitl, audit, skill-catalog, dashboard, ontology, api-console, trust, settings)
@@ -398,7 +398,7 @@
 | ~~AIF-REQ-001~~ | ~~Improvement~~ | ~~Pipeline~~ | ~~P2~~ | REJECTED | ~~SCDSA002 비표준 XLSX 파싱 조사~~ — 거부: DRM 암호화 파일 파싱 제외 |
 | AIF-REQ-002 | Improvement | Pipeline | P3 | IN_PROGRESS | Anthropic vs OpenAI extraction 품질 비교 (크레딧 충전 후) |
 | AIF-REQ-003 | Feature | Data | P2 | TRIAGED | 추가 문서 업로드 (764건 XLSX 중 선별) |
-| AIF-REQ-004 | Bug | Pipeline | P2 | DONE | PDF/PPTX 대용량 문서 524 timeout 해결 — pdf-lib 페이지 분할 + fflate 슬라이드 분할 + auto→fast 전략 fallback + PARSE_TIMEOUT 60s + 적응형 재분할. Production 실문서 6/8 성공 (15.9MB PPTX→200, 7.2MB→390, 5.2MB→386, 5.0MB→382, 2.8MB PDF→200) (세션 160) |
+| AIF-REQ-004 | Bug | Pipeline | P2 | DONE | PDF/PPTX 대용량 문서 524 timeout 해결 — pdf-lib 페이지 분할 + fflate 슬라이드 분할 + auto→fast 전략 fallback + PARSE_TIMEOUT 60s + PPTX >10MB size guard. Production 실문서 **8/8 전량 성공** (15.9MB PPTX→200, 7.2MB→390, 5.2MB→386, 5.0MB→382, 2.8MB PDF→200, 2.2MB→200, 2.0MB→200, 1.9MB PPTX→181) (세션 160) |
 | AIF-REQ-005 | Feature | Integration | P1 | DONE | MCP adapter 실제 클라이언트(Claude Desktop) E2E 테스트 |
 | AIF-REQ-006 | Feature | Integration | P2 | DONE | OpenAPI adapter 외부 시스템 연동 검증 — servers/examples/externalDocs 추가, swagger-parser+validator 검증, staging+production 배포 (세션 157) |
 
