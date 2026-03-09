@@ -35,7 +35,7 @@
 | AIF-DSGN-005 | v0.7.4 Phase 2-B Fact Check Engine | 1.0 | Active | `02-design/features/v074-pivot-phase2b.design.md` |
 | AIF-DSGN-006 | v0.7.4 Phase 2-C Spec Export & KPI | 1.0 | Active | `02-design/features/v074-pivot-phase2c.design.md` |
 
-## ANLS (15)
+## ANLS (17)
 
 | 코드 | 제목 | 버전 | 상태 | 파일 |
 |------|------|:----:|:----:|------|
@@ -54,6 +54,8 @@
 | AIF-ANLS-013 | v0.7.4 Phase 2-E Full Gap Analysis | 1.0 | Active | `03-analysis/v074-pivot-phase2e-full.analysis.md` |
 | AIF-ANLS-014 | v0.7.4 PRD vs Implementation Gap Analysis v2.0 | 1.0 | Active | `03-analysis/v074-pivot-prd-impl-gap.analysis.md` |
 | AIF-ANLS-018 | LPON 미문서화 외부 API 보완 제안서 | 1.0 | Active | `03-analysis/AIF-ANLS-018_undocumented-api-remediation.md` |
+| AIF-ANLS-018-P1 | LPON P1 API 인터페이스 명세 (역공학) | 1.0 | Active | `03-analysis/AIF-ANLS-018_interface-spec-p1.md` |
+| AIF-ANLS-018-P2 | LPON P2/P3 API 인터페이스 명세 (역공학) | 1.0 | Active | `03-analysis/AIF-ANLS-018_interface-spec-p2.md` |
 
 ## RPRT (9)
 
@@ -81,4 +83,4 @@
 
 ---
 
-**통계**: 활성 문서 43개 (SPEC 2 + PLAN 10 + DSGN 6 + ANLS 15 + RPRT 9 + GUID 1), 아카이브 12개
+**통계**: 활성 문서 45개 (SPEC 2 + PLAN 10 + DSGN 6 + ANLS 17 + RPRT 9 + GUID 1), 아카이브 12개
