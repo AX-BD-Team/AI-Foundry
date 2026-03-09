@@ -79,11 +79,11 @@
   - Stage 5 (Skill): 859건 생성 → 515건 published (KV 3환경, MCP E2E 7/7 PASS)
   - 버그 수정: svc-skill queue handler INSERT에 organization_id 누락 → 수정
   - Wave 2 (Archive 127건): 미착수 (별도 세션)
-- **LPON FactCheck**: 🔧 소스코드↔문서 API 커버리지 분석 진행
-  - FactCheck 실행: resultId 11건 (반복 개선), 382 source / 109 doc items
-  - 구조적 매칭: 98건 + LLM Match 17건 = **115건 총 매칭, 커버리지 30.1%**
+- **LPON FactCheck**: ✅ 소스코드↔문서 API 커버리지 분석 완료
+  - FactCheck 실행: resultId 12건 (반복 개선), 382 source / 109 doc items
+  - 구조적 매칭: 98건 + LLM Match 21건 = **119건 총 매칭, 커버리지 31.2%**
   - Source-aggregator 개선: alternativePaths(4종 대안 경로) + stripAppPrefix + 노이즈 토큰 필터
-  - LLM Semantic Match: 282건 처리 → 17건 신규 매칭 + 265건 confirmed gap + 2건 에러
+  - LLM Semantic Match: 281건 처리 → 21건 신규 매칭 + 257건 confirmed gap + 3건 에러 (2차 실행: noise 개선 효과로 17→21건)
   - 노이즈 필터: 테이블 7건 (dual/SQL alias/keyword) + API 14건 (test/utility/duplicate)
   - severity 재분류: HIGH 235 / MEDIUM 11 / LOW 136 (개선된 tokenizer 효과)
   - 도메인별 분류: 회원(79), 충전(49), 선물(42), 거래(40), 메시지(38) 등 17개 도메인
