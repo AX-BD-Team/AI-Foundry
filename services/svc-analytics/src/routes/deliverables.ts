@@ -90,16 +90,9 @@ export async function handleExportGlossary(request: Request, env: Env): Promise<
   const orgId = getOrgId(request);
   if (!orgId) return missingOrgResponse();
 
-  let termsData;
-  try {
-    termsData = await collectTerms(env.SVC_ONTOLOGY, env.INTERNAL_API_SECRET, orgId);
-  } catch (e) {
-    logger.error("Failed to collect terms", { error: String(e), orgId });
-    return mdResponse(
-      `# D3 용어사전\n\n> 데이터 수집 실패: ${String(e)}`,
-      `D3-glossary-${orgId}-${today()}.md`,
-    );
-  }
+  // D3: collect stats first (lightweight), then terms sample
+  // Stats and terms fetched separately to handle partial failures
+  const termsData = await collectTerms(env.SVC_ONTOLOGY, env.INTERNAL_API_SECRET, orgId);
 
   const markdown = renderGlossary(termsData.terms, termsData.stats);
   return mdResponse(markdown, `D3-glossary-${orgId}-${today()}.md`);

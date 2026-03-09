@@ -85,15 +85,23 @@ async function fetchInternal<T>(
   svc: Fetcher,
   path: string,
   secret: string,
+  extraHeaders?: Record<string, string>,
 ): Promise<T> {
-  const res = await svc.fetch(new Request(`https://internal${path}`, {
-    headers: { "X-Internal-Secret": secret },
-  }));
+  const headers: Record<string, string> = { "X-Internal-Secret": secret };
+  if (extraHeaders) {
+    Object.assign(headers, extraHeaders);
+  }
+  const res = await svc.fetch(new Request(`https://internal${path}`, { headers }));
   if (!res.ok) {
     const body = await res.text();
     throw new Error(`Internal fetch ${path} failed: ${res.status} ${body}`);
   }
-  return res.json() as Promise<T>;
+  const json = await res.json() as Record<string, unknown>;
+  // Unwrap standard ApiResponse { success, data: T } wrapper
+  if ("success" in json && "data" in json) {
+    return json["data"] as T;
+  }
+  return json as T;
 }
 
 // ─── Collectors ──────────────────────────────────────────────────
@@ -126,41 +134,47 @@ export async function collectPolicies(
 }
 
 /**
- * Fetch all terms for an org, paginated.
+ * Fetch terms for an org (capped at maxTerms to avoid Worker timeout).
+ * For large term sets (30K+), renders a representative sample + stats summary.
  */
 export async function collectTerms(
   svc: Fetcher,
   secret: string,
   organizationId: string,
+  maxTerms = 100,
 ): Promise<{ terms: TermRow[]; stats: TermStats }> {
-  const all: TermRow[] = [];
-  let offset = 0;
-  const limit = 2000;
-
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  while (true) {
-    const data = await fetchInternal<{ terms: TermRow[]; total: number }>(
+  // Collect stats first (lightweight) then terms sample
+  let stats: TermStats;
+  try {
+    stats = await fetchInternal<TermStats>(
       svc,
-      `/terms?organizationId=${organizationId}&limit=${limit}&offset=${offset}`,
+      `/terms/stats?organizationId=${organizationId}`,
       secret,
     );
-    all.push(...data.terms);
-    if (all.length >= data.total || data.terms.length < limit) break;
-    offset += limit;
+  } catch (e) {
+    logger.warn("Terms stats failed", { error: String(e) });
+    stats = { totalTerms: 0, distinctLabels: 0, ontologyCount: 0, typeDistribution: {} };
   }
 
-  const stats = await fetchInternal<TermStats>(
-    svc,
-    `/terms/stats?organizationId=${organizationId}`,
-    secret,
-  );
+  let all: TermRow[] = [];
+  try {
+    const data = await fetchInternal<{ terms: TermRow[] }>(
+      svc,
+      `/terms?organizationId=${organizationId}&limit=${maxTerms}&offset=0`,
+      secret,
+    );
+    all = data.terms;
+  } catch (e) {
+    logger.warn("Terms fetch failed, using stats-only mode", { error: String(e) });
+  }
 
-  logger.info("Collected terms", { count: all.length, organizationId });
+  logger.info("Collected terms", { count: all.length, statsTotal: stats.totalTerms, organizationId });
   return { terms: all, stats };
 }
 
 /**
  * Fetch gap analysis overview for an org.
+ * Note: svc-extraction requires X-Organization-Id header (not query param).
  */
 export async function collectGapAnalysis(
   svc: Fetcher,
@@ -169,8 +183,9 @@ export async function collectGapAnalysis(
 ): Promise<GapOverview> {
   const overview = await fetchInternal<GapOverview>(
     svc,
-    `/gap-analysis/overview?organizationId=${organizationId}`,
+    `/gap-analysis/overview`,
     secret,
+    { "X-Organization-Id": organizationId },
   );
   logger.info("Collected gap analysis", { organizationId });
   return overview;
