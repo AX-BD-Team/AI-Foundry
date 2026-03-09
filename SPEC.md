@@ -420,7 +420,7 @@
 |----|------|--------|:--------:|:----:|------|
 | AIF-REQ-014 | Feature | Pipeline | P0 | DONE | Phase 4 Sprint 1 실문서 파이프라인 — screen-design-parser + Batch 3 (7/11 파싱) + Queue fix + SCDSA002 탐지 + 배치 자동화 (세션 071~078) |
 | AIF-REQ-015 | Feature | Pipeline | P0 | DONE | Phase 4 Sprint 2 벌크 승인 + 파이프라인 완결 — bulk-approve 3,046건 + Tier 2+3 87건 업로드 (26,825 terms, 3,104 skills) (세션 079~085) |
-| AIF-REQ-016 | Feature | Data | P1 | IN_PROGRESS | LPON FactCheck 소스코드↔문서 API 커버리지 분석 — 382 source/109 doc, 115건 매칭(구조 98+LLM 17), 커버리지 30.1% (세션 107~153) |
+| AIF-REQ-016 | Feature | Data | P1 | DONE | LPON FactCheck 소스코드↔문서 API 커버리지 분석 — 382 source/109 doc, 115건 매칭(구조 98+LLM 17), 커버리지 30.1%, 외부API 83.7%, 문서역방향 90.4%. AST파서+미문서화 16건 명세 역공학 완료 (세션 107~156) |
 
 ---
 

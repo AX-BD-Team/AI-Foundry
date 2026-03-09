@@ -2,6 +2,12 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 157 — 2026-03-09
+**AIF-REQ-016 DONE — LPON FactCheck 커버리지 분석 완료**:
+- ✅ AIF-REQ-016 IN_PROGRESS → DONE
+- 최종 성과: 전체 30.1%, 외부API 83.7%, 문서역방향 90.4%, Table 100%
+- 산출물: AIF-ANLS-018 보완 제안서 + P1/P2 인터페이스 명세(942줄) + AST 파서
+
 ## 세션 156 — 2026-03-09
 
 **AIF-PLAN-017 Stage 1-2 + Stage 2 구현 (FactCheck 매칭 고도화 + AST 파서)**:
