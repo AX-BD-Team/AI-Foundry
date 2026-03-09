@@ -60,49 +60,56 @@ feature: factcheck-coverage-improvement
 
 ## 3단계 로드맵
 
-### Stage 1: 매칭 알고리즘 고도화 (1~2 세션)
+### ✅ Stage 1: 매칭 알고리즘 고도화 (완료 — 세션 155~156)
 
 **목표**: 기존 데이터로 매칭률 27% → 40%+ 달성
 
-#### 1-1. source-aggregator class+method path 결합
+#### ✅ 1-1. source-aggregator class+method path 결합 (세션 155)
 - **현재**: API path만으로 매칭 (`/gift/sendGift`)
 - **개선**: `Controller.method` 정보를 결합 (`GiftController.sendGift → /gift/sendGift`)
 - **효과**: doc spec의 interfaceId/description과 fuzzy 매칭 가능성 증가
-- **구현**: `source-aggregator.ts`에서 `alternativePaths` 배열 확장
+- **구현**: `source-aggregator.ts`에서 `alternativePaths` 배열 확장 (4종 대안 경로)
 
-#### 1-2. URL 정규화 강화
-- **현재**: `normalizeName()` 기본 정규화
-- **개선**:
-  - prefix 제거 (`/api/v1/` → `/v1/`)
-  - RESTful resource 추출 (`/gift/{id}/send` → `gift.send`)
-  - HTTP method 고려한 의미 매칭
-- **구현**: `matcher.ts`의 `normalizeName()` 확장
+#### ✅ 1-2. URL 정규화 강화 (세션 156)
+- `splitCamelCase()`: `chargeDealing` → `[charge, Dealing]` 토큰 분리 → Jaccard 유사도 대폭 개선
+- `extractResourcePath()`: 경로의 마지막 2개 의미 세그먼트 추출, Step 1.5 매칭 (score 0.85)
+- 확장 noise 토큰: `onnuripay`, `miraeasset`, `controller`, `service`, `impl` 추가
+- 단일 문자 토큰 필터링 (`t.length > 1`)
+- **효과**: 기존 `joinMember` ↔ `joinUser` 같은 미매칭 케이스가 fuzzy match로 잡힘 (Jaccard 0.67)
 
-#### 1-3. LLM Semantic Matching 확대
-- **현재**: `llm-matcher.ts` 구현 완료, 배치 실행 가능
-- **개선**: 미매칭 항목 전량에 대해 LLM 배치 실행 (10건씩)
-- **비용**: ~1,000건 × 0.003$/건 ≈ $3 (Haiku 기준)
-- **구현**: 기존 `POST /factcheck/results/:id/llm-match` 반복 호출
+#### ✅ 1-3. LLM Semantic Matching 확대 (세션 155)
+- 282건 처리 → 17건 신규 매칭 + 265건 confirmed gap + 2건 에러
+- **비용**: Haiku 기준 ~$0.85
 
-### Stage 2: 소스코드 AST 분석 (1~2 세션)
+### ✅ Stage 2: 소스코드 AST 분석 (완료 — 세션 156)
 
 **목표**: Java/Spring 소스 직접 분석으로 API 메타데이터 정확도 향상
 
-#### 2-1. Spring Annotation 파서
-- **대상**: `@RequestMapping`, `@GetMapping`, `@PostMapping`, `@PutMapping`, `@DeleteMapping`
-- **추출**: path, HTTP method, 파라미터 타입, 리턴 타입
-- **구현**: 새 모듈 `factcheck/ast-parser.ts` (정규식 기반, 트리시터 불필요)
-- **입력**: R2에 저장된 Java 소스 파일 (LPON 소스코드 문서)
+#### ✅ 2-1. Spring Annotation 파서 (세션 156)
+- **모듈**: `factcheck/ast-parser.ts` (296줄, 정규식 기반)
+- **지원 어노테이션**: `@GetMapping`, `@PostMapping`, `@PutMapping`, `@DeleteMapping`, `@PatchMapping`, `@RequestMapping`
+- **추출 항목**: path, HTTP method(들), 파라미터(타입/이름/required/@annotation), 리턴 타입, 라인 번호
+- **Swagger 지원**: `@Api(tags)` → swaggerTag, `@ApiOperation(value)` → swaggerSummary
+- **중첩 괄호 처리**: `@RequestParam(required=false)` 등 annotation 내 괄호 안전 처리
+- **테스트**: 27 tests 전부 통과
 
-#### 2-2. MyBatis XML 파서 고도화
+#### ✅ 2-3. Service Layer 분석 (세션 156)
+- `parseServiceClass()`: `@Service` 클래스에서 `@Transactional` 메서드 추출
+- `extractMapperCalls()`: Controller→Service→Mapper 호출 체인 추출 (regex: `xxxMapper.method()`)
+- **추출 항목**: className, methodName, parameters, isTransactional, calledMappers
+
+#### ✅ AST-Priority 통합 (세션 156)
+- `source-aggregator.ts`에 AST 우선 모드 통합
+- R2에서 원본 Java 소스 다운로드 → AST 파서로 직접 파싱 → LLM 결과는 보충
+- `tryAstParse()`: R2 원본 → `parseSpringController()` → SourceApi[] 변환 + 중복 제거
+- `fetchDocumentContent()`: svc-ingestion `/documents/:id/download` 경유 R2 접근
+- `processNonControllerChunk()`: CodeDataModel/CodeMapper/CodeDdl/CodeTransaction은 LLM 결과 유지
+
+#### 2-2. MyBatis XML 파서 고도화 (미착수)
 - **현재**: 기본 SQL 추출
 - **개선**: `<resultMap>` → VO 클래스 매핑, `<sql>` 프래그먼트 인라인 처리
 - **효과**: 테이블↔API 간 간접 매핑 강화
-
-#### 2-3. Service Layer 분석
-- **대상**: `@Service`, `@Transactional` 어노테이션
-- **추출**: Controller→Service→Mapper 호출 체인
-- **효과**: API 엔드포인트의 실제 데이터 접근 경로 파악 → 문서 커버리지 정밀 분석
+- **참고**: 기존 LLM 추출 결과가 이미 MyBatis 처리 중이므로 우선순위 낮음
 
 ### Stage 3: 문서 보완 자동 제안 (1 세션)
 

@@ -2,6 +2,25 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 156 — 2026-03-09
+
+**AIF-PLAN-017 Stage 1-2 + Stage 2 구현 (FactCheck 매칭 고도화 + AST 파서)**:
+- ✅ Stage 1-2: `splitCamelCase()` camelCase 토큰 분리 → Jaccard 유사도 대폭 개선
+- ✅ Stage 1-2: `extractResourcePath()` Step 1.5 매칭 (마지막 2 세그먼트, score 0.85)
+- ✅ Stage 1-2: 확장 noise 토큰 (onnuripay, miraeasset, controller, service, impl)
+- ✅ Stage 2-1: `ast-parser.ts` regex 기반 Spring Annotation 파서 신규 (296줄)
+  - @GetMapping/@PostMapping/@PutMapping/@DeleteMapping/@PatchMapping/@RequestMapping 지원
+  - 파라미터 추출 (@RequestParam, @PathVariable, @RequestBody + required 속성)
+  - Swagger @Api/@ApiOperation 지원, 중첩 괄호 안전 처리
+- ✅ Stage 2-3: `parseServiceClass()` — @Service/@Transactional 메서드 + Mapper 호출 체인 추출
+- ✅ AST-Priority 통합: source-aggregator에서 R2 원본→AST 파서→LLM 보충 모드
+- ✅ AIF-PLAN-017 문서 갱신 (Stage 1, 2 완료 표시)
+
+**검증 결과**:
+- ✅ typecheck 17/17 PASS
+- ✅ svc-extraction 415 tests PASS (기존 373 + 신규 42)
+- ✅ matcher.test.ts 64 tests, ast-parser.test.ts 27 tests
+
 ## 세션 155 — 2026-03-09
 **AIF-REQ-016 LLM Match + 내부/외부 API 분리 커버리지 산출**:
 - ✅ Source-aggregator 개선: `buildAlternativePaths()` (4종 대안 경로) + `stripAppPrefix()` + 노이즈 토큰 필터
