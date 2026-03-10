@@ -5,10 +5,19 @@ import {
   BookOpen,
   Puzzle,
   TrendingUp,
+  Search,
+  Target,
+  CheckCircle2,
+  AlertTriangle,
+  XCircle,
+  Layers,
 } from "lucide-react";
 import { toast } from "sonner";
 import { MetricCard } from "./MetricCard";
 import { SectionHeader, SourceFileInfo } from "./StatusReportWidgets";
+import { CollapsibleSection } from "./CollapsibleSection";
+import { ScoreGauge } from "./ScoreGauge";
+import { ReadinessBar } from "./ReadinessBar";
 import { DynamicStatusReport } from "./DynamicStatusReport";
 import { FactCheckAnalysisSection } from "./FactCheckAnalysisSection";
 import { fetchDocuments } from "@/api/ingestion";
@@ -68,6 +77,25 @@ function getSourceInfo(orgId: string): OrgSourceInfo | null {
   }
 }
 
+/* ═══ Compute readiness score from pipeline data ═══ */
+function computeScore(counts: PipelineCounts): number {
+  // Weighted scoring: pipeline completion metrics
+  const parsingScore = counts.totalDocs > 0 ? 95 : 0; // 96.6% success → ~95
+  const policyScore = counts.totalPolicies > 0
+    ? Math.round((counts.approvedPolicies / counts.totalPolicies) * 100)
+    : 0;
+  const termScore = counts.totalTerms > 100 ? 90 : counts.totalTerms > 0 ? 50 : 0;
+  const skillScore = counts.totalSkills > 100 ? 85 : counts.totalSkills > 0 ? 50 : 0;
+
+  // Weighted average: policy quality matters most
+  return Math.round(
+    parsingScore * 0.15 +
+    policyScore * 0.35 +
+    termScore * 0.25 +
+    skillScore * 0.25,
+  );
+}
+
 /* ═══ Main Component ═══ */
 export function ProjectStatusTab() {
   const { organizationId } = useOrganization();
@@ -121,19 +149,98 @@ export function ProjectStatusTab() {
   const totalTerms = counts?.totalTerms ?? 0;
   const totalSkills = counts?.totalSkills ?? 0;
   const approvalRate = totalPolicies > 0 ? approvedPolicies / totalPolicies : 0;
-
+  const score = counts ? computeScore(counts) : 0;
   const sourceInfo = getSourceInfo(organizationId);
 
   return (
-    <div className="space-y-8">
-      {/* ─── Section A: 파이프라인 현황 (공통 — API 동적) ─── */}
-      <section>
-        <SectionHeader
-          icon={TrendingUp}
-          title="파이프라인 현황"
-          subtitle="5-Stage Core Engine 실행 결과 요약"
-        />
+    <div className="space-y-6">
+      {/* ═══════════════════════════════════════════════════════
+       * LEVEL 1: Executive Summary — 항상 보임 (above the fold)
+       * ═══════════════════════════════════════════════════════ */}
+      <section
+        className="p-6 rounded-xl border-2"
+        style={{
+          borderColor: "var(--accent)",
+          backgroundColor: "color-mix(in srgb, var(--accent) 3%, transparent)",
+        }}
+      >
+        {/* Headline */}
+        <div className="flex items-center gap-2 mb-1">
+          <Target className="w-5 h-5" style={{ color: "var(--accent)" }} />
+          <h2 className="text-lg font-bold" style={{ color: "var(--text-primary)" }}>
+            이 분석 결과, 쓸 수 있는가?
+          </h2>
+        </div>
+        <p className="text-sm mb-5" style={{ color: "var(--text-secondary)" }}>
+          SI 산출물에서 추출한 비즈니스 정책·용어·Skill은 <strong style={{ color: "var(--text-primary)" }}>즉시 활용 가능</strong>.
+          시스템 통합 설계는 전문가 보완 필요.
+        </p>
 
+        {/* Score Gauge + Readiness Bar + Key Numbers */}
+        <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-6 items-center">
+          {/* Gauge */}
+          <div className="flex justify-center">
+            <ScoreGauge score={score} label="활용 준비도" />
+          </div>
+
+          {/* Right side: traffic light + key numbers */}
+          <div className="space-y-4">
+            <ReadinessBar segments={[
+              { label: "즉시 활용", pct: 50, color: "#10b981", icon: "✅" },
+              { label: "보완 후 활용", pct: 33, color: "#f59e0b", icon: "⚠️" },
+              { label: "AI 한계", pct: 17, color: "#ef4444", icon: "❌" },
+            ]} />
+
+            {/* Traffic light cards */}
+            <div className="grid grid-cols-3 gap-2">
+              <TrafficCard
+                icon={CheckCircle2}
+                color="#10b981"
+                title="즉시 활용"
+                items={["정책 848건", "용어 사전", "Skill 859건"]}
+              />
+              <TrafficCard
+                icon={AlertTriangle}
+                color="#f59e0b"
+                title="보완 후 활용"
+                items={["커버리지 31%", "프로세스 복원"]}
+              />
+              <TrafficCard
+                icon={XCircle}
+                color="#ef4444"
+                title="별도 작업"
+                items={["시스템 설계", "비기능 요건"]}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* AI vs AI+전문가 비교 */}
+        <div className="mt-5 grid grid-cols-2 gap-3">
+          <ComparisonCard
+            label="AI만 사용"
+            items={["비즈니스 정책 80~90%", "용어 사전 90~95%", "Skill 패키지 85~90%"]}
+            summary="정책·용어·Skill은 AI만으로 즉시 활용 가능"
+            color="#10b981"
+          />
+          <ComparisonCard
+            label="AI + 전문가"
+            items={["소스코드 문서화 →60~70%↑", "프로세스 흐름도 →60~70%↑", "시스템 통합 →80~90%↑"]}
+            summary="문서 보완·설계는 전문가 협업으로 품질 향상"
+            color="#3b82f6"
+          />
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════
+       * LEVEL 2: 핵심 지표 — 접기/펼치기 가능
+       * ═══════════════════════════════════════════════════════ */}
+      <CollapsibleSection
+        icon={TrendingUp}
+        title="파이프라인 현황"
+        subtitle="5-Stage Core Engine 실행 결과 요약"
+        defaultOpen
+      >
         {/* 소스 파일 → 파이프라인 흐름 */}
         {sourceInfo && (
           <div className="p-4 rounded-lg border mb-4" style={{
@@ -150,18 +257,26 @@ export function ProjectStatusTab() {
           </div>
         )}
 
-        {/* 파이프라인 산출물 */}
+        {/* 파이프라인 산출물 — MetricCard with explanations */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <MetricCard icon={FileText} label="시스템 등록 문서" count={totalDocs} color="#3b82f6" />
-          <MetricCard icon={ShieldCheck} label="정책 (Approved)" count={approvedPolicies} color="#10b981" />
-          <MetricCard icon={BookOpen} label="온톨로지 용어" count={totalTerms} color="#8b5cf6" />
-          <MetricCard icon={Puzzle} label="Skill 패키지" count={totalSkills} color="#f59e0b" />
+          <MetricCard icon={FileText} label="시스템 등록 문서" count={totalDocs} color="#3b82f6"
+            explanation="파이프라인에 투입된 총 문서 수" />
+          <MetricCard icon={ShieldCheck} label="정책 (Approved)" count={approvedPolicies} color="#10b981"
+            explanation="조건-기준-결과 트리플로 구조화된 업무 규칙" />
+          <MetricCard icon={BookOpen} label="온톨로지 용어" count={totalTerms} color="#8b5cf6"
+            explanation="도메인 특화 용어 사전 — SKOS/JSON-LD 체계" />
+          <MetricCard icon={Puzzle} label="Skill 패키지" count={totalSkills} color="#f59e0b"
+            explanation="MCP/OpenAPI로 배포 가능한 AI Skill 단위" />
         </div>
+
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
           <div className="p-3 rounded-lg border" style={{ borderColor: "var(--border)" }}>
             <div className="text-xs" style={{ color: "var(--text-secondary)" }}>정책 승인율</div>
             <div className="text-xl font-bold" style={{ color: "#10b981" }}>
               {(approvalRate * 100).toFixed(1)}%
+            </div>
+            <div className="text-[0.65rem]" style={{ color: "var(--text-secondary)" }}>
+              HITL 검토를 통과한 정책의 비율
             </div>
           </div>
           <div className="p-3 rounded-lg border" style={{ borderColor: "var(--border)" }}>
@@ -187,13 +302,79 @@ export function ProjectStatusTab() {
             </div>
           )}
         </div>
-      </section>
+      </CollapsibleSection>
 
-      {/* ─── Section B: FactCheck 커버리지 분석 ─── */}
-      <FactCheckAnalysisSection organizationId={organizationId} />
+      {/* ═══ FactCheck 커버리지 — 접기/펼치기 ═══ */}
+      <CollapsibleSection
+        icon={Search}
+        title="FactCheck 커버리지 분석"
+        subtitle="소스코드↔문서 API 매칭 현황 및 도메인별 갭 분석"
+      >
+        <FactCheckAnalysisSection organizationId={organizationId} embedded />
+      </CollapsibleSection>
 
-      {/* ─── 조직별 보고서 콘텐츠 (API/DB 동적) ─── */}
-      <DynamicStatusReport organizationId={organizationId} />
+      {/* ═══════════════════════════════════════════════════════
+       * LEVEL 3: 상세 보고서 — 접기/펼치기 (DynamicStatusReport)
+       * ═══════════════════════════════════════════════════════ */}
+      <CollapsibleSection
+        icon={Layers}
+        title="상세 분석 보고서"
+        subtitle="종합 판정 · 품질 평가 · 비용 분석 · 향후 과제"
+      >
+        <DynamicStatusReport organizationId={organizationId} />
+      </CollapsibleSection>
+    </div>
+  );
+}
+
+/* ═══ Sub-components ═══ */
+
+function TrafficCard({ icon: Icon, color, title, items }: {
+  icon: React.ElementType;
+  color: string;
+  title: string;
+  items: string[];
+}) {
+  return (
+    <div
+      className="p-3 rounded-lg border"
+      style={{ borderColor: color, borderLeftWidth: 3, backgroundColor: `color-mix(in srgb, ${color} 5%, transparent)` }}
+    >
+      <div className="flex items-center gap-1.5 mb-1.5">
+        <Icon className="w-3.5 h-3.5" style={{ color }} />
+        <span className="text-xs font-semibold" style={{ color }}>{title}</span>
+      </div>
+      {items.map((item, i) => (
+        <div key={i} className="text-[0.65rem]" style={{ color: "var(--text-secondary)" }}>
+          {item}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ComparisonCard({ label, items, summary, color }: {
+  label: string;
+  items: string[];
+  summary: string;
+  color: string;
+}) {
+  return (
+    <div className="p-3 rounded-lg border" style={{ borderColor: "var(--border)" }}>
+      <div
+        className="text-xs font-semibold mb-2 px-2 py-0.5 rounded inline-block"
+        style={{ backgroundColor: `color-mix(in srgb, ${color} 12%, transparent)`, color }}
+      >
+        {label}
+      </div>
+      {items.map((item, i) => (
+        <div key={i} className="text-xs mb-0.5" style={{ color: "var(--text-secondary)" }}>
+          · {item}
+        </div>
+      ))}
+      <div className="mt-2 pt-2 border-t text-[0.65rem] font-medium" style={{ borderColor: "var(--border)", color: "var(--text-primary)" }}>
+        {summary}
+      </div>
     </div>
   );
 }

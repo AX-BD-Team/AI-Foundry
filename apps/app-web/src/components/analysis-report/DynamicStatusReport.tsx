@@ -23,6 +23,7 @@ import {
   TrendingUp,
   Download,
   History,
+  ChevronDown,
   type LucideIcon,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -149,17 +150,48 @@ function renderTaskList(content: Record<string, unknown>) {
     status: string;
   }> | undefined;
   if (!tasks) return null;
+
+  const activeTasks = tasks.filter((t) => !t.title.startsWith("✅"));
+  const completedTasks = tasks.filter((t) => t.title.startsWith("✅"));
+
+  return <TaskListWithFold activeTasks={activeTasks} completedTasks={completedTasks} />;
+}
+
+function TaskListWithFold({ activeTasks, completedTasks }: {
+  activeTasks: Array<{ priority: "high" | "medium" | "low"; title: string; description: string; status: string }>;
+  completedTasks: Array<{ priority: "high" | "medium" | "low"; title: string; description: string; status: string }>;
+}) {
+  const [showCompleted, setShowCompleted] = useState(false);
+
   return (
     <div className="space-y-3">
-      {tasks.map((t, i) => (
-        <TaskCard
-          key={i}
-          priority={t.priority}
-          title={t.title}
-          description={t.description}
-          status={t.status}
-        />
+      {activeTasks.map((t, i) => (
+        <TaskCard key={i} priority={t.priority} title={t.title} description={t.description} status={t.status} />
       ))}
+      {completedTasks.length > 0 && (
+        <div>
+          <button
+            type="button"
+            className="flex items-center gap-2 text-xs px-3 py-1.5 rounded-md border transition-colors w-full justify-center"
+            style={{ borderColor: "var(--border)", color: "var(--text-secondary)" }}
+            onClick={() => setShowCompleted((v) => !v)}
+          >
+            <CheckCircle2 className="w-3.5 h-3.5" style={{ color: "#10b981" }} />
+            {showCompleted ? "완료 항목 접기" : `완료된 항목 ${completedTasks.length}건 보기`}
+            <ChevronDown
+              className="w-3.5 h-3.5 transition-transform duration-200"
+              style={{ transform: showCompleted ? "rotate(180deg)" : "rotate(0deg)" }}
+            />
+          </button>
+          {showCompleted && (
+            <div className="space-y-3 mt-3 opacity-75">
+              {completedTasks.map((t, i) => (
+                <TaskCard key={i} priority={t.priority} title={t.title} description={t.description} status={t.status} />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

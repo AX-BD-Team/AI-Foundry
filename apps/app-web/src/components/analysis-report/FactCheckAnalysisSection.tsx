@@ -20,10 +20,11 @@ import {
 /* ═══ Props ═══ */
 interface Props {
   organizationId: string;
+  embedded?: boolean; // true = skip section wrapper + SectionHeader (used inside CollapsibleSection)
 }
 
 /* ═══ Main Component ═══ */
-export function FactCheckAnalysisSection({ organizationId }: Props) {
+export function FactCheckAnalysisSection({ organizationId, embedded = false }: Props) {
   const [domains, setDomains] = useState<DomainGapSummary[]>([]);
   const [trend, setTrend] = useState<TrendPoint[]>([]);
   const [suggestions, setSuggestions] = useState<DocumentSuggestion[]>([]);
@@ -88,18 +89,24 @@ export function FactCheckAnalysisSection({ organizationId }: Props) {
 
   return (
     <section className="space-y-6">
-      <SectionHeader
-        icon={Search}
-        title="FactCheck 커버리지 분석"
-        subtitle="소스코드↔문서 API 매칭 현황 및 도메인별 갭 분석"
-      />
+      {!embedded && (
+        <SectionHeader
+          icon={Search}
+          title="FactCheck 커버리지 분석"
+          subtitle="소스코드↔문서 API 매칭 현황 및 도메인별 갭 분석"
+        />
+      )}
 
       {/* ─── KPI Summary Bar ─── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <KpiBox label="보정 커버리지" value={`${coveragePct}%`} color="#3b82f6" />
-        <KpiBox label="매칭 성공" value={`${matchedItems}건`} color="#10b981" />
-        <KpiBox label="소스 항목" value={`${totalSourceItems.toLocaleString()}건`} color="#8b5cf6" />
-        <KpiBox label="미매칭 갭" value={`${(totalSourceItems - matchedItems).toLocaleString()}건`} color="#ef4444" />
+        <KpiBox label="보정 커버리지" value={`${coveragePct}%`} color="#3b82f6"
+          explanation="노이즈 필터링 후 실질 API 매칭 비율" />
+        <KpiBox label="매칭 성공" value={`${matchedItems}건`} color="#10b981"
+          explanation="소스코드 API와 문서가 일치하는 항목" />
+        <KpiBox label="소스 항목" value={`${totalSourceItems.toLocaleString()}건`} color="#8b5cf6"
+          explanation="Spring Controller에서 추출한 API 엔드포인트" />
+        <KpiBox label="미매칭 갭" value={`${(totalSourceItems - matchedItems).toLocaleString()}건`} color="#ef4444"
+          explanation="문서에 기술되지 않은 API — 문서 보완 필요" />
       </div>
 
       {/* ─── 1. Domain Coverage Chart ─── */}
@@ -250,11 +257,14 @@ export function FactCheckAnalysisSection({ organizationId }: Props) {
 
 /* ═══ Sub-Components ═══ */
 
-function KpiBox({ label, value, color }: { label: string; value: string; color: string }) {
+function KpiBox({ label, value, color, explanation }: { label: string; value: string; color: string; explanation?: string }) {
   return (
     <div className="p-3 rounded-lg border" style={{ borderColor: "var(--border)" }}>
       <div className="text-xs" style={{ color: "var(--text-secondary)" }}>{label}</div>
       <div className="text-xl font-bold" style={{ color }}>{value}</div>
+      {explanation && (
+        <div className="text-[0.6rem] mt-1" style={{ color: "var(--text-secondary)" }}>{explanation}</div>
+      )}
     </div>
   );
 }
