@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import {
   RefreshCw,
   Target,
@@ -24,6 +25,7 @@ import { CoverageCard } from '@/components/factcheck/CoverageCard';
 import { ExportForm } from '@/components/export/ExportForm';
 import { PackageList } from '@/components/export/PackageList';
 import { ApprovalGate } from '@/components/export/ApprovalGate';
+import { DeliverableTab } from '@/components/export/DeliverableTab';
 import { useOrganization } from '@/contexts/OrganizationContext';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -232,7 +234,7 @@ export default function ExportCenterPage() {
             Export 센터 Export Center
           </h1>
           <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
-            Spec 패키지 생성, 다운로드 및 PM 승인
+            Spec 패키지 · SI 산출물 다운로드 및 PM 승인
           </p>
         </div>
         <Button variant="outline" size="sm" onClick={() => void loadData()} disabled={loading}>
@@ -241,102 +243,115 @@ export default function ExportCenterPage() {
         </Button>
       </div>
 
-      {/* KPI Dashboard */}
-      {kpi && (
-        <div className="space-y-3">
-          <h2 className="text-sm font-semibold" style={{ color: 'var(--text-secondary)' }}>KPI Dashboard</h2>
-          <div className="grid grid-cols-5 gap-3">
-            <CoverageCard
-              label="API Coverage"
-              labelEn="Critical API"
-              value={kpi.apiCoverage}
-              target={kpi.apiCoverageTarget}
-              pass={kpi.apiCoveragePass}
-              icon={<Target className="w-8 h-8" />}
-            />
-            <CoverageCard
-              label="Table Coverage"
-              labelEn="Critical Table"
-              value={kpi.tableCoverage}
-              target={kpi.tableCoverageTarget}
-              pass={kpi.tableCoveragePass}
-              icon={<Target className="w-8 h-8" />}
-            />
-            <CoverageCard
-              label="Gap Precision"
-              labelEn="Actual Gap / Auto Gap"
-              value={kpi.gapPrecision}
-              target={kpi.gapPrecisionTarget}
-              pass={kpi.gapPrecisionPass}
-              icon={<CheckCircle className="w-8 h-8" />}
-            />
-            <CoverageCard
-              label="Reviewer Accept"
-              labelEn="Acceptance Rate"
-              value={kpi.reviewerAcceptance}
-              target={kpi.reviewerAcceptanceTarget}
-              pass={kpi.reviewerAcceptancePass}
-              icon={<CheckCircle className="w-8 h-8" />}
-            />
-            <CoverageCard
-              label="Edit Time Cut"
-              labelEn="Time Reduction"
-              value={kpi.specEditTimeReduction}
-              target={kpi.specEditTimeReductionTarget}
-              pass={kpi.specEditTimeReductionPass}
-              icon={<XCircle className="w-8 h-8" />}
-            />
-          </div>
-        </div>
-      )}
+      <Tabs defaultValue="spec-package">
+        <TabsList>
+          <TabsTrigger value="spec-package">Spec Package</TabsTrigger>
+          <TabsTrigger value="si-deliverables">SI 산출물</TabsTrigger>
+        </TabsList>
 
-      <div className="grid grid-cols-12 gap-6">
-        {/* Left: Form + Package List */}
-        <div className="col-span-7 space-y-4">
-          <ExportForm onSubmit={handleCreate} creating={creating} />
-
-          <Card className="shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-base">
-                Spec 패키지
-                <Badge variant="outline" className="ml-2 text-xs">{enrichedPackages.length}</Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <PackageList
-                packages={enrichedPackages}
-                onDownloadApiSpec={(id) => void handleDownload('api', id)}
-                onDownloadTableSpec={(id) => void handleDownload('table', id)}
-                onDownloadReport={(id) => void handleDownload('report', id)}
-                onDownloadSummary={(id) => void handleDownload('summary', id)}
-                onSelectPackage={(pkg) => setSelectedPkg(pkg)}
-              />
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Right: Approval Gate */}
-        <div className="col-span-5">
-          {enrichedSelectedPkg ? (
-            <ApprovalGate
-              pkg={enrichedSelectedPkg}
-              approvalLog={approvalLogs[enrichedSelectedPkg.packageId] ?? []}
-              isPmRole={isPm}
-              onRequestApproval={handleRequestApproval}
-              onApprove={handleApprove}
-              onReject={handleReject}
-            />
-          ) : (
-            <Card className="shadow-sm">
-              <CardContent className="p-12 text-center">
-                <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                  패키지를 선택하면 승인 현황을 볼 수 있습니다.
-                </p>
-              </CardContent>
-            </Card>
+        <TabsContent value="spec-package">
+          {/* KPI Dashboard */}
+          {kpi && (
+            <div className="space-y-3 mt-4">
+              <h2 className="text-sm font-semibold" style={{ color: 'var(--text-secondary)' }}>KPI Dashboard</h2>
+              <div className="grid grid-cols-5 gap-3">
+                <CoverageCard
+                  label="API Coverage"
+                  labelEn="Critical API"
+                  value={kpi.apiCoverage}
+                  target={kpi.apiCoverageTarget}
+                  pass={kpi.apiCoveragePass}
+                  icon={<Target className="w-8 h-8" />}
+                />
+                <CoverageCard
+                  label="Table Coverage"
+                  labelEn="Critical Table"
+                  value={kpi.tableCoverage}
+                  target={kpi.tableCoverageTarget}
+                  pass={kpi.tableCoveragePass}
+                  icon={<Target className="w-8 h-8" />}
+                />
+                <CoverageCard
+                  label="Gap Precision"
+                  labelEn="Actual Gap / Auto Gap"
+                  value={kpi.gapPrecision}
+                  target={kpi.gapPrecisionTarget}
+                  pass={kpi.gapPrecisionPass}
+                  icon={<CheckCircle className="w-8 h-8" />}
+                />
+                <CoverageCard
+                  label="Reviewer Accept"
+                  labelEn="Acceptance Rate"
+                  value={kpi.reviewerAcceptance}
+                  target={kpi.reviewerAcceptanceTarget}
+                  pass={kpi.reviewerAcceptancePass}
+                  icon={<CheckCircle className="w-8 h-8" />}
+                />
+                <CoverageCard
+                  label="Edit Time Cut"
+                  labelEn="Time Reduction"
+                  value={kpi.specEditTimeReduction}
+                  target={kpi.specEditTimeReductionTarget}
+                  pass={kpi.specEditTimeReductionPass}
+                  icon={<XCircle className="w-8 h-8" />}
+                />
+              </div>
+            </div>
           )}
-        </div>
-      </div>
+
+          <div className="grid grid-cols-12 gap-6 mt-4">
+            {/* Left: Form + Package List */}
+            <div className="col-span-7 space-y-4">
+              <ExportForm onSubmit={handleCreate} creating={creating} />
+
+              <Card className="shadow-sm">
+                <CardHeader>
+                  <CardTitle className="text-base">
+                    Spec 패키지
+                    <Badge variant="outline" className="ml-2 text-xs">{enrichedPackages.length}</Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <PackageList
+                    packages={enrichedPackages}
+                    onDownloadApiSpec={(id) => void handleDownload('api', id)}
+                    onDownloadTableSpec={(id) => void handleDownload('table', id)}
+                    onDownloadReport={(id) => void handleDownload('report', id)}
+                    onDownloadSummary={(id) => void handleDownload('summary', id)}
+                    onSelectPackage={(pkg) => setSelectedPkg(pkg)}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Right: Approval Gate */}
+            <div className="col-span-5">
+              {enrichedSelectedPkg ? (
+                <ApprovalGate
+                  pkg={enrichedSelectedPkg}
+                  approvalLog={approvalLogs[enrichedSelectedPkg.packageId] ?? []}
+                  isPmRole={isPm}
+                  onRequestApproval={handleRequestApproval}
+                  onApprove={handleApprove}
+                  onReject={handleReject}
+                />
+              ) : (
+                <Card className="shadow-sm">
+                  <CardContent className="p-12 text-center">
+                    <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                      패키지를 선택하면 승인 현황을 볼 수 있습니다.
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="si-deliverables">
+          <DeliverableTab />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

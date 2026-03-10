@@ -5,28 +5,98 @@ interface MarkdownContentProps {
   className?: string;
 }
 
+// ─── Block types ─────────────────────────────────────────────
+
 interface MarkdownLine {
-  type: 'h1' | 'h2' | 'h3' | 'li' | 'ol' | 'hr' | 'p';
+  kind: 'line';
+  type: 'h1' | 'h2' | 'h3' | 'li' | 'ol' | 'hr' | 'p' | 'blockquote';
   text: string;
 }
 
-function parseLines(content: string): MarkdownLine[] {
-  return content.split('\n').filter((l) => l.trim() !== '').map((line): MarkdownLine => {
-    if (line.startsWith('### ')) return { type: 'h3', text: line.slice(4) };
-    if (line.startsWith('## ')) return { type: 'h2', text: line.slice(3) };
-    if (line.startsWith('# ')) return { type: 'h1', text: line.slice(2) };
-    if (/^---+$/.test(line.trim())) return { type: 'hr', text: '' };
-    if (line.startsWith('- ')) return { type: 'li', text: line.slice(2) };
-    // Numbered list: "1. text", "2. text", etc. — preserve original number as prefix
-    const olMatch = /^(\d+)\.\s+(.+)/.exec(line);
-    if (olMatch?.[1] && olMatch[2]) return { type: 'ol', text: `${olMatch[1]}|${olMatch[2]}` };
-    return { type: 'p', text: line };
-  });
+interface MarkdownTable {
+  kind: 'table';
+  headers: string[];
+  alignments: Array<'left' | 'center' | 'right'>;
+  rows: string[][];
 }
+
+type MarkdownBlock = MarkdownLine | MarkdownTable;
+
+// ─── Parsing ──────────────────────────────────────────────────
+
+/** Split a table row `| a | b | c |` into cells `["a", "b", "c"]` */
+function splitTableCells(line: string): string[] {
+  const trimmed = line.replace(/^\|/, '').replace(/\|$/, '');
+  return trimmed.split('|').map((c) => c.replace(/\\\|/g, '|').trim());
+}
+
+/** Detect alignment from separator cell: `:---:` → center, `---:` → right */
+function parseAlignment(cell: string): 'left' | 'center' | 'right' {
+  const t = cell.trim();
+  if (t.startsWith(':') && t.endsWith(':')) return 'center';
+  if (t.endsWith(':')) return 'right';
+  return 'left';
+}
+
+/** Check if a line is a table separator: `|---|---|` */
+function isTableSeparator(line: string): boolean {
+  return /^\|?[\s:]*-{2,}[\s:]*(\|[\s:]*-{2,}[\s:]*)*\|?$/.test(line.trim());
+}
+
+function parseBlocks(content: string): MarkdownBlock[] {
+  const rawLines = content.split('\n');
+  const blocks: MarkdownBlock[] = [];
+  let i = 0;
+
+  while (i < rawLines.length) {
+    const line = rawLines[i]!;
+
+    // Skip empty lines
+    if (line.trim() === '') {
+      i++;
+      continue;
+    }
+
+    // Table detection: current line starts with `|` and next line is separator
+    if (line.trimStart().startsWith('|') && i + 1 < rawLines.length && isTableSeparator(rawLines[i + 1]!)) {
+      const headers = splitTableCells(line);
+      const alignments = splitTableCells(rawLines[i + 1]!).map(parseAlignment);
+      const rows: string[][] = [];
+      i += 2; // skip header + separator
+
+      while (i < rawLines.length && rawLines[i]!.trimStart().startsWith('|')) {
+        rows.push(splitTableCells(rawLines[i]!));
+        i++;
+      }
+
+      blocks.push({ kind: 'table', headers, alignments, rows });
+      continue;
+    }
+
+    // Regular line parsing
+    blocks.push({ kind: 'line', ...parseSingleLine(line) });
+    i++;
+  }
+
+  return blocks;
+}
+
+function parseSingleLine(line: string): { type: MarkdownLine['type']; text: string } {
+  if (line.startsWith('### ')) return { type: 'h3', text: line.slice(4) };
+  if (line.startsWith('## ')) return { type: 'h2', text: line.slice(3) };
+  if (line.startsWith('# ')) return { type: 'h1', text: line.slice(2) };
+  if (/^---+$/.test(line.trim())) return { type: 'hr', text: '' };
+  if (line.startsWith('> ')) return { type: 'blockquote', text: line.slice(2) };
+  if (line.startsWith('- ')) return { type: 'li', text: line.slice(2) };
+  const olMatch = /^(\d+)\.\s+(.+)/.exec(line);
+  if (olMatch?.[1] && olMatch[2]) return { type: 'ol', text: `${olMatch[1]}|${olMatch[2]}` };
+  return { type: 'p', text: line };
+}
+
+// ─── Inline rendering ─────────────────────────────────────────
 
 function renderInline(text: string): React.ReactNode[] {
   const parts: React.ReactNode[] = [];
-  // Match: **bold**, `code`, [link text](url)
   const regex = /(\*\*(.+?)\*\*|`(.+?)`|\[([^\]]+)\]\(([^)]+)\))/g;
   let lastIndex = 0;
   let match: RegExpExecArray | null;
@@ -58,13 +128,63 @@ function renderInline(text: string): React.ReactNode[] {
   return parts.length > 0 ? parts : [text];
 }
 
+// ─── Component ────────────────────────────────────────────────
+
 export function MarkdownContent({ content, className }: MarkdownContentProps) {
-  const lines = useMemo(() => parseLines(content), [content]);
+  const blocks = useMemo(() => parseBlocks(content), [content]);
 
   return (
     <div className={className}>
-      {lines.map((line, i) => {
+      {blocks.map((block, i) => {
+        if (block.kind === 'table') {
+          return (
+            <div key={i} className="overflow-x-auto my-2">
+              <table className="w-full text-sm border-collapse">
+                <thead>
+                  <tr>
+                    {block.headers.map((h, j) => (
+                      <th
+                        key={j}
+                        className="border px-2 py-1 text-xs font-medium"
+                        style={{
+                          backgroundColor: 'var(--surface, var(--muted))',
+                          borderColor: 'var(--border)',
+                          color: 'var(--text-primary)',
+                          textAlign: block.alignments[j] ?? 'left',
+                        }}
+                      >
+                        {renderInline(h)}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {block.rows.map((row, ri) => (
+                    <tr key={ri}>
+                      {row.map((cell, cj) => (
+                        <td
+                          key={cj}
+                          className="border px-2 py-1 text-xs"
+                          style={{
+                            borderColor: 'var(--border)',
+                            color: 'var(--text-primary)',
+                            textAlign: block.alignments[cj] ?? 'left',
+                          }}
+                        >
+                          {renderInline(cell)}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          );
+        }
+
+        const line = block;
         const inline = renderInline(line.text);
+
         switch (line.type) {
           case 'h1':
             return <h3 key={i} className="text-base font-bold mt-3 mb-1.5" style={{ color: 'var(--text-primary)' }}>{inline}</h3>;
@@ -74,6 +194,12 @@ export function MarkdownContent({ content, className }: MarkdownContentProps) {
             return <h5 key={i} className="text-sm font-medium mt-2 mb-1" style={{ color: 'var(--text-secondary)' }}>{inline}</h5>;
           case 'hr':
             return <hr key={i} className="my-2 border-t" style={{ borderColor: 'var(--border)' }} />;
+          case 'blockquote':
+            return (
+              <blockquote key={i} className="border-l-2 pl-3 my-1 text-sm italic" style={{ borderColor: 'var(--primary)', color: 'var(--text-secondary)' }}>
+                {inline}
+              </blockquote>
+            );
           case 'li':
             return (
               <div key={i} className="flex items-start gap-2 ml-2 my-0.5">

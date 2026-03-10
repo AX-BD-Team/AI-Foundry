@@ -36,6 +36,7 @@ const SERVICE_MAP: Record<string, { service: string; port: number }> = {
   dashboards: { service: "svc-analytics", port: 8710 },
   quality: { service: "svc-analytics", port: 8710 },
   reports: { service: "svc-analytics", port: 8710 },
+  deliverables: { service: "svc-analytics", port: 8710 },
 };
 
 const DEPLOYED_ORIGIN = "https://ai-foundry.minu.best";
