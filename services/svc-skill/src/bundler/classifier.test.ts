@@ -142,4 +142,80 @@ describe("classifyPolicies", () => {
       classifyPolicies(mockEnv(fetchFn), makePolicies(1)),
     ).rejects.toThrow("rate limited");
   });
+
+  it("retries missing policies with smaller batch and succeeds", async () => {
+    const policies = makePolicies(5);
+    // First call returns only 3 of 5
+    const fetchFn = vi.fn()
+      .mockResolvedValueOnce(
+        llmResponse([
+          { policyId: "pol-0", category: "charging", confidence: 0.9 },
+          { policyId: "pol-1", category: "payment", confidence: 0.85 },
+          { policyId: "pol-3", category: "gift", confidence: 0.88 },
+        ]),
+      )
+      // Retry call returns the missing 2
+      .mockResolvedValueOnce(
+        llmResponse([
+          { policyId: "pol-2", category: "member", confidence: 0.82 },
+          { policyId: "pol-4", category: "security", confidence: 0.79 },
+        ]),
+      );
+
+    const results = await classifyPolicies(mockEnv(fetchFn), policies);
+
+    expect(results).toHaveLength(5);
+    expect(fetchFn).toHaveBeenCalledTimes(2);
+    expect(results.find((r) => r.policyId === "pol-2")?.category).toBe("member");
+    expect(results.find((r) => r.policyId === "pol-4")?.category).toBe("security");
+  });
+
+  it("falls back to 'other' when retry also fails", async () => {
+    const policies = makePolicies(3);
+    // First call returns only 1
+    const fetchFn = vi.fn()
+      .mockResolvedValueOnce(
+        llmResponse([
+          { policyId: "pol-0", category: "charging", confidence: 0.9 },
+        ]),
+      )
+      // Retry call fails
+      .mockResolvedValueOnce(new Response("Error", { status: 500 }));
+
+    const results = await classifyPolicies(mockEnv(fetchFn), policies);
+
+    expect(results).toHaveLength(3);
+    // pol-1 and pol-2 should be fallback "other"
+    const pol1 = results.find((r) => r.policyId === "pol-1");
+    const pol2 = results.find((r) => r.policyId === "pol-2");
+    expect(pol1?.category).toBe("other");
+    expect(pol1?.confidence).toBe(0);
+    expect(pol2?.category).toBe("other");
+  });
+
+  it("handles partial retry success — classifies some, falls back rest", async () => {
+    const policies = makePolicies(4);
+    // First call returns 2 of 4
+    const fetchFn = vi.fn()
+      .mockResolvedValueOnce(
+        llmResponse([
+          { policyId: "pol-0", category: "charging", confidence: 0.9 },
+          { policyId: "pol-2", category: "gift", confidence: 0.88 },
+        ]),
+      )
+      // Retry returns only 1 of 2 missing
+      .mockResolvedValueOnce(
+        llmResponse([
+          { policyId: "pol-1", category: "payment", confidence: 0.85 },
+        ]),
+      );
+
+    const results = await classifyPolicies(mockEnv(fetchFn), policies);
+
+    expect(results).toHaveLength(4);
+    // pol-3 was missing from both calls → fallback
+    const pol3 = results.find((r) => r.policyId === "pol-3");
+    expect(pol3?.category).toBe("other");
+    expect(pol3?.confidence).toBe(0);
+  });
 });

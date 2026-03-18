@@ -48,30 +48,48 @@ interface PolicyRow {
 
 /**
  * Fetch approved policies for an organization from svc-policy.
+ * Uses pagination since svc-policy caps at 100 per request.
  */
 async function fetchApprovedPolicies(
   env: Env,
   organizationId: string,
 ): Promise<PolicyRow[]> {
-  const resp = await env.SVC_POLICY.fetch(
-    `http://internal/policies?status=approved&limit=2000&organizationId=${organizationId}`,
-    {
-      headers: { "X-Internal-Secret": env.INTERNAL_API_SECRET },
-    },
-  );
+  const PAGE_SIZE = 100;
+  const allPolicies: PolicyRow[] = [];
+  let offset = 0;
 
-  if (!resp.ok) {
-    throw new Error(`Failed to fetch policies: ${resp.status}`);
+  for (;;) {
+    const resp = await env.SVC_POLICY.fetch(
+      `http://internal/policies?status=approved&limit=${PAGE_SIZE}&offset=${offset}`,
+      {
+        headers: {
+          "X-Internal-Secret": env.INTERNAL_API_SECRET,
+          "X-Organization-Id": organizationId,
+        },
+      },
+    );
+
+    if (!resp.ok) {
+      throw new Error(`Failed to fetch policies: ${resp.status}`);
+    }
+
+    const json = (await resp.json()) as {
+      success: boolean;
+      data: {
+        policies: PolicyRow[];
+        total: number;
+      };
+    };
+
+    allPolicies.push(...json.data.policies);
+
+    if (allPolicies.length >= json.data.total || json.data.policies.length < PAGE_SIZE) {
+      break;
+    }
+    offset += PAGE_SIZE;
   }
 
-  const json = (await resp.json()) as {
-    success: boolean;
-    data: {
-      policies: PolicyRow[];
-    };
-  };
-
-  return json.data.policies;
+  return allPolicies;
 }
 
 /**

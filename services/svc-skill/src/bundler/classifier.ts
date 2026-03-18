@@ -17,6 +17,7 @@ export interface ClassificationResult {
 }
 
 const BATCH_SIZE = 50;
+const RETRY_BATCH_SIZE = 10;
 
 const SYSTEM_PROMPT = `You are a policy classifier for a Korean domain knowledge platform.
 Classify each policy into exactly one category based on its title, condition, and criteria.
@@ -107,6 +108,54 @@ function parseResponse(raw: string): ClassificationResult[] {
     }));
 }
 
+/**
+ * Classify a single batch, detect missing items, and retry with smaller batches.
+ * Returns all successfully classified items (including retries and fallbacks).
+ */
+async function classifyBatchWithRetry(
+  env: Env,
+  batch: PolicyInput[],
+): Promise<ClassificationResult[]> {
+  const userContent = buildUserPrompt(batch);
+  const raw = await callLlm(env, userContent);
+  const parsed = parseResponse(raw);
+
+  // Detect missing policyIds
+  const classifiedIds = new Set(parsed.map((r) => r.policyId));
+  const missing = batch.filter((p) => !classifiedIds.has(p.policyId));
+
+  if (missing.length === 0) {
+    return parsed;
+  }
+
+  // Retry missing items in smaller batches
+  const retried: ClassificationResult[] = [];
+  for (let i = 0; i < missing.length; i += RETRY_BATCH_SIZE) {
+    const retryBatch = missing.slice(i, i + RETRY_BATCH_SIZE);
+    try {
+      const retryContent = buildUserPrompt(retryBatch);
+      const retryRaw = await callLlm(env, retryContent);
+      retried.push(...parseResponse(retryRaw));
+    } catch {
+      // Retry failed — will be caught by fallback below
+    }
+  }
+
+  // Fallback: assign "other" to any still-missing items
+  const allClassifiedIds = new Set([
+    ...classifiedIds,
+    ...retried.map((r) => r.policyId),
+  ]);
+  const stillMissing = batch.filter((p) => !allClassifiedIds.has(p.policyId));
+  const fallbacks: ClassificationResult[] = stillMissing.map((p) => ({
+    policyId: p.policyId,
+    category: "other" as SkillCategory,
+    confidence: 0,
+  }));
+
+  return [...parsed, ...retried, ...fallbacks];
+}
+
 export async function classifyPolicies(
   env: Env,
   policies: PolicyInput[],
@@ -117,10 +166,8 @@ export async function classifyPolicies(
 
   for (let i = 0; i < policies.length; i += BATCH_SIZE) {
     const batch = policies.slice(i, i + BATCH_SIZE);
-    const userContent = buildUserPrompt(batch);
-    const raw = await callLlm(env, userContent);
-    const parsed = parseResponse(raw);
-    results.push(...parsed);
+    const batchResults = await classifyBatchWithRetry(env, batch);
+    results.push(...batchResults);
   }
 
   return results;
