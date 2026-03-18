@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Full product requirements and technical design are in `docs/AI_Foundry_PRD_TDS_v0.7.4.docx` (latest) and `docs/AI_Foundry_PRD_TDS_v0.6.docx`. This is the authoritative reference for all design decisions.
 
-> **Status**: Phase 4 Sprint 2 완료. 12 Workers + Pages 배포, 1,586 tests (93 test files), staging/production 환경 분리. 퇴직연금 실문서 파일럿: 13/15 문서 파싱, policies 2,827, terms 1,441. LPON 온누리상품권: 85/88 파싱, policies 848, ontologies 848, terms 7,332, skills 859. Production: policies 3,675, skills 3,924 (2-org). 멀티 프로바이더 LLM (Anthropic/OpenAI/Google/Workers AI) fallback + MCP Server (Streamable HTTP) 완비.
+> **Status**: Phase 4 Sprint 2 완료. 12 Workers + Pages 배포, 1,737 tests (97 test files), staging/production 환경 분리. 퇴직연금 실문서 파일럿: 13/15 문서 파싱, policies 2,827, terms 1,441. LPON 온누리상품권: 85/88 파싱, policies 848, ontologies 848, terms 7,332, skills 859. Production: policies 3,675, skills 3,924 (2-org). 멀티 프로바이더 LLM (Anthropic/OpenAI/Google/Workers AI) fallback + MCP Server (Streamable HTTP) 완비. PDF/PPTX 분할 파싱 + FactCheck 커버리지 31.2% + SI 산출물 Export + LLM A/B 비교 API.
 
 ---
 
@@ -245,7 +245,7 @@ bun run typecheck && bun run lint
 | `/ax-01-start [작업]` | 세션 시작 (MEMORY.md 자동 + SPEC.md 보충) |
 | `/ax-02-end [메모]` | 세션 종료 (커밋 + push + SPEC.md/MEMORY.md/CHANGELOG 동기화) |
 | `/ax-03-deploy [--preview]` | 프리뷰 배포 또는 명시적 재배포 |
-| `/ax-04-lint` | 변경 파일 ESLint + TypeScript 점검/수정 |
+| `/ax-04-verify [all\|lint\|typecheck\|test\|coverage\|watch]` | 코드 검증 (lint + typecheck + test) |
 | `/ax-05-sync [push\|pull\|status]` | 멀티 환경 Git 코드 동기화 |
 | `/ax-06-team <설명>` | Agent Teams 병렬 작업 (tmux) |
 | `/ax-07-gov [list\|check\|apply]` | 거버넌스 표준 관리 |
@@ -255,6 +255,7 @@ bun run typecheck && bun run lint
 | `/ax-11-risk [add\|list\|resolve]` | 리스크 관리 |
 | `/ax-12-retro` | 마일스톤 회고 |
 | `/ax-13-selfcheck` | ax plugin 자율점검 |
+| `/ax-15-statusline [clear\|set]` | StatusLine 요구사항 표시 관리 |
 
 #### 프로젝트 스킬 (res-ai-foundry 전용)
 | 스킬 | 용도 |
