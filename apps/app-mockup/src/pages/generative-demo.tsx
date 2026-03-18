@@ -9,6 +9,9 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { MockupHeader } from "@/components/shared/MockupHeader";
 import { WidgetRenderer } from "@/components/shared/WidgetRenderer";
 import { AgentRunPanel } from "@/components/shared/AgentRunPanel";
+import { PolicyApprovalCard } from "@/components/shared/hitl/PolicyApprovalCard";
+import { EntityConfirmation } from "@/components/shared/hitl/EntityConfirmation";
+import { ParameterInput } from "@/components/shared/hitl/ParameterInput";
 import { cn } from "@/lib/cn";
 import { extractThemeVariables } from "@/lib/widget-theme";
 import {
@@ -149,7 +152,44 @@ const VIZ_TYPES: Array<{ type: WidgetType; label: string; emoji: string }> = [
   { type: "markdown", label: "마크다운", emoji: "📝" },
 ];
 
-type DemoMode = "widget" | "agent";
+type DemoMode = "widget" | "agent" | "hitl";
+
+// ── HITL Demo Sample Data ────────────────────────
+
+interface HitlLogEntry {
+  time: string;
+  component: string;
+  action: string;
+}
+
+const HITL_POLICY_SAMPLE = {
+  policyTitle: "주택 구입 목적 퇴직연금 중도인출",
+  policyCode: "POL-PENSION-WD-HOUSING-001",
+  condition: "가입자가 무주택자이며 주택 구입 목적으로 중도인출을 신청한 경우",
+  criteria: "근속 연수 5년 이상, 계좌 잔고 1,000만원 이상",
+  outcome: "중도인출 승인, 최대 50% 한도 적용",
+  confidence: 0.87,
+};
+
+const HITL_ENTITY_SAMPLE = {
+  entityName: "중도인출 가능 금액",
+  candidates: [
+    { id: "e1", name: "중도인출한도액", definition: "IRP 가입자가 인출 가능한 최대 금액", similarity: 0.92 },
+    { id: "e2", name: "인출가능잔액", definition: "현재 시점에서 인출 가능한 잔고", similarity: 0.78 },
+    { id: "e3", name: "퇴직급여", definition: "퇴직 시 지급되는 급여 총액", similarity: 0.45 },
+  ],
+};
+
+const HITL_PARAM_SAMPLE = {
+  title: "중도인출 시뮬레이션 파라미터",
+  description: "정책 시뮬레이션에 필요한 추가 정보를 입력해주세요.",
+  fields: [
+    { name: "tenure", label: "근속 연수", type: "number" as const, required: true },
+    { name: "balance", label: "계좌 잔고 (만원)", type: "number" as const, required: true },
+    { name: "purpose", label: "인출 사유", type: "select" as const, options: ["주택 구입", "의료비", "교육비", "기타"], required: true },
+    { name: "note", label: "비고", type: "text" as const },
+  ],
+};
 
 export function GenerativeDemo() {
   const { theme } = useTheme();
@@ -161,6 +201,14 @@ export function GenerativeDemo() {
   const [query, setQuery] = useState("");
   const [actions, setActions] = useState<BridgeAction[]>([]);
   const [autoResult, setAutoResult] = useState<string | null>(null);
+  const [hitlLog, setHitlLog] = useState<HitlLogEntry[]>([]);
+
+  const addHitlLog = useCallback((component: string, action: string) => {
+    setHitlLog((prev) => [
+      ...prev,
+      { time: new Date().toLocaleTimeString(), component, action },
+    ]);
+  }, []);
 
   const handleAction = useCallback((action: BridgeAction) => {
     setActions((prev) => [...prev.slice(-9), action]);
@@ -241,7 +289,100 @@ export function GenerativeDemo() {
           >
             Agent Mode (AG-UI)
           </button>
+          <button
+            type="button"
+            onClick={() => setMode("hitl")}
+            className={cn(
+              "rounded-md px-4 py-2 text-sm font-medium transition-all",
+              mode === "hitl"
+                ? "bg-white dark:bg-gray-700 shadow-sm"
+                : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300",
+            )}
+          >
+            HITL Demo
+          </button>
         </div>
+
+        {/* HITL Demo Mode */}
+        {mode === "hitl" && (
+          <div className="space-y-6">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              에이전트 플로우 내 HITL(Human-in-the-Loop) 컴포넌트 데모. 각 컴포넌트의 결정은 하단 이벤트 로그에 기록돼요.
+            </p>
+
+            {/* PolicyApprovalCard Demo */}
+            <div>
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                1. 정책 승인 (PolicyApprovalCard)
+              </h3>
+              <PolicyApprovalCard
+                {...HITL_POLICY_SAMPLE}
+                onDecision={(decision, comment) => {
+                  addHitlLog("PolicyApprovalCard", `${decision}${comment ? ` — "${comment}"` : ""}`);
+                }}
+              />
+            </div>
+
+            {/* EntityConfirmation Demo */}
+            <div>
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                2. 엔티티 매핑 확인 (EntityConfirmation)
+              </h3>
+              <EntityConfirmation
+                {...HITL_ENTITY_SAMPLE}
+                onSelect={(candidateId) => {
+                  addHitlLog("EntityConfirmation", `선택: ${candidateId}`);
+                }}
+                onSkip={() => {
+                  addHitlLog("EntityConfirmation", "건너뛰기");
+                }}
+              />
+            </div>
+
+            {/* ParameterInput Demo */}
+            <div>
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                3. 파라미터 입력 (ParameterInput)
+              </h3>
+              <ParameterInput
+                {...HITL_PARAM_SAMPLE}
+                onSubmit={(values) => {
+                  addHitlLog("ParameterInput", `제출: ${JSON.stringify(values)}`);
+                }}
+                onCancel={() => {
+                  addHitlLog("ParameterInput", "취소");
+                }}
+              />
+            </div>
+
+            {/* HITL Event Log */}
+            {hitlLog.length > 0 && (
+              <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    HITL 이벤트 로그
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={() => setHitlLog([])}
+                    className="text-xs text-gray-400 hover:text-gray-600"
+                  >
+                    초기화
+                  </button>
+                </div>
+                <div className="space-y-1 text-xs font-mono text-gray-500 dark:text-gray-400 max-h-40 overflow-y-auto">
+                  {hitlLog.map((entry, i) => (
+                    <div key={`hitl-${String(i)}`}>
+                      <span className="text-gray-400">{entry.time}</span>{" "}
+                      <span className="text-blue-500">[{entry.component}]</span>{" "}
+                      {entry.action}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Agent Mode */}
         {mode === "agent" && (

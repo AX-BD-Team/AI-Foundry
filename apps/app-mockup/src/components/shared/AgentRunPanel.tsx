@@ -2,15 +2,22 @@
  * AgentRunPanel — AG-UI 에이전트 실행 패널.
  * Design Doc: AIF-DSGN-024 §4.3 AgentRunPanel
  *
- * 에이전트 실행 상태, 이벤트 로그, 위젯 렌더링을 통합 표시.
+ * 에이전트 실행 상태, 이벤트 로그, 위젯 렌더링, HITL 컴포넌트를 통합 표시.
  */
 
 import { useCallback, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 import { WidgetRenderer } from "./WidgetRenderer";
+import { PolicyApprovalCard } from "./hitl/PolicyApprovalCard";
+import { EntityConfirmation } from "./hitl/EntityConfirmation";
+import { ParameterInput } from "./hitl/ParameterInput";
 import { useAgentStream } from "@/lib/use-agent-stream";
 import type { AgentStreamStatus } from "@/lib/use-agent-stream";
 import type { AgUiEvent } from "@ai-foundry/types";
+import type { HitlRequestEvent } from "@ai-foundry/types";
+import type { PolicyApprovalCardProps } from "./hitl/PolicyApprovalCard";
+import type { EntityConfirmationProps } from "./hitl/EntityConfirmation";
+import type { ParameterInputProps } from "./hitl/ParameterInput";
 import type { BridgeAction, WidgetType } from "@/lib/widget-bridge";
 import type { ThemeVariables } from "@/lib/widget-theme";
 
@@ -26,6 +33,15 @@ const STATUS_CONFIG: Record<AgentStreamStatus, { label: string; color: string; b
   completed: { label: "완료", color: "text-green-600", bg: "bg-green-50 dark:bg-green-950" },
   error: { label: "오류", color: "text-red-600", bg: "bg-red-50 dark:bg-red-950" },
 };
+
+/** Type guard for HITL_REQUEST custom events (not in the base AgUiEvent union). */
+function isHitlRequestEvent(event: AgUiEvent | HitlRequestEvent): event is HitlRequestEvent {
+  return (
+    event.type === "CUSTOM" &&
+    "subType" in event &&
+    (event as Record<string, unknown>)["subType"] === "HITL_REQUEST"
+  );
+}
 
 function formatEventLog(event: AgUiEvent): string {
   switch (event.type) {
@@ -43,8 +59,14 @@ function formatEventLog(event: AgUiEvent): string {
       return `완료: ${event.summary}`;
     case "RUN_ERROR":
       return `오류: ${event.error}`;
-    default:
+    default: {
+      // Handle CUSTOM/HITL_REQUEST in log
+      const raw = event as Record<string, unknown>;
+      if (raw["subType"] === "HITL_REQUEST") {
+        return `HITL 요청: ${String(raw["componentType"])}`;
+      }
       return JSON.stringify(event);
+    }
   }
 }
 
@@ -67,15 +89,54 @@ export function AgentRunPanel({
   isDark,
 }: AgentRunPanelProps) {
   const [task, setTask] = useState("");
+  const [hitlRequest, setHitlRequest] = useState<HitlRequestEvent | null>(null);
+  const [hitlResuming, setHitlResuming] = useState(false);
   const { events, status, widgetHtml, error, startRun, cancelRun } = useAgentStream();
   const logEndRef = useRef<HTMLDivElement>(null);
 
   const statusCfg = STATUS_CONFIG[status];
 
+  // Detect HITL events from stream
+  // HitlRequestEvent uses type="CUSTOM" which is not in the AgUiEvent union,
+  // so we cast through unknown when checking the raw event data.
+  const latestEvent = events.length > 0 ? events[events.length - 1] : undefined;
+  if (
+    latestEvent != null &&
+    isHitlRequestEvent(latestEvent as unknown as HitlRequestEvent) &&
+    hitlRequest?.resumeToken !== (latestEvent as unknown as HitlRequestEvent).resumeToken
+  ) {
+    setHitlRequest(latestEvent as unknown as HitlRequestEvent);
+  }
+
   const handleRun = useCallback(() => {
     if (!task.trim()) return;
+    setHitlRequest(null);
     void startRun(task, organizationId);
   }, [task, organizationId, startRun]);
+
+  const handleHitlResume = useCallback(async (decision: string, data?: Record<string, unknown>) => {
+    if (!hitlRequest) return;
+    setHitlResuming(true);
+    try {
+      await fetch("/agent/resume", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer demo-token",
+        },
+        body: JSON.stringify({
+          resumeToken: hitlRequest.resumeToken,
+          decision,
+          data,
+        }),
+      });
+    } catch {
+      // Resume call may fail in demo mode — continue gracefully
+    } finally {
+      setHitlRequest(null);
+      setHitlResuming(false);
+    }
+  }, [hitlRequest]);
 
   const handleWidgetAction = useCallback((_action: BridgeAction) => {
     // Log bridge actions — no-op for now
@@ -164,6 +225,52 @@ export function AgentRunPanel({
             onAction={handleWidgetAction}
             maxHeight={400}
           />
+        </div>
+      )}
+
+      {/* HITL Zone */}
+      {hitlRequest && !hitlResuming && (
+        <div className="space-y-2">
+          <h4 className="text-sm font-medium text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
+            사용자 입력 대기중
+          </h4>
+          {hitlRequest.componentType === "PolicyApprovalCard" && (
+            <PolicyApprovalCard
+              {...(hitlRequest.props as unknown as PolicyApprovalCardProps)}
+              onDecision={(decision, comment) => {
+                void handleHitlResume(decision, { comment });
+              }}
+            />
+          )}
+          {hitlRequest.componentType === "EntityConfirmation" && (
+            <EntityConfirmation
+              {...(hitlRequest.props as unknown as EntityConfirmationProps)}
+              onSelect={(candidateId) => {
+                void handleHitlResume("selected", { candidateId });
+              }}
+              onSkip={() => {
+                void handleHitlResume("skipped");
+              }}
+            />
+          )}
+          {hitlRequest.componentType === "ParameterInput" && (
+            <ParameterInput
+              {...(hitlRequest.props as unknown as ParameterInputProps)}
+              onSubmit={(values) => {
+                void handleHitlResume("submitted", { parameters: values });
+              }}
+              onCancel={() => {
+                void handleHitlResume("cancelled");
+              }}
+            />
+          )}
+        </div>
+      )}
+
+      {hitlResuming && (
+        <div className="rounded-lg bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 px-4 py-3 text-sm text-amber-600 dark:text-amber-400">
+          에이전트 재개 중...
         </div>
       )}
 
