@@ -3,6 +3,7 @@ import { DomainProvider } from "@/contexts/DomainContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { Toaster } from "sonner";
 import { Home } from "@/pages/Home";
+import { GenerativeDemo } from "@/pages/generative-demo";
 
 export function App() {
   return (
@@ -11,6 +12,7 @@ export function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/generative" element={<GenerativeDemo />} />
           </Routes>
         </BrowserRouter>
         <Toaster position="bottom-right" richColors />

@@ -36,7 +36,7 @@ export function ScenarioInput({ domain, onSubmit, loading }: ScenarioInputProps)
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">시나리오 검색</h2>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">시나리오 검색 — {domain.name}</h2>
         <span className="text-xs text-gray-500 dark:text-gray-400">
           {domain.stats.policies.toLocaleString()} policies
         </span>

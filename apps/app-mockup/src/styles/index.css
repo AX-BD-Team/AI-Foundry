@@ -1,14 +1,158 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 @import "tailwindcss";
 
 @theme {
+  /* Brand colors */
   --color-primary: #1A365D;
   --color-accent: #F6AD55;
   --color-success: #38A169;
   --color-warning: #D69E2E;
   --color-danger: #E53E3E;
+
+  /* Domain accent colors */
+  --color-domain-lpon: #059669;
+  --color-domain-lpon-light: #d1fae5;
+  --color-domain-lpon-dark: #064e3b;
+  --color-domain-pension: #4F46E5;
+  --color-domain-pension-light: #e0e7ff;
+  --color-domain-pension-dark: #312e81;
+
+  /* Paper backgrounds */
+  --color-paper: #FAFAF8;
+  --color-paper-dark: #0F0F0F;
+  --color-paper-card: #FFFFFF;
+  --color-paper-card-dark: #1A1A1A;
+  --color-paper-muted: #F5F5F3;
+  --color-paper-muted-dark: #171717;
+
+  /* Typography */
+  --font-heading: 'Geist', 'IBM Plex Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-body: 'IBM Plex Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+}
+
+/* Base styles */
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--color-paper);
+  color: #1a1a1a;
+}
+
+.dark body {
+  background-color: var(--color-paper-dark);
+  color: #e5e5e5;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  letter-spacing: -0.02em;
+}
+
+code, pre, .font-mono {
+  font-family: var(--font-mono);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #d4d4d4;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #a3a3a3;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background-color: #404040;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background-color: #525252;
+}
+
+/* Card styling */
+.card-elevated {
+  background: var(--color-paper-card);
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.card-elevated:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06), 0 2px 4px rgba(0, 0, 0, 0.03);
+}
+
+.dark .card-elevated {
+  background: var(--color-paper-card-dark);
+  border-color: #2a2a2a;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.dark .card-elevated:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Smooth transitions for interactive elements */
+button, a, input, textarea, select {
+  transition: all 0.15s ease;
+}
+
+/* Domain accent borders */
+.domain-border-lpon {
+  border-color: var(--color-domain-lpon);
+}
+
+.domain-border-pension {
+  border-color: var(--color-domain-pension);
+}
+
+.domain-bg-lpon {
+  background-color: var(--color-domain-lpon-light);
+}
+
+.domain-bg-pension {
+  background-color: var(--color-domain-pension-light);
+}
+
+.dark .domain-bg-lpon {
+  background-color: var(--color-domain-lpon-dark);
+}
+
+.dark .domain-bg-pension {
+  background-color: var(--color-domain-pension-dark);
+}
+
+/* Accent top bar */
+.accent-bar-lpon {
+  border-top: 3px solid var(--color-domain-lpon);
+}
+
+.accent-bar-pension {
+  border-top: 3px solid var(--color-domain-pension);
+}
+
+/* Page divider */
+.page-divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, #d4d4d4 20%, #d4d4d4 80%, transparent);
+}
+
+.dark .page-divider {
+  background: linear-gradient(to right, transparent, #333333 20%, #333333 80%, transparent);
 }

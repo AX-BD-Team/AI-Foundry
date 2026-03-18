@@ -35,7 +35,17 @@ export function OntologyExplorerDemo() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const hasTermData = domain.stats.terms > 0;
+
   useEffect(() => {
+    if (!hasTermData) {
+      setLoading(false);
+      setTerms([]);
+      setNodes([]);
+      setLinks([]);
+      return;
+    }
+
     let cancelled = false;
     setLoading(true);
     setError(null);
@@ -60,7 +70,7 @@ export function OntologyExplorerDemo() {
     return () => {
       cancelled = true;
     };
-  }, [domain.organizationId]);
+  }, [domain.organizationId, hasTermData]);
 
   const filtered = useMemo(() => {
     if (!search) return terms;
@@ -80,10 +90,28 @@ export function OntologyExplorerDemo() {
     ? positioned.find((n) => n.id === selectedTermId)
     : null;
 
+  /* Domain has no term data */
+  if (!hasTermData) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-4">
+        <div className="text-4xl">{domain.emoji}</div>
+        <div className="text-center space-y-2">
+          <p className="text-gray-600 dark:text-gray-300 font-medium">
+            이 도메인에는 아직 온톨로지 데이터가 없어요.
+          </p>
+          <p className="text-sm text-gray-400 dark:text-gray-500">
+            온누리상품권(LPON) 도메인을 선택하면 7,332건의 용어를 탐색할 수 있어요.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64 text-gray-400">
-        Loading ontology data...
+        <div className="animate-spin h-5 w-5 border-2 border-gray-400 border-t-transparent rounded-full mr-3" />
+        {domain.name} 온톨로지 데이터 로딩 중...
       </div>
     );
   }
@@ -100,6 +128,9 @@ export function OntologyExplorerDemo() {
     <div className="flex gap-4 h-[600px]">
       {/* Left: Term search + list */}
       <div className="w-1/3 flex flex-col gap-3">
+        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+          {domain.name} 용어 사전
+        </h3>
         <input
           type="text"
           placeholder="용어 검색..."
@@ -130,7 +161,7 @@ export function OntologyExplorerDemo() {
         <div className="flex-1 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden">
           {nodes.length === 0 ? (
             <div className="flex items-center justify-center h-full text-gray-400 text-sm">
-              No graph data available
+              그래프 데이터가 없어요
             </div>
           ) : (
             <svg viewBox="0 0 600 400" className="w-full h-full">
@@ -180,7 +211,7 @@ export function OntologyExplorerDemo() {
                       fill="#6b7280"
                       className="pointer-events-none"
                     >
-                      {n.label.length > 10 ? n.label.slice(0, 10) + "…" : n.label}
+                      {n.label.length > 10 ? n.label.slice(0, 10) + "\u2026" : n.label}
                     </text>
                   </g>
                 );

@@ -84,7 +84,7 @@ export function PolicyEngineDemo() {
       {loading && (
         <div className="flex items-center justify-center py-12">
           <div className="animate-spin h-6 w-6 border-2 border-indigo-500 border-t-transparent rounded-full" />
-          <span className="ml-3 text-sm text-gray-500">정책 로딩 중...</span>
+          <span className="ml-3 text-sm text-gray-500">{domain.name} 정책 로딩 중...</span>
         </div>
       )}
 
@@ -98,7 +98,7 @@ export function PolicyEngineDemo() {
       {/* Results */}
       {!loading && !error && display.length === 0 && (
         <div className="text-center py-12 text-gray-400">
-          {query ? "검색 결과가 없어요. 다른 키워드를 시도해보세요." : "정책 데이터가 없어요."}
+          {query ? `${domain.name} 검색 결과가 없어요. 다른 키워드를 시도해보세요.` : `${domain.name} 정책 데이터가 없어요.`}
         </div>
       )}
 
