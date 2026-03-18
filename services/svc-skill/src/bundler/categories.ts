@@ -53,6 +53,21 @@ export const SKILL_CATEGORIES = {
     label: "API/연동",
     keywords: ["외부", "API", "연동", "오류", "응답", "인터페이스"],
   },
+  withdrawal: {
+    id: "withdrawal",
+    label: "인출/지급",
+    keywords: ["중도인출", "지급", "환급", "인출", "해지", "이전", "청구", "수급"],
+  },
+  tax: {
+    id: "tax",
+    label: "세금/공제",
+    keywords: ["세금", "세액공제", "과세", "원천징수", "퇴직소득", "연말정산", "비과세"],
+  },
+  product: {
+    id: "product",
+    label: "상품 관리",
+    keywords: ["상품", "원리금보장", "수익증권", "펀드", "상품코드", "운용", "수익률"],
+  },
   other: {
     id: "other",
     label: "기타",

@@ -49,6 +49,7 @@
         "tailwindcss": "^4.1.12",
         "typescript": "^5.7.3",
         "vite": "^6.0.7",
+        "vitest": "^4.0.18",
       },
     },
     "apps/app-web": {

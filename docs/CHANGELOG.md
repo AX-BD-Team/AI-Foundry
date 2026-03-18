@@ -2,6 +2,22 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 172 — 2026-03-18
+
+**ax Plugin 자율점검 + GOV-001 문서 네이밍 표준화**:
+
+- ✅ `/ax-13-selfcheck` 실행: 8개 점검 항목 중 7 PASS, 1 WARN (C8 문서 위치 이탈)
+- ✅ C8 WARN 해소: docs/03-analysis 16건 + docs/04-report 4건 → AIF-{TYPE}-{NNN} 패턴 리네이밍
+- ✅ Group A (INDEX 등록 15건): 파일명 표준화 + INDEX.md 경로 갱신
+- ✅ Group B (INDEX 미등록 7건): AIF-ANLS-015/016/020/021/022 + AIF-RPRT-011/012 신규 등록
+- ✅ 크로스 참조 수정: 보고서 3파일 → 신규 분석서 경로로 갱신
+- ✅ INDEX.md 통계 보정: ANLS 18→23, RPRT 10→12, 총 활성 문서 56개
+- ✅ LPON SI 산출물 원본 + PRD v0.7.4 docx 커밋
+
+**검증 결과**: 8/8 PASS (C8 해소 확인)
+
+---
+
 ## 세션 171 — 2026-03-18
 
 **Foundry-X 통합 기획 — 정체성 재정의 + REQ/ANLS/PLAN-026 (AIF-REQ-026)**:

@@ -41,44 +41,51 @@
 | AIF-DSGN-007 | 온누리상품권 분석 산출물 검증 및 문서화 | 0.1 | Draft | `02-design/features/lpon-deliverable-validation.design.md` |
 | AIF-DSGN-008 | SI 산출물 Export UI | 0.1 | Draft | `02-design/features/deliverable-export-ui.design.md` |
 
-## ANLS (18)
+## ANLS (23)
 
 | 코드 | 제목 | 버전 | 상태 | 파일 |
 |------|------|:----:|:----:|------|
-| AIF-ANLS-001 | Full Project Gap Analysis | 1.0 | Active | `03-analysis/full-project.analysis.md` |
+| AIF-ANLS-001 | Full Project Gap Analysis | 1.0 | Active | `03-analysis/AIF-ANLS-001_full-project.md` |
 | AIF-ANLS-002 | Phase 2 Pilot Analysis | 1.0 | Active | `03-analysis/features/phase-2-pilot.analysis.md` |
-| AIF-ANLS-003 | Pipeline Hardening Analysis | 1.0 | Active | `03-analysis/pipeline-hardening.analysis.md` |
+| AIF-ANLS-003 | Pipeline Hardening Analysis | 1.0 | Active | `03-analysis/AIF-ANLS-003_pipeline-hardening.md` |
 | AIF-ANLS-004 | Phase 2-E 프로세스 정밀분석 Gap Analysis | 1.0 | Active | `03-analysis/features/process-diagnosis.analysis.md` |
-| AIF-ANLS-005 | 퇴직연금 실문서 구조 분석 | 1.0 | Active | `03-analysis/retirement-pension-doc-analysis.md` |
-| AIF-ANLS-006 | Architecture Gap Analysis | 1.0 | Active | `03-analysis/architecture-gap-analysis.analysis.md` |
-| AIF-ANLS-007 | Phase 4 Sprint 1 Analysis | 1.0 | Active | `03-analysis/phase-4-sprint-1.analysis.md` |
-| AIF-ANLS-008 | Comprehensive Gap Analysis | 1.0 | Active | `03-analysis/comprehensive-gap-analysis.analysis.md` |
-| AIF-ANLS-009 | v0.7.4 Phase 2-A Gap Analysis | 1.0 | Active | `03-analysis/v074-pivot.analysis.md` |
-| AIF-ANLS-010 | v0.7.4 Phase 2-B Session 3 Gap Analysis | 1.0 | Active | `03-analysis/v074-pivot-phase2b-session3.analysis.md` |
-| AIF-ANLS-011 | v0.7.4 Phase 2-B Final Gap Analysis | 1.0 | Active | `03-analysis/v074-pivot-phase2b-final.analysis.md` |
-| AIF-ANLS-012 | v0.7.4 Phase 2-C/2-D Gap Analysis | 1.0 | Active | `03-analysis/v074-pivot-phase2cd.analysis.md` |
-| AIF-ANLS-013 | v0.7.4 Phase 2-E Full Gap Analysis | 1.0 | Active | `03-analysis/v074-pivot-phase2e-full.analysis.md` |
-| AIF-ANLS-014 | v0.7.4 PRD vs Implementation Gap Analysis v2.0 | 1.0 | Active | `03-analysis/v074-pivot-prd-impl-gap.analysis.md` |
+| AIF-ANLS-005 | 퇴직연금 실문서 구조 분석 | 1.0 | Active | `03-analysis/AIF-ANLS-005_retirement-pension-doc.md` |
+| AIF-ANLS-006 | Architecture Gap Analysis | 1.0 | Active | `03-analysis/AIF-ANLS-006_architecture-gap.md` |
+| AIF-ANLS-007 | Phase 4 Sprint 1 Analysis | 1.0 | Active | `03-analysis/AIF-ANLS-007_phase-4-sprint-1.md` |
+| AIF-ANLS-008 | Comprehensive Gap Analysis | 1.0 | Active | `03-analysis/AIF-ANLS-008_comprehensive-gap.md` |
+| AIF-ANLS-009 | v0.7.4 Phase 2-A Gap Analysis | 1.0 | Active | `03-analysis/AIF-ANLS-009_v074-pivot.md` |
+| AIF-ANLS-010 | v0.7.4 Phase 2-B Session 3 Gap Analysis | 1.0 | Active | `03-analysis/AIF-ANLS-010_v074-pivot-phase2b-session3.md` |
+| AIF-ANLS-011 | v0.7.4 Phase 2-B Final Gap Analysis | 1.0 | Active | `03-analysis/AIF-ANLS-011_v074-pivot-phase2b-final.md` |
+| AIF-ANLS-012 | v0.7.4 Phase 2-C/2-D Gap Analysis | 1.0 | Active | `03-analysis/AIF-ANLS-012_v074-pivot-phase2cd.md` |
+| AIF-ANLS-013 | v0.7.4 Phase 2-E Full Gap Analysis | 1.0 | Active | `03-analysis/AIF-ANLS-013_v074-pivot-phase2e-full.md` |
+| AIF-ANLS-014 | v0.7.4 PRD vs Implementation Gap Analysis v2.0 | 1.0 | Active | `03-analysis/AIF-ANLS-014_v074-pivot-prd-impl-gap.md` |
+| AIF-ANLS-015 | LLM Provider 벤치마크 분석 | 1.0 | Active | `03-analysis/AIF-ANLS-015_benchmark.md` |
+| AIF-ANLS-016 | SI 산출물 Export UI 분석 | 1.0 | Active | `03-analysis/AIF-ANLS-016_deliverable-export-ui.md` |
 | AIF-ANLS-018 | LPON 미문서화 외부 API 보완 제안서 | 1.0 | Active | `03-analysis/AIF-ANLS-018_undocumented-api-remediation.md` |
 | AIF-ANLS-018-P1 | LPON P1 API 인터페이스 명세 (역공학) | 1.0 | Active | `03-analysis/AIF-ANLS-018_interface-spec-p1.md` |
 | AIF-ANLS-018-P2 | LPON P2/P3 API 인터페이스 명세 (역공학) | 1.0 | Active | `03-analysis/AIF-ANLS-018_interface-spec-p2.md` |
-| AIF-ANLS-019 | AIF-REQ-017 산출물 Export Design vs Implementation Gap | 0.1 | Draft | `03-analysis/lpon-deliverable-validation.analysis.md` |
+| AIF-ANLS-019 | AIF-REQ-017 산출물 Export Design vs Implementation Gap | 0.1 | Draft | `03-analysis/AIF-ANLS-019_lpon-deliverable-validation.md` |
+| AIF-ANLS-020 | Generative UI Framework 분석 | 1.0 | Active | `03-analysis/AIF-ANLS-020_generative-ui-framework.md` |
+| AIF-ANLS-021 | Pipeline Quality Evaluation 분석 | 1.0 | Active | `03-analysis/AIF-ANLS-021_pipeline-quality-evaluation.md` |
+| AIF-ANLS-022 | Skill Bundling 분석 | 1.0 | Active | `03-analysis/AIF-ANLS-022_skill-bundling.md` |
 | AIF-ANLS-026 | Foundry-X 통합 비교 분석서 | 1.0 | Draft | `03-analysis/AIF-ANLS-026_foundry-x-integration-analysis.md` |
 
-## RPRT (10)
+## RPRT (12)
 
 | 코드 | 제목 | 버전 | 상태 | 파일 |
 |------|------|:----:|:----:|------|
 | AIF-RPRT-001 | Phase 2 Pilot 완료 보고서 | 1.0 | Active | `04-report/features/phase-2-pilot.report.md` |
-| AIF-RPRT-002 | Pipeline Hardening 완료 보고서 | 1.0 | Active | `04-report/pipeline-hardening.report.md` |
+| AIF-RPRT-002 | Pipeline Hardening 완료 보고서 | 1.0 | Active | `04-report/AIF-RPRT-002_pipeline-hardening.md` |
 | AIF-RPRT-003 | Phase 4 Sprint 1 완료 보고서 | 1.0 | Active | `04-report/features/phase-4-sprint-1.report.md` |
 | AIF-RPRT-004 | Architecture Quality Hardening 보고서 | 1.0 | Active | `04-report/features/architecture-quality-hardening.report.md` |
 | AIF-RPRT-005 | AI Chat Agent Tool Use 전환 보고서 | 1.0 | Active | `04-report/features/chat-agent-tool-use.report.md` |
 | AIF-RPRT-006 | User Onboarding System 보고서 | 1.0 | Active | `04-report/features/user-onboarding.report.md` |
 | AIF-RPRT-007 | v0.7.4 데모 시나리오 | 1.0 | Active | `04-report/features/v074-demo-scenario.md` |
-| AIF-RPRT-008 | Process-Diagnosis Executive Summary | 1.0 | Active | `04-report/EXECUTIVE_SUMMARY.md` |
+| AIF-RPRT-008 | Process-Diagnosis Executive Summary | 1.0 | Active | `04-report/AIF-RPRT-008_executive-summary.md` |
 | AIF-RPRT-009 | Production UI/UX 전체 점검 리포트 | 1.0 | Active | `04-report/features/production-ui-test.report.md` |
 | AIF-RPRT-010 | AIF-REQ-017 산출물 Export 완료 보고서 | 1.0 | Active | `04-report/features/lpon-deliverable-validation.report.md` |
+| AIF-RPRT-011 | LPON 온누리상품권 분석 보고서 v0.6.0 | 1.0 | Active | `04-report/AIF-RPRT-011_lpon-analysis-report.md` |
+| AIF-RPRT-012 | Miraeasset 퇴직연금 분석 보고서 v0.6.0 | 1.0 | Active | `04-report/AIF-RPRT-012_miraeasset-analysis-report.md` |
 
 ## GUID (1)
 
@@ -98,4 +105,4 @@
 
 ---
 
-**통계**: 활성 문서 49개 (SPEC 2 + PLAN 12 + DSGN 6 + ANLS 18 + RPRT 9 + GUID 1 + IDEN 1), 아카이브 12개
+**통계**: 활성 문서 56개 (SPEC 2 + PLAN 12 + DSGN 8 + ANLS 23 + RPRT 12 + GUID 1 + IDEN 1), 아카이브 12개

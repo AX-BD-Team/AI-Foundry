@@ -110,7 +110,7 @@ apps/app-mockup/
 
 ### 2.4 Check
 
-- **Document**: `docs/03-analysis/generative-ui-framework.analysis.md`
+- **Document**: `docs/03-analysis/AIF-ANLS-020_generative-ui-framework.md`
 - **Code**: AIF-ANLS-024
 - **Match Rate**: **93%** ✅ (Phase 1 범위 내)
 

@@ -65,6 +65,9 @@ const CATEGORIES: Record<string, { label: string; keywords: string[] }> = {
   operation: { label: "운영 관리", keywords: ["배치", "모니터링", "시스템", "설정", "관리자", "운영"] },
   settlement: { label: "정산/수수료", keywords: ["정산", "수수료", "매출", "대사", "입금", "출금"] },
   integration: { label: "API/연동", keywords: ["외부", "API", "연동", "오류", "응답", "인터페이스"] },
+  withdrawal: { label: "인출/지급", keywords: ["중도인출", "지급", "환급", "인출", "해지", "이전", "청구", "수급"] },
+  tax: { label: "세금/공제", keywords: ["세금", "세액공제", "과세", "원천징수", "퇴직소득", "연말정산", "비과세"] },
+  product: { label: "상품 관리", keywords: ["상품", "원리금보장", "수익증권", "펀드", "상품코드", "운용", "수익률"] },
   other: { label: "기타", keywords: [] },
 };
 const CATEGORY_IDS = Object.keys(CATEGORIES);

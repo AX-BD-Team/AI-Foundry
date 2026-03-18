@@ -120,7 +120,7 @@ Implemented Phase 1 of the Ouroboros-inspired 3-Stage Evaluation System for AI F
 
 ### Check (AIF-ANLS-022)
 
-**Document**: `docs/03-analysis/pipeline-quality-evaluation.analysis.md`
+**Document**: `docs/03-analysis/AIF-ANLS-021_pipeline-quality-evaluation.md`
 
 **Design Match Rate**: **98%**
 

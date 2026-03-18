@@ -58,7 +58,7 @@ author: Report Generator
 - **Git**: Commit `50c41cd` — `feat(benchmark): 3축 벤치마크 비교 보고서 페이지 (AIF-REQ-012)`
 
 ### Check
-- **갭 분석 보고서**: `docs/03-analysis/benchmark.analysis.md`
+- **갭 분석 보고서**: `docs/03-analysis/AIF-ANLS-015_benchmark.md`
 - **초기 매칭율**: 95% (32/32 항목, C-1 MEDIUM 이슈로 -3%, G-1 LOW로 -2%)
 - **문제 발견**: C-1 timeReductionPercent 공식 오류 (수정 전: `(1 - 1/manualTotalHours) * 100`)
 
@@ -429,7 +429,7 @@ GROUP BY stage
 
 - **Plan**: No formal plan document (direct from AIF-REQ-012)
 - **Design**: No formal design document (expectations in gap analysis)
-- **Analysis**: [`docs/03-analysis/benchmark.analysis.md`](../03-analysis/benchmark.analysis.md)
+- **Analysis**: [`docs/03-analysis/AIF-ANLS-015_benchmark.md`](../03-analysis/benchmark.analysis.md)
 - **Requirement**: AIF-REQ-012 (LPON 고객 발표용 벤치마크 페이지)
 
 ---
