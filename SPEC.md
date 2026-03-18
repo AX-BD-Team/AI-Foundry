@@ -438,7 +438,7 @@
 
 | ID | 유형 | 도메인 | 우선순위 | 상태 | 제목 |
 |----|------|--------|:--------:|:----:|------|
-| AIF-REQ-019 | Feature | Integration | P0 | PLANNED | Working Mock-up 사이트 — 추출된 결과물(Skill, 정책, 온톨로지) 기반 핵심 엔진 동작 검증. Foundry-X 연동, AXIS Design System 적용, Agent 기반 자동화 구축 |
+| AIF-REQ-019 | Feature | Integration | P0 | IN_PROGRESS | Working Mock-up 사이트 — 추출된 결과물(Skill, 정책, 온톨로지) 기반 핵심 엔진 동작 검증. Foundry-X 연동, AXIS Design System 적용, Agent 기반 자동화 구축. PDCA Full Cycle 91% 완료 (세션 166b), 배포 후속 |
 
 ### 계정/인프라 이전 (신규 등록)
 

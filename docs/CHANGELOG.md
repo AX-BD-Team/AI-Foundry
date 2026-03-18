@@ -2,6 +2,21 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 168 — 2026-03-18
+
+**요구사항 관리 전수 동기화 — SPEC ↔ GitHub Issues ↔ Project 100% 정합 달성**:
+
+- ✅ `/ax-10-req list` 활성 요구사항 조회 → 5건 불일치 감지 (REQ-019 SPEC drift + REQ-021~024 Issue 미생성)
+- ✅ `/ax-10-req sync` 5건 일괄 수정 — REQ-019 SPEC PLANNED→IN_PROGRESS, REQ-021~024 Issue 생성(#6~#9) + Project 추가
+- ✅ `/ax-10-req list` 전체 전수 점검 (24건) → DONE 14건 Issue/Project 미생성 확인
+- ✅ DONE 소급 등록 14건(REQ-004~017) — Issue 생성→Close→Project(Done) 일괄 처리
+- 결과: **23 Issues** (14 Closed + 9 Open), **Project 23 아이템**, SPEC↔Issue↔Project 100% 정합
+- GitHub Labels: `feature` 라벨 신규 생성
+
+**검증 결과**:
+- ✅ GraphQL로 전체 Project 커스텀 필드(REQ Code, Work Type, Priority, Status) 정합 확인
+- ✅ SPEC.md 1건 갱신 (REQ-019 상태)
+
 ## 세션 167 — 2026-03-18
 
 **외부 리포 검토 → REQ-021~024 등록 + REQ-022/024 PDCA Full Cycle**:
