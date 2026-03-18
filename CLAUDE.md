@@ -4,11 +4,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**AI Foundry** (v0.6, Draft) — a domain knowledge extraction platform that reverse-engineers SI project deliverables (ERD, screen designs, API specs, ISP, requirements docs) to extract tacit knowledge and package it as reusable **AI Skill assets**. Built by KTDS AX BD팀. Pilot domain: 퇴직연금 (Retirement Pension).
+**AI Foundry** (v0.6) — SI 프로젝트 산출물(소스코드, 요구사항 정의서, API 명세서, 테이블 정의서, 화면 설계서 등)을 역공학하여 도메인 지식을 추출하고, 새 프로젝트의 **반제품(Working Prototype)**으로 재패키징하는 엔진. **Foundry-X 제품군**의 지식 추출 엔진 역할.
 
-Full product requirements and technical design are in `docs/AI_Foundry_PRD_TDS_v0.7.4.docx` (latest) and `docs/AI_Foundry_PRD_TDS_v0.6.docx`. This is the authoritative reference for all design decisions.
+> **한줄 정의**: 과거의 지식을 미래의 코드로 바꾸는 엔진 (Reverse-to-Forward Bridge)
 
-> **Status**: Phase 4 Sprint 2 완료. 12 Workers + Pages 배포, 1,737 tests (97 test files), staging/production 환경 분리. 퇴직연금 실문서 파일럿: 13/15 문서 파싱, policies 2,827, terms 1,441. LPON 온누리상품권: 85/88 파싱, policies 848, ontologies 848, terms 7,332, skills 859. Production: policies 3,675, skills 3,924 (2-org). 멀티 프로바이더 LLM (Anthropic/OpenAI/Google/Workers AI) fallback + MCP Server (Streamable HTTP) 완비. PDF/PPTX 분할 파싱 + FactCheck 커버리지 31.2% + SI 산출물 Export + LLM A/B 비교 API.
+**포지셔닝**: 역공학(기존 산출물 분석)으로 시작해서 순공학(새 프로젝트 부트스트래핑)으로 끝나는 양방향 엔진. Foundry-X(에이전트 협업 플랫폼)와 결합하면, 기존 SI 산출물이 새 프로젝트의 출발점이 된다.
+
+```
+Input:  소스코드 + SI 산출물 (요구사항, API 명세, 테이블 정의, 화면 설계서)
+Process: 5-Stage 역공학 파이프라인 + 반제품화
+Output: Working Prototype (하네스 + Spec 초안 + 스키마 + MCP 도구 + Skill 자산)
+         → Foundry-X로 핸드오프 → Production-ready Software
+```
+
+Full product requirements and technical design are in `docs/AI_Foundry_PRD_TDS_v0.7.4.docx` (latest) and `docs/AI_Foundry_PRD_TDS_v0.6.docx`. 정체성 재정의: `docs/AI_Foundry_Identity.md`. 통합 분석: `docs/03-analysis/AIF-ANLS-026_foundry-x-integration-analysis.md`. Built by KTDS AX BD팀. Pilot domain: 퇴직연금 + 온누리상품권.
+
+> **Status**: Phase 4 Sprint 2 완료. 12 Workers + Pages 배포, 1,801 tests (99 test files), staging/production 환경 분리. 퇴직연금 실문서 파일럿: 13/15 문서 파싱, policies 2,827, terms 1,441. LPON 온누리상품권: 85/88 파싱, policies 848, ontologies 848, terms 7,332, skills 859. Production: policies 3,675, skills 3,924 (2-org). 멀티 프로바이더 LLM (Anthropic/OpenAI/Google/Workers AI) fallback + MCP Server (Streamable HTTP) 완비. PDF/PPTX 분할 파싱 + FactCheck 커버리지 31.2% + SI 산출물 Export + LLM A/B 비교 API.
 
 ---
 
@@ -77,35 +88,36 @@ Each service has its own `wrangler.toml` and deploys independently.
 ### 6-Layer System
 | Layer | Responsibility |
 |---|---|
-| **Core Engine** | 5-stage document-to-Skill pipeline |
+| **Core Engine** | 5-stage reverse-to-forward pipeline (산출물 → 반제품) |
 | **AI Governing** | LLM policy, prompt versioning, cost/data governance, audit |
 | **Evaluation** | 3-level trust scoring (individual output → Skill package → system) |
 | **DevSecOps** | RBAC, CI/CD, env separation, monitoring, resilience |
 | **AI UX** | 21 screens across 5 personas (Cloudflare Pages SPA) |
 | **Data & Ontology** | D1 (10 DBs), Neo4j Aura (graph), SKOS/JSON-LD (ontology), R2 (objects) |
 
-### 5-Stage Core Engine Pipeline
+### 5-Stage Core Engine Pipeline (역공학 → 반제품)
 ```
-Stage 1: Document Ingestion
-  Input: PDF, PPT, DOCX, Excel, Image (ERD)
-  Engine: Unstructured.io (main) + Claude Vision (ERD) + Custom Excel parser
+Stage 1: Document Ingestion (문서 구조화)
+  Input: PDF, PPT, DOCX, Excel, Image (ERD), 소스코드
+  Engine: Unstructured.io (main) + Claude Vision (ERD) + Custom Excel parser + AST parser
   Output: Structured chunks + classification labels
 
-Stage 2: Structure Extraction
+Stage 2: Structure Extraction (구조 추출)
   Engine: Claude Sonnet (complex) / Haiku (standard)
   Output: Process graph + entity relation map + trace matrix
 
-Stage 3: Policy Inference  ← competitive moat; HITL core
+Stage 3: Policy Inference (비즈니스 룰 명시화) ← competitive moat; HITL core
   Engine: Claude Opus (policy gen) + Cloudflare HITL (DO + Queues)
   Output: Policy candidates → HITL review → confirmed policies (condition-criteria-outcome triples)
 
-Stage 4: Ontology Normalization
+Stage 4: Ontology Normalization (도메인 용어 통일)
   Engine: SKOS/JSON-LD + Neo4j Aura + Haiku/Workers AI (embedding)
   Output: Domain ontology graph + terminology dictionary
 
-Stage 5: Skill Packaging
-  Engine: Custom Skill Spec + Claude Sonnet (docs)
-  Output: .skill.json (AI Foundry Spec) + MCP adapter + OpenAPI adapter
+Stage 5: Skill Packaging + 반제품 생성
+  Engine: Custom Skill Spec + Claude Sonnet (docs) + Bundler
+  Output: .skill.json + MCP adapter + OpenAPI adapter
+          + Working Prototype (하네스 + Spec 초안 + 스키마) → Foundry-X 핸드오프
 ```
 
 ### MSA — 12 Cloudflare Workers Services
@@ -158,6 +170,8 @@ Stage 5: Skill Packaging
 | T-4 | Custom AI Foundry Skill Spec as single source of truth; MCP/OpenAPI are adapters |
 | T-5 | HITL workflow via Cloudflare native primitives (Workers + DO + Queues + D1) |
 | T-6 | Full Cloudflare stack + Anthropic API + Neo4j Aura |
+| T-7 | Reverse-to-Forward Bridge: 5-Stage 역공학 출력을 Working Prototype(반제품)으로 확장, Foundry-X 핸드오프 |
+| T-8 | Foundry-X 제품군 통합: MCP 프로토콜 + Working Prototype 포맷이 연결 인터페이스 |
 
 ---
 

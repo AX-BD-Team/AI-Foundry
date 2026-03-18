@@ -1,17 +1,20 @@
 # SPEC.md — res-ai-foundry
 
 > Single Source of Truth (SSOT) for implementation status, architecture decisions, and execution plan.
-> Product/requirement authority: `docs/AI_Foundry_PRD_TDS_v0.6.docx`
+> Product/requirement authority: `docs/AI_Foundry_PRD_TDS_v0.7.4.docx` + `docs/AI_Foundry_Identity.md` (정체성 재정의)
 
 ---
 
 ## 1) Project Summary
 
-- **Project**: RES AI Foundry
-- **Repo**: `AX-BD-Team/res-ai-foundry`
-- **Goal**: SI 산출물에서 암묵지를 추출해 재사용 가능한 Skill 자산으로 패키징
-- **Domain Pilot**: 퇴직연금
-- **Current Phase**: Phase 4 Sprint 2 완료 (퇴직연금 실문서 파일럿)
+- **Project**: AI Foundry (Foundry-X 제품군 — 지식 추출 엔진)
+- **Repo**: `KTDS-AXBD/res-ai-foundry`
+- **한줄 정의**: 과거의 지식을 미래의 코드로 바꾸는 엔진 (Reverse-to-Forward Bridge)
+- **Goal**: SI 산출물 + 소스코드를 역공학하여 도메인 지식을 추출하고, 새 프로젝트의 반제품(Working Prototype)으로 재패키징
+- **Positioning**: 역공학(기존 산출물 분석) → 순공학(새 프로젝트 부트스트래핑) 양방향 엔진. Foundry-X(에이전트 협업 플랫폼)와 결합하여 완전한 소프트웨어 개발 파이프라인 구성
+- **Domain Pilot**: 퇴직연금 + 온누리상품권
+- **Current Phase**: Phase 4 Sprint 2 완료 (2-org 파일럿)
+- **Foundry-X 연동**: AIF-REQ-026 (P1, OPEN) — [KTDS-AXBD/Foundry-X](https://github.com/KTDS-AXBD/Foundry-X)
 
 ---
 
@@ -465,6 +468,12 @@
 | ID | 유형 | 도메인 | 우선순위 | 상태 | 제목 |
 |----|------|--------|:--------:|:----:|------|
 | AIF-REQ-025 | Improvement | Pipeline | P1 | OPEN | Skill 번들링 재설계 — 현재 1 skill = 1 policy (859개)를 LLM 의미 분류로 기능 단위 ~25개 번들로 재패키징. Claude Code 스킬 형태 활용 목적. Stage 5 패키징 로직 변경 + MCP 어댑터 갱신 + trust score 산정 |
+
+### Foundry-X 통합 — 제품군 통합 및 포지셔닝 (신규 등록)
+
+| ID | 유형 | 도메인 | 우선순위 | 상태 | 제목 |
+|----|------|--------|:--------:|:----:|------|
+| AIF-REQ-026 | Feature | Integration | P1 | OPEN | Foundry-X 통합 계획 — AI Foundry(역공학: SI 산출물→Skill 추출)와 Foundry-X(순공학: Spec↔Code↔Test 동기화+에이전트 협업)를 하나의 제품군으로 통합. (1) AI Foundry Skill 자산을 Foundry-X MCP/에이전트 도구로 연동, (2) 역공학↔순공학 양방향 포지셔닝 재정의, (3) 기술 스택 정합성 검토(Cloudflare Workers vs Node.js+Hono), (4) 공유 타입/패키지 통합, (5) 통합 로드맵 수립. 참조: [KTDS-AXBD/Foundry-X](https://github.com/KTDS-AXBD/Foundry-X) |
 
 ---
 

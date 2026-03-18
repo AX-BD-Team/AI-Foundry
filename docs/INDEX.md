@@ -26,6 +26,7 @@
 | AIF-PLAN-018 | 온누리상품권 분석 산출물 검증 및 문서화 | 0.1 | Draft | `01-plan/features/lpon-deliverable-validation.plan.md` |
 | AIF-PLAN-019 | SI 산출물 Export UI | 0.1 | Draft | `01-plan/features/deliverable-export-ui.plan.md` |
 | AIF-PLAN-020 | 계정/인프라 이전 | 1.0 | Draft | `03-plan/AIF-PLAN-020_account-migration.md` |
+| AIF-PLAN-026 | Foundry-X 통합 — 제품군 통합 로드맵 | 1.0 | Draft | `01-plan/features/foundry-x-integration.plan.md` |
 
 ## DSGN (8)
 
@@ -62,6 +63,7 @@
 | AIF-ANLS-018-P1 | LPON P1 API 인터페이스 명세 (역공학) | 1.0 | Active | `03-analysis/AIF-ANLS-018_interface-spec-p1.md` |
 | AIF-ANLS-018-P2 | LPON P2/P3 API 인터페이스 명세 (역공학) | 1.0 | Active | `03-analysis/AIF-ANLS-018_interface-spec-p2.md` |
 | AIF-ANLS-019 | AIF-REQ-017 산출물 Export Design vs Implementation Gap | 0.1 | Draft | `03-analysis/lpon-deliverable-validation.analysis.md` |
+| AIF-ANLS-026 | Foundry-X 통합 비교 분석서 | 1.0 | Draft | `03-analysis/AIF-ANLS-026_foundry-x-integration-analysis.md` |
 
 ## RPRT (10)
 
@@ -84,10 +86,16 @@
 |------|------|:----:|:----:|------|
 | AIF-GUID-001 | Claude Desktop MCP 연동 테스트 가이드 | 1.0 | Active | `mcp-desktop-test-guide.md` |
 
+## IDEN (1)
+
+| 코드 | 제목 | 버전 | 상태 | 파일 |
+|------|------|:----:|:----:|------|
+| — | AI Foundry 프로젝트 정체성 정의서 | 1.0 | Active | `AI_Foundry_Identity.md` |
+
 ## Archive (12)
 
 > `docs/archive/2026-03/` — 별도 인덱스 `archive/2026-03/_INDEX.md` 참조
 
 ---
 
-**통계**: 활성 문서 46개 (SPEC 2 + PLAN 11 + DSGN 6 + ANLS 17 + RPRT 9 + GUID 1), 아카이브 12개
+**통계**: 활성 문서 49개 (SPEC 2 + PLAN 12 + DSGN 6 + ANLS 18 + RPRT 9 + GUID 1 + IDEN 1), 아카이브 12개
