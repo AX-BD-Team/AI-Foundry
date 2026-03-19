@@ -11,10 +11,14 @@
 - ✅ svc-skill: GET /skills/:id, /download, /openapi, /mcp, /evaluate, /export/cc에 organization_id 조건 추가 (5개 파일)
 - ✅ LPON에서 Miraeasset 온톨로지 노출 차단 확인
 
+- ✅ svc-ontology + svc-skill wrangler.toml D1/KV ID를 새 계정(ktds-axbd) UUID로 교체 (세션 178 누락분)
+- ✅ svc-ontology-production + svc-skill-production wrangler deploy 완료
+
 **검증 결과**:
 - ✅ svc-ontology: 114 tests passed (5 files)
 - ✅ svc-skill: 214 tests passed (17 files)
 - ✅ typecheck 18/18 PASS
+- ✅ Production org 격리 검증: LPON 7,332 terms / Miraeasset 24,984 terms (분리 확인)
 
 ## 세션 179 — 2026-03-19
 
