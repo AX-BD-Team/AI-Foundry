@@ -2,6 +2,23 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 175 — 2026-03-19
+
+**Foundry-X MCP 통합 Phase 1-2 — org 단위 MCP 엔드포인트 + R2 재업로드 (AIF-REQ-026)**:
+- ✅ CLAUDE.md 현행화 (/revise-claude-md + /claude-md-improver): Phase 4 완료, scripts/ 추가, app-mockup 추가, Migration Paths, test 117개
+- ✅ Plan (AIF-PLAN-026B) + Design (AIF-DSGN-026B): 4 Task 스프린트 계획 + 상세 설계
+- ✅ /ax-06-team 2-worker 병렬 구현: W1(svc-skill org adapter) + W2(svc-mcp-server org endpoint)
+- ✅ T1: bundled skills R2 재업로드 — LPON 35 + Miraeasset 15 = 50/50, LLM 호출 0회
+- ✅ T2: org 단위 MCP 엔드포인트 (`POST /mcp/org/:orgId`) — raw JSON-RPC (848+ tool SDK 크래시 해결)
+- ✅ Production 배포: svc-skill + svc-mcp-server
+- ✅ E2E: initialize → 2,525 tools → tools/call 정책 평가 성공 (openai/gpt-4.1-mini, 3.6s)
+- ✅ Gap Analysis (AIF-ANLS-026B): 95% match rate (37/39), GAP 2건(Low/Info), BONUS 4건
+- ✅ 완료 보고서 (AIF-RPRT-026B): PDCA Full Cycle 완료
+
+**검증 결과**:
+- ✅ typecheck 18/18 PASS, lint PASS (변경 서비스), tests 266 PASS (+17 신규)
+- ✅ svc-skill 214 tests, svc-mcp-server 52 tests
+
 ## 세션 174 — 2026-03-19
 
 **[AIF-REQ-018 리포트 UX 동적화 + Worker File Guard 3-Layer 방어]**:

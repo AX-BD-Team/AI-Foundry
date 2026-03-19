@@ -57,7 +57,7 @@
 
 - **Last Updated**: 2026-03-19
 - **Current Phase**: Phase 4 Sprint 2 완료 — 12 Workers + Pages 배포, 2-org 파일럿 (퇴직연금 + 온누리상품권), policies 3,675 / skills 3,924
-- **Foundry-X MCP 통합**: ✅ Phase 1-1 PoC 완료 — 9/9 왕복 검증 + 12/12 bundled skills MCP (848 tools). AIF-REQ-026 IN_PROGRESS
+- **Foundry-X MCP 통합**: ✅ Phase 1-2 완료 — org 단위 통합 MCP 엔드포인트(`/mcp/org/:orgId`), bundled skills 50개 R2 업로드, E2E 검증(initialize → 2,525 tools → tools/call). PDCA 95%. AIF-REQ-026 IN_PROGRESS
 - **Production E2E**: ✅ 8/8 PASS (synthetic) + 7/7 PASS (real-doc) + Batch 3: 7/11 parsed (SCDSA002 4건 → encrypted 상태)
 - **Real Document Pilot**: ✅ 20/26 문서 파싱 완료 (Batch 1: 4건, Batch 2: 9/11건, Batch 3: 7/11건)
 - **Production Data**: policies 3,675 approved (LPON 848 + Miraeasset 2,827), skills 3,924 (LPON 859 + Miraeasset 3,065). 2-org
@@ -448,7 +448,7 @@
 
 | ID | 유형 | 도메인 | 우선순위 | 상태 | 제목 |
 |----|------|--------|:--------:|:----:|------|
-| AIF-REQ-020 | Chore | Infra | P0 | PLANNED | 계정/인프라 이전 — GitHub(sinclairseo→ktds.axbd) + Cloudflare(sinclair.seo→ktds.axbd) 리소스 이전. DNS는 개인 계정 유지, Workers/D1/R2/Queue/KV/Pages 전체 이전. CI/CD secrets + wrangler.toml 리소스 ID 갱신 |
+| AIF-REQ-020 | Chore | Infra | P0 | IN_PROGRESS | 계정/인프라 이전 — GitHub(sinclairseo→ktds.axbd) + Cloudflare(sinclair.seo→ktds.axbd) 리소스 이전. DNS는 개인 계정 유지, Workers/D1/R2/Queue/KV/Pages 전체 이전. CI/CD secrets + wrangler.toml 리소스 ID 갱신 |
 
 ### 파이프라인 고도화 — Ouroboros 패턴 반영 (신규 등록)
 
