@@ -2,6 +2,31 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 178 — 2026-03-19
+
+**전체 서비스 D1/KV ID 교체 + R2 재업로드 + Foundry-X MCP 등록**:
+- ✅ svc-skill wrangler.toml D1/KV ID 수정 (구 계정 → ktds-axbd)
+- ✅ 9개 서비스 wrangler.toml D1/KV ID 일괄 교체 (33건 MISMATCH → 0)
+- ✅ R2 bundled skills 27/27 재업로드 (upload-bundled-r2.ts, LPON 12 + Miraeasset 15)
+- ✅ 12 Workers 전체 재배포 (production), 12/12 health 200
+- ✅ Org MCP adapter 검증: LPON 616 tools, Miraeasset 1,513 tools
+- ✅ Foundry-X McpServerRegistry 등록: 2서버 (LPON + Miraeasset), 연결 테스트 통과
+
+**검증 결과**:
+- ✅ 12/12 Workers health 200
+- ✅ MCP connection test: connected (2,129 tools)
+
+## 세션 177 — 2026-03-19
+
+**ax-infra-selfcheck 자율점검 + 수정**:
+- ✅ 8개 점검 항목 전체 수행 (C1~C8)
+- ✅ C1 수정: ax-infra-statusline.md frontmatter name을 파일명과 일치시킴 (ax-15-statusline → ax-infra-statusline)
+- ✅ C2 수정: CLAUDE.md 스킬 테이블에 /ax-14-integrity 등록 (ax-req-integrity 미등록 해소)
+- ✅ 재점검: 8/8 PASS 확인
+
+**검증 결과**:
+- ✅ 문서 변경만 — typecheck/lint 영향 없음
+
 ## 세션 176 — 2026-03-19
 
 **AIF-REQ-020 계정/인프라 이전 — sinclair.seo→ktds.axbd 전체 완료**:
