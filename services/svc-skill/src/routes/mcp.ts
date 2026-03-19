@@ -222,11 +222,7 @@ export async function handleGetOrgMcpAdapter(
     const adapter = toMcpAdapter(item.pkg);
     for (const tool of adapter.tools) {
       if (seenToolNames.has(tool.name)) {
-        logger.warn("Duplicate tool name in org adapter", {
-          orgId,
-          toolName: tool.name,
-          skillId: item.skillId,
-        });
+        continue; // skip duplicate — same policy in multiple bundled skills
       }
       seenToolNames.add(tool.name);
       allTools.push(tool);
