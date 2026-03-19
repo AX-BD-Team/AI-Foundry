@@ -10,7 +10,7 @@ inspector_port = 9205
 [[d1_databases]]
 binding = "DB_SKILL"
 database_name = "db-skill"
-database_id = "96e6ac0c-eefa-45f5-9c07-4fd84a0f1df1"
+database_id = "a3f582ba-21b6-4008-9c41-deed94f9d237"
 
 [[r2_buckets]]
 binding = "R2_SKILL_PACKAGES"
@@ -18,7 +18,7 @@ bucket_name = "ai-foundry-skill-packages"
 
 [[kv_namespaces]]
 binding = "KV_SKILL_CACHE"
-id = "bdb5c9697bb546b99f6dadec455fd740"
+id = "b8ca68ae4a6b4c8b8ddec9e5eed0c09e"
 
 # Service binding to svc-security for audit logging
 [[services]]
@@ -60,7 +60,7 @@ vars = { ENVIRONMENT = "staging", SERVICE_NAME = "svc-skill" }
 [[env.staging.d1_databases]]
 binding = "DB_SKILL"
 database_name = "db-skill-staging"
-96e6ac0c-eefa-45f5-9c07-4fd84a0f1df1 = "2ed51d83-f7c1-4835-98e0-65b548d79135"
+database_id = "2166b6b5-8f49-4c3d-97b3-02dbd70eaea7"
 
 [[env.staging.r2_buckets]]
 binding = "R2_SKILL_PACKAGES"
@@ -68,7 +68,7 @@ bucket_name = "ai-foundry-skill-packages-staging"
 
 [[env.staging.kv_namespaces]]
 binding = "KV_SKILL_CACHE"
-id = "100a04bcf8554b6abcc982a3bd7d037f"
+id = "97b63e0e61574cae8de56c54b6e0256b"
 
 [[env.staging.services]]
 binding = "SECURITY"
@@ -99,7 +99,7 @@ vars = { ENVIRONMENT = "production", SERVICE_NAME = "svc-skill" }
 [[env.production.d1_databases]]
 binding = "DB_SKILL"
 database_name = "db-skill"
-database_id = "96e6ac0c-eefa-45f5-9c07-4fd84a0f1df1"
+database_id = "a3f582ba-21b6-4008-9c41-deed94f9d237"
 
 [[env.production.r2_buckets]]
 binding = "R2_SKILL_PACKAGES"
@@ -107,7 +107,7 @@ bucket_name = "ai-foundry-skill-packages"
 
 [[env.production.kv_namespaces]]
 binding = "KV_SKILL_CACHE"
-id = "6eaa9c8dba4a452d8997c0d0aac75100"
+id = "916333bca3914c959622fc5ff2adbc13"
 
 [[env.production.services]]
 binding = "SECURITY"

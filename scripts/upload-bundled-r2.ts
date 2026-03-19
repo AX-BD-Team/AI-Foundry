@@ -17,8 +17,8 @@
 const CF_TOKEN = process.env["CLOUDFLARE_API_TOKEN"] ?? "";
 const CF_ACCOUNT = process.env["CLOUDFLARE_ACCOUNT_ID"] ?? "";
 const ORG_FILTER = process.env["ORG_ID"] ?? "";
-const DB_ID = "a3f582ba-21b6-4008-9c41-deed94f9d237"; // db-skill
-const POLICY_API = "https://svc-policy-production.sinclair-account.workers.dev";
+const DB_ID = "a3f582ba-21b6-4008-9c41-deed94f9d237"; // db-skill (ktds-axbd, REST API UUID)
+const POLICY_API = "https://svc-policy-production.ktds-axbd.workers.dev";
 const SECRET = "e2e-test-secret-2026";
 
 if (!CF_TOKEN) { console.error("❌ CLOUDFLARE_API_TOKEN required"); process.exit(1); }
