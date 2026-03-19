@@ -10,9 +10,9 @@
  *   CLOUDFLARE_API_TOKEN=xxx ORG_ID=Miraeasset DOMAIN=pension bun run scripts/rebundle-production.ts
  */
 
-const POLICY_API = "https://svc-policy-production.sinclair-account.workers.dev";
-const LLM_API = "https://svc-llm-router-production.sinclair-account.workers.dev";
-const SKILL_API = "https://svc-skill-production.sinclair-account.workers.dev";
+const POLICY_API = "https://svc-policy-production.ktds-axbd.workers.dev";
+const LLM_API = "https://svc-llm-router-production.ktds-axbd.workers.dev";
+const SKILL_API = "https://svc-skill-production.ktds-axbd.workers.dev";
 const SECRET = "e2e-test-secret-2026";
 const CF_TOKEN = process.env["CLOUDFLARE_API_TOKEN"] ?? "";
 const ORG_ID = process.env["ORG_ID"] ?? "LPON";

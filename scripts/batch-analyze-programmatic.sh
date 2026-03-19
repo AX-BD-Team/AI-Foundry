@@ -26,8 +26,8 @@ RANK_FILTER="medium"
 DRY_RUN=false
 YES=false
 
-EXTRACTION_PRODUCTION="https://svc-extraction.sinclair-account.workers.dev"
-EXTRACTION_STAGING="https://svc-extraction-staging.sinclair-account.workers.dev"
+EXTRACTION_PRODUCTION="https://svc-extraction.ktds-axbd.workers.dev"
+EXTRACTION_STAGING="https://svc-extraction-staging.ktds-axbd.workers.dev"
 
 # ── Parse args ───────────────────────────────────────────────────────
 

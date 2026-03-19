@@ -64,13 +64,13 @@ fi
 
 # Environment URLs
 if [[ "$ENV" == "staging" ]]; then
-  INGESTION_URL="https://svc-ingestion-staging.sinclair-account.workers.dev"
-  POLICY_URL="https://svc-policy-staging.sinclair-account.workers.dev"
-  ANALYTICS_URL="https://svc-analytics-staging.sinclair-account.workers.dev"
+  INGESTION_URL="https://svc-ingestion-staging.ktds-axbd.workers.dev"
+  POLICY_URL="https://svc-policy-staging.ktds-axbd.workers.dev"
+  ANALYTICS_URL="https://svc-analytics-staging.ktds-axbd.workers.dev"
 else
-  INGESTION_URL="https://svc-ingestion.sinclair-account.workers.dev"
-  POLICY_URL="https://svc-policy.sinclair-account.workers.dev"
-  ANALYTICS_URL="https://svc-analytics.sinclair-account.workers.dev"
+  INGESTION_URL="https://svc-ingestion.ktds-axbd.workers.dev"
+  POLICY_URL="https://svc-policy.ktds-axbd.workers.dev"
+  ANALYTICS_URL="https://svc-analytics.ktds-axbd.workers.dev"
 fi
 
 SECRET_HEADER="X-Internal-Secret: ${INTERNAL_API_SECRET:-}"

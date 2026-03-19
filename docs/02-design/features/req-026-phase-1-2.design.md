@@ -99,7 +99,7 @@ SKILL_ID=$(wrangler d1 execute db-skill --remote --env production \
 
 curl -s -o /dev/null -w "%{http_code}" \
   -H "X-Internal-Secret: ${SECRET}" \
-  "https://svc-skill-production.sinclair-account.workers.dev/skills/${SKILL_ID}/mcp"
+  "https://svc-skill-production.ktds-axbd.workers.dev/skills/${SKILL_ID}/mcp"
 # Expected: 200
 ```
 

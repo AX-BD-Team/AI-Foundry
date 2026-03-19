@@ -31,10 +31,10 @@ YES=false
 
 # ── Base URLs ────────────────────────────────────────────────────────
 
-INGESTION_PRODUCTION="https://svc-ingestion.sinclair-account.workers.dev"
-INGESTION_STAGING="https://svc-ingestion-staging.sinclair-account.workers.dev"
-EXTRACTION_PRODUCTION="https://svc-extraction.sinclair-account.workers.dev"
-EXTRACTION_STAGING="https://svc-extraction-staging.sinclair-account.workers.dev"
+INGESTION_PRODUCTION="https://svc-ingestion.ktds-axbd.workers.dev"
+INGESTION_STAGING="https://svc-ingestion-staging.ktds-axbd.workers.dev"
+EXTRACTION_PRODUCTION="https://svc-extraction.ktds-axbd.workers.dev"
+EXTRACTION_STAGING="https://svc-extraction-staging.ktds-axbd.workers.dev"
 
 # ── Parse args ───────────────────────────────────────────────────────
 

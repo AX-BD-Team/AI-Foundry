@@ -35,8 +35,8 @@ YES=false
 
 # ── Base URLs ────────────────────────────────────────────────────────
 
-BASE_URL_PRODUCTION="https://svc-policy.sinclair-account.workers.dev"
-BASE_URL_STAGING="https://svc-policy-staging.sinclair-account.workers.dev"
+BASE_URL_PRODUCTION="https://svc-policy.ktds-axbd.workers.dev"
+BASE_URL_STAGING="https://svc-policy-staging.ktds-axbd.workers.dev"
 
 # ── Parse args ───────────────────────────────────────────────────────
 

@@ -131,9 +131,9 @@ fi
 
 # ── Base URL ──────────────────────────────────────────────────────────
 if [[ "$ENVIRONMENT" == "production" ]]; then
-  BASE_URL="https://svc-ingestion-production.sinclair-account.workers.dev"
+  BASE_URL="https://svc-ingestion-production.ktds-axbd.workers.dev"
 else
-  BASE_URL="https://svc-ingestion-staging.sinclair-account.workers.dev"
+  BASE_URL="https://svc-ingestion-staging.ktds-axbd.workers.dev"
 fi
 
 # ── Log file setup ────────────────────────────────────────────────────

@@ -40,15 +40,15 @@ C:\Users\sincl\AppData\Local\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Roaming\Cl
   "preferences": { ... },
   "mcpServers": {
     "pension-withdrawal-reason": {
-      "url": "https://svc-mcp-server-staging.sinclair-account.workers.dev/mcp/c1d28aa2-e62e-462a-8eed-0c7a3bd26830",
+      "url": "https://svc-mcp-server-staging.ktds-axbd.workers.dev/mcp/c1d28aa2-e62e-462a-8eed-0c7a3bd26830",
       "headers": { "Authorization": "Bearer e2e-test-secret-2026" }
     },
     "pension-withdrawal-limit": {
-      "url": "https://svc-mcp-server-staging.sinclair-account.workers.dev/mcp/d55624fd-a736-45e0-8a30-874518ad96c3",
+      "url": "https://svc-mcp-server-staging.ktds-axbd.workers.dev/mcp/d55624fd-a736-45e0-8a30-874518ad96c3",
       "headers": { "Authorization": "Bearer e2e-test-secret-2026" }
     },
     "pension-housing-purchase": {
-      "url": "https://svc-mcp-server-staging.sinclair-account.workers.dev/mcp/9e7c7e36-a072-4175-9981-d790569fedd8",
+      "url": "https://svc-mcp-server-staging.ktds-axbd.workers.dev/mcp/9e7c7e36-a072-4175-9981-d790569fedd8",
       "headers": { "Authorization": "Bearer e2e-test-secret-2026" }
     }
   }
@@ -197,7 +197,7 @@ C:\Users\sincl\AppData\Local\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Roaming\Cl
 **원인 2: 네트워크 문제**
 - WSL 터미널에서 직접 확인:
 ```bash
-curl -s https://svc-mcp-server-staging.sinclair-account.workers.dev/health
+curl -s https://svc-mcp-server-staging.ktds-axbd.workers.dev/health
 # 예상: {"status":"ok","service":"svc-mcp-server"}
 ```
 
@@ -212,7 +212,7 @@ curl -s https://svc-mcp-server-staging.sinclair-account.workers.dev/health
 - 확인 명령:
 ```bash
 curl -s -H "X-Internal-Secret: e2e-test-secret-2026" \
-  "https://svc-skill-staging.sinclair-account.workers.dev/skills/c1d28aa2-e62e-462a-8eed-0c7a3bd26830" | jq '.success'
+  "https://svc-skill-staging.ktds-axbd.workers.dev/skills/c1d28aa2-e62e-462a-8eed-0c7a3bd26830" | jq '.success'
 ```
 
 **"평가 실패" 또는 타임아웃:**
@@ -234,7 +234,7 @@ Claude Desktop 테스트 전에 curl로 전체 플로우를 검증할 수 있습
 ### 6-1. Health Check
 
 ```bash
-curl -s https://svc-mcp-server-staging.sinclair-account.workers.dev/health | jq .
+curl -s https://svc-mcp-server-staging.ktds-axbd.workers.dev/health | jq .
 ```
 
 ### 6-2. Initialize
@@ -245,7 +245,7 @@ curl -s -X POST \
   -H "Authorization: Bearer e2e-test-secret-2026" \
   -H "Content-Type: application/json" \
   -H "Accept: application/json, text/event-stream" \
-  "https://svc-mcp-server-staging.sinclair-account.workers.dev/mcp/$SKILL_ID" \
+  "https://svc-mcp-server-staging.ktds-axbd.workers.dev/mcp/$SKILL_ID" \
   -d '{
     "jsonrpc": "2.0",
     "id": 1,
@@ -265,7 +265,7 @@ curl -s -X POST \
   -H "Authorization: Bearer e2e-test-secret-2026" \
   -H "Content-Type: application/json" \
   -H "Accept: application/json, text/event-stream" \
-  "https://svc-mcp-server-staging.sinclair-account.workers.dev/mcp/$SKILL_ID" \
+  "https://svc-mcp-server-staging.ktds-axbd.workers.dev/mcp/$SKILL_ID" \
   -d '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}' | jq .
 ```
 
@@ -276,7 +276,7 @@ curl -s -X POST \
   -H "Authorization: Bearer e2e-test-secret-2026" \
   -H "Content-Type: application/json" \
   -H "Accept: application/json, text/event-stream" \
-  "https://svc-mcp-server-staging.sinclair-account.workers.dev/mcp/$SKILL_ID" \
+  "https://svc-mcp-server-staging.ktds-axbd.workers.dev/mcp/$SKILL_ID" \
   -d '{
     "jsonrpc": "2.0",
     "id": 3,

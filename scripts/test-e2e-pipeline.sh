@@ -41,7 +41,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 # --- Config ---
-ACCOUNT_SUBDOMAIN="sinclair-account"
+ACCOUNT_SUBDOMAIN="ktds-axbd"
 if [ "$ENV_MODE" = "staging" ]; then
   SUFFIX="-staging"
 else

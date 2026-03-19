@@ -24,11 +24,11 @@ svc-skill
 
 ```bash
 # Staging
-curl -s "https://svc-skill.sinclair-account.workers.dev/skills?limit=10" \
+curl -s "https://svc-skill.ktds-axbd.workers.dev/skills?limit=10" \
   -H "X-Internal-Secret: $INTERNAL_API_SECRET" | jq '.data.skills[] | {skillId, domain, policyCount}'
 
 # Production
-curl -s "https://svc-skill-production.sinclair-account.workers.dev/skills?limit=10" \
+curl -s "https://svc-skill-production.ktds-axbd.workers.dev/skills?limit=10" \
   -H "X-Internal-Secret: $INTERNAL_API_SECRET" | jq '.data.skills[] | {skillId, domain, policyCount}'
 ```
 
@@ -46,7 +46,7 @@ curl -s "https://svc-skill-production.sinclair-account.workers.dev/skills?limit=
 {
   "mcpServers": {
     "ai-foundry-lpon": {
-      "url": "https://svc-mcp-server.sinclair-account.workers.dev/mcp/YOUR_SKILL_ID_HERE",
+      "url": "https://svc-mcp-server.ktds-axbd.workers.dev/mcp/YOUR_SKILL_ID_HERE",
       "transport": "streamable-http",
       "headers": {
         "Authorization": "Bearer YOUR_INTERNAL_API_SECRET_HERE"
@@ -62,7 +62,7 @@ curl -s "https://svc-skill-production.sinclair-account.workers.dev/skills?limit=
 {
   "mcpServers": {
     "ai-foundry-lpon-prod": {
-      "url": "https://svc-mcp-server-production.sinclair-account.workers.dev/mcp/YOUR_SKILL_ID_HERE",
+      "url": "https://svc-mcp-server-production.ktds-axbd.workers.dev/mcp/YOUR_SKILL_ID_HERE",
       "transport": "streamable-http",
       "headers": {
         "Authorization": "Bearer YOUR_INTERNAL_API_SECRET_HERE"
@@ -80,14 +80,14 @@ curl -s "https://svc-skill-production.sinclair-account.workers.dev/skills?limit=
 {
   "mcpServers": {
     "ai-foundry-lpon": {
-      "url": "https://svc-mcp-server.sinclair-account.workers.dev/mcp/LPON_SKILL_ID",
+      "url": "https://svc-mcp-server.ktds-axbd.workers.dev/mcp/LPON_SKILL_ID",
       "transport": "streamable-http",
       "headers": {
         "Authorization": "Bearer YOUR_SECRET"
       }
     },
     "ai-foundry-pension": {
-      "url": "https://svc-mcp-server.sinclair-account.workers.dev/mcp/PENSION_SKILL_ID",
+      "url": "https://svc-mcp-server.ktds-axbd.workers.dev/mcp/PENSION_SKILL_ID",
       "transport": "streamable-http",
       "headers": {
         "Authorization": "Bearer YOUR_SECRET"

@@ -11,7 +11,7 @@
 set -euo pipefail
 
 # Default to production domain
-DOMAIN="sinclair-account.workers.dev"
+DOMAIN="ktds-axbd.workers.dev"
 ENVIRONMENT="production"
 JSON_OUTPUT=false
 ALERT_ON_FAILURE=false

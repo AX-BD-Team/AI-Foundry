@@ -20,11 +20,11 @@ case "$ENV" in
     SECRET="${INTERNAL_API_SECRET:-dev-secret}"
     ;;
   staging)
-    BASE_URL="https://svc-ontology.sinclair-account.workers.dev"
+    BASE_URL="https://svc-ontology.ktds-axbd.workers.dev"
     SECRET="${INTERNAL_API_SECRET:?Set INTERNAL_API_SECRET for staging}"
     ;;
   production)
-    BASE_URL="https://svc-ontology-production.sinclair-account.workers.dev"
+    BASE_URL="https://svc-ontology-production.ktds-axbd.workers.dev"
     SECRET="${INTERNAL_API_SECRET:?Set INTERNAL_API_SECRET for production}"
     ;;
   *)

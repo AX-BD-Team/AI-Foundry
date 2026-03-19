@@ -5,7 +5,7 @@
 
 RESULT_ID="${1:-db337e29-2bbc-4fa0-b082-2847581a4fc5}"
 SECRET="e2e-test-secret-2026"
-BASE="https://svc-extraction-production.sinclair-account.workers.dev"
+BASE="https://svc-extraction-production.ktds-axbd.workers.dev"
 BATCH_SIZE=10
 TOTAL=284
 LOGFILE="scripts/llm-match-results-v2.jsonl"

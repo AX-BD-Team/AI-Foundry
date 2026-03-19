@@ -85,7 +85,7 @@ refs: "[[AIF-PLAN-026]] [[AIF-RPRT-028]]"
 ```bash
 # bundled skill 1개의 MCP adapter 확인
 curl -H "X-Internal-Secret: ..." \
-  https://svc-skill.sinclair-account.workers.dev/skills/{bundledSkillId}/mcp
+  https://svc-skill.ktds-axbd.workers.dev/skills/{bundledSkillId}/mcp
 # 200 + tools[] 반환 확인
 ```
 
@@ -128,7 +128,7 @@ curl -X POST https://foundry-x.../api/mcp-servers \
   -H "Authorization: Bearer ..." \
   -d '{
     "name": "ai-foundry-lpon",
-    "url": "https://svc-mcp-server.sinclair-account.workers.dev/mcp/org/LPON",
+    "url": "https://svc-mcp-server.ktds-axbd.workers.dev/mcp/org/LPON",
     "description": "AI Foundry 온누리상품권 도메인 — 848 정책 도구",
     "apiKey": "INTERNAL_API_SECRET_VALUE"
   }'

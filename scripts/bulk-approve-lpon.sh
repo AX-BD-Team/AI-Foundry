@@ -4,7 +4,7 @@
 
 set -euo pipefail
 
-API_BASE="${API_BASE:-https://svc-policy.sinclair-account.workers.dev}"
+API_BASE="${API_BASE:-https://svc-policy.ktds-axbd.workers.dev}"
 SECRET="${INTERNAL_API_SECRET:?INTERNAL_API_SECRET 환경변수를 설정하세요}"
 REVIEWER_ID="${REVIEWER_ID:-system-bulk-approve}"
 COMMENT="LPON 파일럿 벌크 승인 — 세션 134"

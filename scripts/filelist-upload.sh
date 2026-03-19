@@ -18,8 +18,8 @@ DRY_RUN=false
 DELAY=1
 RESUME_FROM=0
 
-BASE_URL_PRODUCTION="https://svc-ingestion.sinclair-account.workers.dev"
-BASE_URL_STAGING="https://svc-ingestion-staging.sinclair-account.workers.dev"
+BASE_URL_PRODUCTION="https://svc-ingestion.ktds-axbd.workers.dev"
+BASE_URL_STAGING="https://svc-ingestion-staging.ktds-axbd.workers.dev"
 
 # ── Parse args ───────────────────────────────────────────
 while [[ $# -gt 0 ]]; do

@@ -25,11 +25,11 @@ ORG_ID="${3:-LPON}"
 # ── Endpoint resolution ────────────────────────────────────────────
 
 if [ "$ENV" = "production" ]; then
-  MCP_BASE="https://svc-mcp-server-production.sinclair-account.workers.dev"
-  SKILL_BASE="https://svc-skill-production.sinclair-account.workers.dev"
+  MCP_BASE="https://svc-mcp-server-production.ktds-axbd.workers.dev"
+  SKILL_BASE="https://svc-skill-production.ktds-axbd.workers.dev"
 else
-  MCP_BASE="https://svc-mcp-server.sinclair-account.workers.dev"
-  SKILL_BASE="https://svc-skill.sinclair-account.workers.dev"
+  MCP_BASE="https://svc-mcp-server.ktds-axbd.workers.dev"
+  SKILL_BASE="https://svc-skill.ktds-axbd.workers.dev"
 fi
 
 # ── Auth ────────────────────────────────────────────────────────────
