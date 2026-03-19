@@ -12,6 +12,7 @@ export function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/mockup" element={<Home />} />
             <Route path="/generative" element={<GenerativeDemo />} />
           </Routes>
         </BrowserRouter>

@@ -6,7 +6,7 @@
  * pointing to the mockup origin so JS/CSS/images load correctly.
  */
 
-const MOCKUP_ORIGIN = "https://ai-foundry-mockup.pages.dev";
+const MOCKUP_ORIGIN = "https://ai-foundry-mockup-blt.pages.dev";
 
 /**
  * Rewrite asset paths in HTML so they point to the mockup origin.

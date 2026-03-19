@@ -5,7 +5,7 @@
 
 import { ExternalLink } from "lucide-react";
 
-const MOCKUP_URL = "https://ai-foundry-mockup.pages.dev";
+const MOCKUP_URL = "https://ai-foundry-mockup-blt.pages.dev";
 
 export default function MockupPage() {
   return (
