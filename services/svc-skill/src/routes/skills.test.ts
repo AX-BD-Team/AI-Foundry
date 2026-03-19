@@ -155,6 +155,8 @@ function mockEnv(dbOverrides?: { changes?: number }): Env {
     LLM_ROUTER: {} as unknown as Fetcher,
     SVC_POLICY: {} as unknown as Fetcher,
     SVC_ONTOLOGY: {} as unknown as Fetcher,
+    SVC_EXTRACTION: {} as unknown as Fetcher,
+    SVC_INGESTION: {} as unknown as Fetcher,
     ENVIRONMENT: "test",
     SERVICE_NAME: "svc-skill",
     INTERNAL_API_SECRET: "test-secret",

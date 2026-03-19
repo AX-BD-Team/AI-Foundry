@@ -16,6 +16,8 @@ export interface Env {
   LLM_ROUTER: Fetcher;
   SVC_POLICY: Fetcher;
   SVC_ONTOLOGY: Fetcher;
+  SVC_EXTRACTION: Fetcher;
+  SVC_INGESTION: Fetcher;
 
   // Vars
   ENVIRONMENT: string;

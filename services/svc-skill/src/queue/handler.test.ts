@@ -86,6 +86,8 @@ function mockEnv(): Env {
         new Response(JSON.stringify(MOCK_TERMS_RESPONSE), { status: 200 }),
       ),
     } as unknown as Fetcher,
+    SVC_EXTRACTION: { fetch: vi.fn() } as unknown as Fetcher,
+    SVC_INGESTION: { fetch: vi.fn() } as unknown as Fetcher,
     KV_SKILL_CACHE: {
       get: vi.fn().mockResolvedValue(null),
       put: vi.fn().mockResolvedValue(undefined),

@@ -39,6 +39,14 @@ service = "svc-policy"
 binding = "SVC_ONTOLOGY"
 service = "svc-ontology"
 
+[[services]]
+binding = "SVC_EXTRACTION"
+service = "svc-extraction"
+
+[[services]]
+binding = "SVC_INGESTION"
+service = "svc-ingestion"
+
 # Queue consumer removed — svc-queue-router is the sole consumer
 
 [[queues.producers]]
@@ -86,6 +94,14 @@ service = "svc-policy-staging"
 binding = "SVC_ONTOLOGY"
 service = "svc-ontology-staging"
 
+[[env.staging.services]]
+binding = "SVC_EXTRACTION"
+service = "svc-extraction-staging"
+
+[[env.staging.services]]
+binding = "SVC_INGESTION"
+service = "svc-ingestion-staging"
+
 [[env.staging.queues.producers]]
 binding = "QUEUE_PIPELINE"
 queue = "ai-foundry-pipeline-staging"
@@ -124,6 +140,14 @@ service = "svc-policy-production"
 [[env.production.services]]
 binding = "SVC_ONTOLOGY"
 service = "svc-ontology-production"
+
+[[env.production.services]]
+binding = "SVC_EXTRACTION"
+service = "svc-extraction-production"
+
+[[env.production.services]]
+binding = "SVC_INGESTION"
+service = "svc-ingestion-production"
 
 [[env.production.queues.producers]]
 binding = "QUEUE_PIPELINE"

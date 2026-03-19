@@ -38,6 +38,12 @@ import { handleExportCc } from "./routes/export-cc.js";
 import { handleGetOpenApiAdapter } from "./routes/openapi.js";
 import { handleEvaluateSkill, handleListEvaluations } from "./routes/evaluate.js";
 import { handleBackfillDepth, handleBackfillTrust, handleRebundle } from "./routes/admin.js";
+import {
+  handleGeneratePrototype,
+  handleListPrototypes,
+  handleGetPrototype,
+  handleDownloadPrototype,
+} from "./routes/prototype.js";
 import { processQueueEvent } from "./queue/handler.js";
 
 export default {
@@ -86,6 +92,33 @@ export default {
       // POST /admin/rebundle — LLM-based skill bundling
       if (method === "POST" && path === "/admin/rebundle") {
         return await handleRebundle(request, env, ctx);
+      }
+
+      // ── Prototype (Working Prototype Generator) ──
+
+      // POST /prototype/generate — start WP generation (async)
+      if (method === "POST" && path === "/prototype/generate") {
+        return await handleGeneratePrototype(request, env, ctx);
+      }
+
+      // GET /prototype — list prototypes
+      if (method === "GET" && path === "/prototype") {
+        return await handleListPrototypes(request, env);
+      }
+
+      // GET /prototype/:id or /prototype/:id/download
+      const protoMatch = path.match(/^\/prototype\/([^/]+)(?:\/([^/]+))?$/);
+      if (protoMatch) {
+        const protoId = protoMatch[1];
+        if (!protoId) return new Response("Not Found", { status: 404 });
+        const protoSub = protoMatch[2];
+
+        if (method === "GET" && protoSub === "download") {
+          return await handleDownloadPrototype(env, protoId);
+        }
+        if (method === "GET" && !protoSub) {
+          return await handleGetPrototype(env, protoId);
+        }
       }
 
       // GET /skills/org/:orgId/mcp — org-level MCP adapter (all bundled skills)
