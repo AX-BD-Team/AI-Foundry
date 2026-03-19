@@ -10,7 +10,7 @@ inspector_port = 9204
 [[d1_databases]]
 binding = "DB_ONTOLOGY"
 database_name = "db-ontology"
-database_id = "88cda338-c89e-4b4e-843a-7489d9b268ee"
+database_id = "f7a72b06-a6d7-43e3-8912-f8a77399cced"
 
 # Service binding to svc-security for audit logging
 [[services]]
@@ -52,7 +52,7 @@ vars = { ENVIRONMENT = "staging", SERVICE_NAME = "svc-ontology" }
 [[env.staging.d1_databases]]
 binding = "DB_ONTOLOGY"
 database_name = "db-ontology-staging"
-database_id = "3a1a3a3c-aded-4c61-85ef-2bdef3c9ab86"
+database_id = "232df4b9-4591-43d6-a3c6-b8185d611aad"
 
 [[env.staging.services]]
 binding = "SECURITY"
@@ -79,7 +79,7 @@ vars = { ENVIRONMENT = "production", SERVICE_NAME = "svc-ontology" }
 [[env.production.d1_databases]]
 binding = "DB_ONTOLOGY"
 database_name = "db-ontology"
-database_id = "88cda338-c89e-4b4e-843a-7489d9b268ee"
+database_id = "f7a72b06-a6d7-43e3-8912-f8a77399cced"
 
 [[env.production.services]]
 binding = "SECURITY"
