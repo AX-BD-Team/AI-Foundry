@@ -10,7 +10,7 @@ inspector_port = 9202
 [[d1_databases]]
 binding = "DB_EXTRACTION"
 database_name = "db-structure"
-database_id = "698c88b5-5355-401d-960a-4d8aa74c3b2c"
+database_id = "1f45eb0b-61ad-43b8-b898-0629a7e1a047"
 
 # Service binding to svc-security for audit logging
 [[services]]
@@ -52,7 +52,7 @@ vars = { ENVIRONMENT = "staging", SERVICE_NAME = "svc-extraction" }
 [[env.staging.d1_databases]]
 binding = "DB_EXTRACTION"
 database_name = "db-structure-staging"
-database_id = "5567133d-b0b5-496d-bf8f-0ef1dea62075"
+database_id = "6b50dfe0-ac8d-401a-8122-c39fde3e19bd"
 
 [[env.staging.services]]
 binding = "SECURITY"
@@ -83,7 +83,7 @@ vars = { ENVIRONMENT = "production", SERVICE_NAME = "svc-extraction" }
 [[env.production.d1_databases]]
 binding = "DB_EXTRACTION"
 database_name = "db-structure"
-database_id = "698c88b5-5355-401d-960a-4d8aa74c3b2c"
+database_id = "1f45eb0b-61ad-43b8-b898-0629a7e1a047"
 
 [[env.production.services]]
 binding = "SECURITY"

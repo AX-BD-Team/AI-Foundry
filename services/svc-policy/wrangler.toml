@@ -10,7 +10,7 @@ inspector_port = 9203
 [[d1_databases]]
 binding = "DB_POLICY"
 database_name = "db-policy"
-database_id = "48c22ca4-a7f8-4f3d-ae1b-e5dee4e8712a"
+database_id = "e27a4335-7212-4859-8f7e-55cf8d464c8e"
 
 # Service binding to svc-security for audit logging
 [[services]]
@@ -64,7 +64,7 @@ vars = { ENVIRONMENT = "staging", SERVICE_NAME = "svc-policy" }
 [[env.staging.d1_databases]]
 binding = "DB_POLICY"
 database_name = "db-policy-staging"
-database_id = "330cc11b-625b-4c46-915d-078d44828ded"
+database_id = "63741d31-4234-4694-a9d2-7e383fdacdaf"
 
 [[env.staging.services]]
 binding = "SECURITY"
@@ -104,7 +104,7 @@ vars = { ENVIRONMENT = "production", SERVICE_NAME = "svc-policy" }
 [[env.production.d1_databases]]
 binding = "DB_POLICY"
 database_name = "db-policy"
-database_id = "48c22ca4-a7f8-4f3d-ae1b-e5dee4e8712a"
+database_id = "e27a4335-7212-4859-8f7e-55cf8d464c8e"
 
 [[env.production.services]]
 binding = "SECURITY"

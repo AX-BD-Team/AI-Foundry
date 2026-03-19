@@ -10,7 +10,7 @@ inspector_port = 9209
 [[d1_databases]]
 binding = "DB_NOTIFICATION"
 database_name = "db-notification"
-database_id = "f95b9137-a653-4de6-89d4-1f698d37b3ef"
+database_id = "1a6ef6a4-6087-4637-b4d8-4abc7ab2e1bf"
 
 # Queue consumer removed — svc-queue-router is the sole consumer
 
@@ -40,7 +40,7 @@ vars = { ENVIRONMENT = "staging", SERVICE_NAME = "svc-notification" }
 [[env.staging.d1_databases]]
 binding = "DB_NOTIFICATION"
 database_name = "db-notification-staging"
-database_id = "ee3bd641-9c25-4ad2-9470-44940804cd0c"
+database_id = "e8a57ad8-3f7d-4ad2-b9ac-dd26aba31db6"
 
 [[env.staging.services]]
 binding = "SECURITY"
@@ -63,7 +63,7 @@ service = "svc-security-production"
 [[env.production.d1_databases]]
 binding = "DB_NOTIFICATION"
 database_name = "db-notification"
-database_id = "f95b9137-a653-4de6-89d4-1f698d37b3ef"
+database_id = "1a6ef6a4-6087-4637-b4d8-4abc7ab2e1bf"
 
 [[env.production.queues.producers]]
 binding = "QUEUE_PIPELINE"

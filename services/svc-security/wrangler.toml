@@ -10,7 +10,7 @@ inspector_port = 9207
 [[d1_databases]]
 binding = "DB_SECURITY"
 database_name = "db-security"
-database_id = "2c11d7c8-89f1-472d-aa82-dd181cdf555e"
+database_id = "474a33f4-2a01-4a1d-8121-1e5ebd1123ca"
 
 [vars]
 ENVIRONMENT = "development"
@@ -28,7 +28,7 @@ vars = { ENVIRONMENT = "staging", SERVICE_NAME = "svc-security" }
 [[env.staging.d1_databases]]
 binding = "DB_SECURITY"
 database_name = "db-security-staging"
-database_id = "708cca9a-d425-41c2-b4d1-dbc62b356fb0"
+database_id = "60ff69a8-85b9-4311-990f-1e524b4c6b2d"
 
 # ---------------------------------------------------------------------------
 # Production environment
@@ -39,4 +39,4 @@ vars = { ENVIRONMENT = "production", SERVICE_NAME = "svc-security" }
 [[env.production.d1_databases]]
 binding = "DB_SECURITY"
 database_name = "db-security"
-database_id = "2c11d7c8-89f1-472d-aa82-dd181cdf555e"
+database_id = "474a33f4-2a01-4a1d-8121-1e5ebd1123ca"

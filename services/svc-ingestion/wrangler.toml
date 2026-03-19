@@ -10,7 +10,7 @@ inspector_port = 9201
 [[d1_databases]]
 binding = "DB_INGESTION"
 database_name = "db-ingestion"
-database_id = "d0039ffe-48b1-456f-9b6f-0e267c46168a"
+database_id = "5a17041a-21ee-4aa9-a633-dd2379f8985d"
 
 [[r2_buckets]]
 binding = "R2_DOCUMENTS"
@@ -45,7 +45,7 @@ vars = { ENVIRONMENT = "staging", SERVICE_NAME = "svc-ingestion", MAX_FILE_SIZE_
 [[env.staging.d1_databases]]
 binding = "DB_INGESTION"
 database_name = "db-ingestion-staging"
-database_id = "101ab983-2f40-482e-b658-567695580e3b"
+database_id = "27f0a859-c5d1-4f3b-9619-7861a4bf5626"
 
 [[env.staging.r2_buckets]]
 binding = "R2_DOCUMENTS"
@@ -68,7 +68,7 @@ vars = { ENVIRONMENT = "production", SERVICE_NAME = "svc-ingestion", MAX_FILE_SI
 [[env.production.d1_databases]]
 binding = "DB_INGESTION"
 database_name = "db-ingestion"
-database_id = "d0039ffe-48b1-456f-9b6f-0e267c46168a"
+database_id = "5a17041a-21ee-4aa9-a633-dd2379f8985d"
 
 [[env.production.r2_buckets]]
 binding = "R2_DOCUMENTS"
