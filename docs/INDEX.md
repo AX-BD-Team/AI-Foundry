@@ -31,7 +31,7 @@
 | AIF-PLAN-026D | 반제품 생성 엔진 — Working Prototype Generator (Phase 2) | 1.0 | Active | `01-plan/features/req-026-phase-2.plan.md` |
 | AIF-PLAN-027 | 반제품 스펙 포맷 정의 및 파일럿 생성 | 1.0 | Active | `01-plan/features/req-027-semi-finished-spec.plan.md` |
 | AIF-PLAN-026E | 반제품 생성 엔진 Sprint 2 — LLM 생성기 5종 | 1.0 | Active | `01-plan/features/req-026-phase-2-sprint-2.plan.md` |
-| AIF-PLAN-026F | 반제품 생성 엔진 Sprint 3 — LLM 활성화 + 화면 정의 + E2E | 1.0 | Active | `01-plan/features/req-026-phase-2-sprint-3.plan.md` |
+| AIF-PLAN-026F | 반제품 생성 엔진 Sprint 3 — LLM 활성화 + 화면 정의 + E2E | 1.0 | Archived | `archive/2026-03/req-026-phase-2-sprint-3/req-026-phase-2-sprint-3.plan.md` |
 | AIF-PLAN-028 | 반제품 스펙 PoC 보고서 Production 게시 | 1.0 | Active | `01-plan/features/req-028-poc-report-page.plan.md` |
 | AIF-PLAN-029 | Skill Framework Phase 1a | 0.1 | Draft | `01-plan/features/skill-framework.plan.md` |
 | AIF-PLAN-029B | Skill Framework Phase 1b | 1.0 | Active | `01-plan/features/skill-framework-1b.plan.md` |
@@ -51,7 +51,7 @@
 | AIF-DSGN-026C | Foundry-X TaskType 확장 Phase 1-3 | 1.0 | Active | `02-design/features/req-026-phase-1-3.design.md` |
 | AIF-DSGN-026D | 반제품 생성 엔진 — Working Prototype Generator | 1.0 | Active | `02-design/features/req-026-phase-2.design.md` |
 | AIF-DSGN-026E | 반제품 생성 엔진 Sprint 2 — LLM 생성기 5종 | 1.0 | Active | `02-design/features/req-026-phase-2-sprint-2.design.md` |
-| AIF-DSGN-026F | 반제품 생성 엔진 Sprint 3 — LLM 활성화 + 화면 정의 + E2E | 1.0 | Active | `02-design/features/req-026-phase-2-sprint-3.design.md` |
+| AIF-DSGN-026F | 반제품 생성 엔진 Sprint 3 — LLM 활성화 + 화면 정의 + E2E | 1.0 | Archived | `archive/2026-03/req-026-phase-2-sprint-3/req-026-phase-2-sprint-3.design.md` |
 | AIF-DSGN-027 | 반제품 스펙 포맷 정의 및 파일럿 생성 | 1.0 | Active | `02-design/features/req-027-semi-finished-spec.design.md` |
 | AIF-DSGN-029 | Skill Framework 기술 설계 | 0.1 | Draft | `02-design/features/skill-framework.design.md` |
 | AIF-DSGN-029B | Skill Framework Phase 1b 기술 설계 | 1.0 | Active | `02-design/features/skill-framework-1b.design.md` |
@@ -108,7 +108,7 @@
 | AIF-RPRT-026C | Foundry-X TaskType 확장 Phase 1-3 완료 보고서 | 1.0 | Active | `04-report/features/req-026-phase-1-3.report.md` |
 | AIF-RPRT-026D | 반제품 생성 엔진 Phase 2 PDCA 완료 보고서 | 1.0 | Active | `04-report/features/req-026-phase-2.report.md` |
 | AIF-RPRT-026E | 반제품 생성 엔진 Sprint 2 완료 보고서 | 1.0 | Active | `04-report/features/req-026-phase-2-sprint-2.report.md` |
-| AIF-RPRT-026F | 반제품 생성 엔진 Sprint 3 완료 보고서 | 1.0 | Active | `04-report/features/req-026-phase-2-sprint-3.report.md` |
+| AIF-RPRT-026F | 반제품 생성 엔진 Sprint 3 완료 보고서 | 1.0 | Archived | `archive/2026-03/req-026-phase-2-sprint-3/req-026-phase-2-sprint-3.report.md` |
 | AIF-RPRT-027 | 반제품 스펙 포맷 정의 및 파일럿 생성 완료 보고서 | 1.0 | Active | `04-report/features/req-027-semi-finished-spec.report.md` |
 | AIF-RPRT-029 | Skill Framework Phase 1a 완료 보고서 | 1.0 | Active | `04-report/features/skill-framework.report.md` |
 | AIF-RPRT-029B | Skill Framework Phase 1b 완료 보고서 | 1.0 | Active | `04-report/features/skill-framework-1b.report.md` |
