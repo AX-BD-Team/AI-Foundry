@@ -2,6 +2,17 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 186 — 2026-03-20
+
+**poc-report Sprint 2 자동화 엔진 탭 추가**:
+- ✅ "자동화 엔진" 탭 신규: 3-Phase 파이프라인, Generator 8종 테이블, ZIP 구조, 엔진 소스 코드 뷰어
+- ✅ 개요/PDCA/핵심검증 탭에 Sprint 2 내용 반영
+- ✅ Pages 배포 완료 (ai-foundry.minu.best/poc-report)
+
+**검증 결과**: typecheck 18/18 pass, build 성공, Pages 배포 ✅
+
+---
+
 ## 세션 185 — 2026-03-20
 
 **AIF-REQ-029 Skill Framework Phase 1a: 스킬 인벤토리 + 분류 + CLI 도구**:
