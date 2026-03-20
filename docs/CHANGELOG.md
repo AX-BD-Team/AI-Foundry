@@ -2,6 +2,23 @@
 
 > 세션 히스토리 아카이브 (최신이 상단)
 
+## 세션 188 — 2026-03-20
+
+**AIF-REQ-029 Skill Framework Phase 2 — 팀 배포 + 사용량 추적 + 분류 95%**:
+- ✅ deploy.mjs (183줄): Git 기반 팀 배포 (--target team/local, --dry-run)
+- ✅ usage-tracker.sh (19줄): PreToolUse 훅 JSONL 사용량 추적
+- ✅ usage.mjs (216줄): 리포트 CLI (report, deprecation-candidates, rotate, sync)
+- ✅ deploy-config.json: 팀 리포 설정 (include/exclude, branch)
+- ✅ classify-keywords.json: 76 키워드 추가 (분류율 65% → 95.2%)
+- ✅ classify/lint/scan.mjs: Phase 1b 에러 핸들링 4건 해소 (try-catch)
+- ✅ 테스트 28→43 (15 추가, 전체 PASS)
+- ✅ PDCA Full Cycle 96% (Plan → Design → Do → Check → Report)
+- Agent Team sf-2: 2W/3m30s, File Guard 0건
+
+**검증 결과**: 43/43 tests PASS, PDCA 96%
+
+---
+
 ## 세션 187 — 2026-03-20
 
 **AIF-REQ-029 Skill Framework Phase 1b — 가이드라인·템플릿·자동분류**:

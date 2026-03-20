@@ -9,7 +9,7 @@
 | AIF-SPEC-001 | 퇴직연금 프로세스 정밀분석 PRD v0.1 | 1.0 | Active | `AI_Foundry_퇴직연금_프로세스_정밀분석_PRD_v0.1.md` |
 | AIF-SPEC-002 | 퇴직연금 프로세스 정밀분석 PRD v0.2 | 1.0 | Active | `AI_Foundry_퇴직연금_프로세스_정밀분석_PRD_v0.2.md` |
 
-## PLAN (15)
+## PLAN (16)
 
 | 코드 | 제목 | 버전 | 상태 | 파일 |
 |------|------|:----:|:----:|------|
@@ -31,11 +31,12 @@
 | AIF-PLAN-026D | 반제품 생성 엔진 — Working Prototype Generator (Phase 2) | 1.0 | Active | `01-plan/features/req-026-phase-2.plan.md` |
 | AIF-PLAN-027 | 반제품 스펙 포맷 정의 및 파일럿 생성 | 1.0 | Active | `01-plan/features/req-027-semi-finished-spec.plan.md` |
 | AIF-PLAN-026E | 반제품 생성 엔진 Sprint 2 — LLM 생성기 5종 | 1.0 | Active | `01-plan/features/req-026-phase-2-sprint-2.plan.md` |
+| AIF-PLAN-026F | 반제품 생성 엔진 Sprint 3 — LLM 활성화 + 화면 정의 + E2E | 1.0 | Active | `01-plan/features/req-026-phase-2-sprint-3.plan.md` |
 | AIF-PLAN-028 | 반제품 스펙 PoC 보고서 Production 게시 | 1.0 | Active | `01-plan/features/req-028-poc-report-page.plan.md` |
 | AIF-PLAN-029 | Skill Framework Phase 1a | 0.1 | Draft | `01-plan/features/skill-framework.plan.md` |
 | AIF-PLAN-029B | Skill Framework Phase 1b | 1.0 | Active | `01-plan/features/skill-framework-1b.plan.md` |
 
-## DSGN (10)
+## DSGN (11)
 
 | 코드 | 제목 | 버전 | 상태 | 파일 |
 |------|------|:----:|:----:|------|
@@ -50,6 +51,7 @@
 | AIF-DSGN-026C | Foundry-X TaskType 확장 Phase 1-3 | 1.0 | Active | `02-design/features/req-026-phase-1-3.design.md` |
 | AIF-DSGN-026D | 반제품 생성 엔진 — Working Prototype Generator | 1.0 | Active | `02-design/features/req-026-phase-2.design.md` |
 | AIF-DSGN-026E | 반제품 생성 엔진 Sprint 2 — LLM 생성기 5종 | 1.0 | Active | `02-design/features/req-026-phase-2-sprint-2.design.md` |
+| AIF-DSGN-026F | 반제품 생성 엔진 Sprint 3 — LLM 활성화 + 화면 정의 + E2E | 1.0 | Active | `02-design/features/req-026-phase-2-sprint-3.design.md` |
 | AIF-DSGN-027 | 반제품 스펙 포맷 정의 및 파일럿 생성 | 1.0 | Active | `02-design/features/req-027-semi-finished-spec.design.md` |
 | AIF-DSGN-029 | Skill Framework 기술 설계 | 0.1 | Draft | `02-design/features/skill-framework.design.md` |
 | AIF-DSGN-029B | Skill Framework Phase 1b 기술 설계 | 1.0 | Active | `02-design/features/skill-framework-1b.design.md` |
