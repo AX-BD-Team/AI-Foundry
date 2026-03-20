@@ -30,7 +30,19 @@ export async function verifyToken(token: string): Promise<JwtPayload> {
 export function authMiddleware(...allowedRoles: UserRole[]) {
   return async (c: Context, next: Next) => {
     const authHeader = c.req.header('Authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
+
+    // Demo mode: no token = default USER
+    if (!authHeader || authHeader === 'Bearer demo') {
+      c.set('userId', 'user-demo');
+      c.set('userRole', 'USER');
+      if (allowedRoles.length > 0 && !allowedRoles.includes('USER')) {
+        return c.json({ success: false, error: { code: 'E403', message: 'Insufficient permissions' } }, 403);
+      }
+      await next();
+      return;
+    }
+
+    if (!authHeader.startsWith('Bearer ')) {
       return c.json(
         { success: false, error: { code: 'E401', message: 'Missing or invalid token' } },
         401

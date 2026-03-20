@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LPON Working Version</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, 'Pretendard', sans-serif; background: #0a0a0a; color: #e5e5e5; }
+  .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 2rem; text-align: center; border-bottom: 1px solid #333; }
+  .header h1 { font-size: 1.5rem; color: #60a5fa; margin-bottom: 0.5rem; }
+  .header p { color: #888; font-size: 0.9rem; }
+  .badge { display: inline-block; background: #22c55e22; color: #22c55e; border: 1px solid #22c55e44; border-radius: 999px; padding: 2px 10px; font-size: 0.75rem; margin-left: 8px; }
+  .stats { display: flex; gap: 1rem; justify-content: center; margin-top: 1rem; flex-wrap: wrap; }
+  .stat { background: #ffffff08; border: 1px solid #333; border-radius: 8px; padding: 0.75rem 1.25rem; text-align: center; min-width: 100px; }
+  .stat-value { font-size: 1.25rem; font-weight: 700; color: #60a5fa; }
+  .stat-label { font-size: 0.7rem; color: #888; margin-top: 2px; }
+  .container { max-width: 900px; margin: 0 auto; padding: 1.5rem; }
+  .card { background: #111; border: 1px solid #333; border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; }
+  .card h3 { font-size: 0.95rem; color: #60a5fa; margin-bottom: 0.75rem; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  label { font-size: 0.8rem; color: #aaa; display: block; margin-bottom: 4px; }
+  input, select { width: 100%; padding: 8px 12px; background: #1a1a1a; border: 1px solid #444; border-radius: 6px; color: #e5e5e5; font-size: 0.85rem; }
+  input:focus, select:focus { outline: none; border-color: #60a5fa; }
+  button { padding: 10px 20px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; font-size: 0.85rem; transition: all 0.2s; }
+  .btn-primary { background: #2563eb; color: white; }
+  .btn-primary:hover { background: #1d4ed8; }
+  .btn-danger { background: #dc2626; color: white; }
+  .btn-danger:hover { background: #b91c1c; }
+  .btn-warning { background: #d97706; color: white; }
+  .btn-warning:hover { background: #b45309; }
+  .btn-group { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
+  .balance-box { background: #22c55e11; border: 1px solid #22c55e33; border-radius: 8px; padding: 1rem; text-align: center; margin-bottom: 1rem; }
+  .balance-value { font-size: 2rem; font-weight: 700; color: #22c55e; }
+  .balance-label { font-size: 0.8rem; color: #888; }
+  .log { background: #0a0a0a; border: 1px solid #333; border-radius: 8px; padding: 1rem; margin-top: 1rem; max-height: 400px; overflow-y: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; line-height: 1.6; }
+  .log-entry { padding: 8px; border-bottom: 1px solid #1a1a1a; }
+  .log-time { color: #666; }
+  .log-method { font-weight: 700; }
+  .method-POST { color: #22c55e; }
+  .method-GET { color: #60a5fa; }
+  .log-ok { color: #22c55e; }
+  .log-err { color: #ef4444; }
+  .log-json { color: #888; white-space: pre-wrap; word-break: break-all; margin-top: 4px; }
+  .empty-log { color: #555; text-align: center; padding: 2rem; }
+  @media (max-width: 640px) { .row { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>LPON Working Version <span class="badge">PoC</span></h1>
+  <p>AI Foundry 반제품 스펙에서 자동 생성된 온누리상품권 서비스</p>
+  <div class="stats">
+    <div class="stat"><div class="stat-value">95</div><div class="stat-label">BL Rules</div></div>
+    <div class="stat"><div class="stat-value">17</div><div class="stat-label">Tables</div></div>
+    <div class="stat"><div class="stat-value">1,610</div><div class="stat-label">Lines</div></div>
+    <div class="stat"><div class="stat-value">24/24</div><div class="stat-label">Tests</div></div>
+    <div class="stat"><div class="stat-value">0</div><div class="stat-label">Human Edit</div></div>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="balance-box">
+    <div class="balance-label">상품권 잔액 (voucher-001 / 홍길동)</div>
+    <div class="balance-value" id="balance">Loading...</div>
+  </div>
+
+  <div class="row">
+    <div class="card">
+      <h3>1. 충전</h3>
+      <label>충전 금액 (원, 1,000 단위)</label>
+      <input type="number" id="charge-amount" value="10000" step="1000" min="1000" max="500000">
+      <div class="btn-group">
+        <button class="btn-primary" onclick="doCharge()">충전하기</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>2. 결제</h3>
+      <label>결제 금액 (원)</label>
+      <input type="number" id="pay-amount" value="30000" step="1000">
+      <label style="margin-top:8px">결제 수단</label>
+      <select id="pay-method"><option value="QR">QR</option><option value="CARD">카드</option></select>
+      <div class="btn-group">
+        <button class="btn-primary" onclick="doPayment()">결제하기</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="card">
+      <h3>3. 결제 취소</h3>
+      <label>결제 ID</label>
+      <input type="text" id="cancel-pid" placeholder="결제 후 자동 입력">
+      <label style="margin-top:8px">취소 사유</label>
+      <input type="text" id="cancel-reason" value="단순 변심">
+      <div class="btn-group">
+        <button class="btn-danger" onclick="doCancel()">결제 취소</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>4. 환불 신청</h3>
+      <label>결제 ID (취소 완료된 건)</label>
+      <input type="text" id="refund-pid" placeholder="취소 후 자동 입력">
+      <label style="margin-top:8px">환불 금액</label>
+      <input type="number" id="refund-amount" value="30000">
+      <div class="btn-group">
+        <button class="btn-warning" onclick="doRefund()">환불 신청</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>API 호출 로그</h3>
+    <div class="log" id="log"><div class="empty-log">위 버튼을 눌러 API를 테스트하세요</div></div>
+  </div>
+
+</div>
+
+<script>
+const TOKEN_KEY = '_wv_token';
+let TOKEN = '';
+
+async function initToken() {
+  const res = await fetch('/health');
+  const stored = sessionStorage.getItem(TOKEN_KEY);
+  if (stored) { TOKEN = stored; return; }
+  // First visit: get token from /auth/demo endpoint or use inline
+  TOKEN = 'demo';
+}
+
+async function api(method, path, body) {
+  const h = { 'Content-Type': 'application/json' };
+  if (TOKEN) h['Authorization'] = 'Bearer ' + TOKEN;
+  const opts = { method, headers: h };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(path, opts);
+  const data = await res.json();
+  addLog(method, path, res.status, data);
+  return data;
+}
+
+function addLog(method, path, status, data) {
+  const log = document.getElementById('log');
+  const empty = log.querySelector('.empty-log');
+  if (empty) empty.remove();
+  const time = new Date().toLocaleTimeString('ko');
+  const ok = data.success;
+  const entry = document.createElement('div');
+  entry.className = 'log-entry';
+
+  const header = document.createElement('div');
+  const timeSpan = document.createElement('span');
+  timeSpan.className = 'log-time';
+  timeSpan.textContent = time + ' ';
+  const methodSpan = document.createElement('span');
+  methodSpan.className = 'log-method method-' + method;
+  methodSpan.textContent = method + ' ';
+  const pathSpan = document.createElement('span');
+  pathSpan.textContent = path + ' ';
+  const statusSpan = document.createElement('span');
+  statusSpan.className = ok ? 'log-ok' : 'log-err';
+  statusSpan.textContent = String(status);
+  header.append(timeSpan, methodSpan, pathSpan, statusSpan);
+
+  const jsonDiv = document.createElement('div');
+  jsonDiv.className = 'log-json';
+  jsonDiv.textContent = JSON.stringify(data, null, 2);
+
+  entry.append(header, jsonDiv);
+  log.prepend(entry);
+}
+
+async function refreshBalance() {
+  try {
+    const res = await fetch('/api/v1/vouchers/voucher-001');
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('balance').textContent =
+        Number(data.data.balance).toLocaleString() + '원';
+    }
+  } catch(e) { document.getElementById('balance').textContent = 'Error'; }
+}
+
+async function doCharge() {
+  const amount = parseInt(document.getElementById('charge-amount').value);
+  await api('POST', '/api/v1/vouchers/voucher-001/charges', {
+    amount, paymentMethod: 'CARD', withdrawalAccountId: 'acc-1'
+  });
+  refreshBalance();
+}
+
+async function doPayment() {
+  const amount = parseInt(document.getElementById('pay-amount').value);
+  const method = document.getElementById('pay-method').value;
+  const data = await api('POST', '/api/v1/payments', {
+    voucher_id: 'voucher-001', merchant_id: 'merchant-001', amount, method
+  });
+  if (data.success) {
+    document.getElementById('cancel-pid').value = data.data.payment_id;
+    document.getElementById('refund-pid').value = data.data.payment_id;
+    document.getElementById('refund-amount').value = amount;
+  }
+  refreshBalance();
+}
+
+async function doCancel() {
+  const pid = document.getElementById('cancel-pid').value;
+  if (!pid) { alert('결제 ID를 입력하세요'); return; }
+  await api('POST', '/api/v1/payments/' + pid + '/cancel', {
+    reason: document.getElementById('cancel-reason').value
+  });
+  refreshBalance();
+}
+
+async function doRefund() {
+  const pid = document.getElementById('refund-pid').value;
+  if (!pid) { alert('결제 ID를 입력하세요'); return; }
+  const amount = parseInt(document.getElementById('refund-amount').value);
+  await api('POST', '/api/v1/refunds', { payment_id: pid, amount, reason: '데모 환불' });
+  refreshBalance();
+}
+
+initToken();
+refreshBalance();
+</script>
+</body>
+</html>

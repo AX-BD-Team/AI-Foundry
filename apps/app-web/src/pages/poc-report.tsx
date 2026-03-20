@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import {
   FileText,
   MessageSquare,
@@ -12,6 +12,7 @@ import {
   User,
   Zap,
   FolderTree,
+  Play,
 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -505,6 +506,129 @@ function PdcaTab() {
   );
 }
 
+/* ─── Live Demo (Client Simulation) ─── */
+
+interface LogEntry { time: string; method: string; path: string; status: number; ok: boolean; body: string }
+
+function LiveDemoTab() {
+  const [balance, setBalance] = useState(100_000);
+  const [lastPid, setLastPid] = useState('');
+  const [lastCanceled, setLastCanceled] = useState(false);
+  const [logs, setLogs] = useState<LogEntry[]>([]);
+  const [chargeAmt, setChargeAmt] = useState(10000);
+  const [payAmt, setPayAmt] = useState(30000);
+  const [payMethod, setPayMethod] = useState('QR');
+  const [cancelReason, setCancelReason] = useState('단순 변심');
+
+  const uid = () => crypto.randomUUID().slice(0, 8);
+  const now = () => new Date().toISOString();
+  const addLog = useCallback((method: string, path: string, status: number, data: unknown) => {
+    setLogs(prev => [{ time: new Date().toLocaleTimeString('ko'), method, path, status, ok: status < 400, body: JSON.stringify(data, null, 2) }, ...prev.slice(0, 19)]);
+  }, []);
+
+  function doCharge() {
+    if (chargeAmt < 1000 || chargeAmt > 500000 || chargeAmt % 1000 !== 0) {
+      addLog('POST', `/api/v1/vouchers/voucher-001/charges`, 422, { success: false, error: { code: 'E422-AMT', message: 'Invalid charge amount (1,000~500,000, unit 1,000)' } });
+      return;
+    }
+    const newBal = balance + chargeAmt;
+    setBalance(newBal);
+    const res = { success: true, data: { charge_id: `chg-${uid()}`, voucher_id: 'voucher-001', amount: chargeAmt, balance_after: newBal, charged_at: now() } };
+    addLog('POST', `/api/v1/vouchers/voucher-001/charges`, 201, res);
+  }
+
+  function doPayment() {
+    if (payAmt <= 0) { addLog('POST', '/api/v1/payments', 422, { success: false, error: { code: 'E422-AMT', message: 'Payment amount must be positive' } }); return; }
+    if (balance < payAmt) { addLog('POST', '/api/v1/payments', 422, { success: false, error: { code: 'E422-BAL', message: 'Insufficient voucher balance' } }); return; }
+    const newBal = balance - payAmt;
+    setBalance(newBal);
+    const pid = `pay-${uid()}`;
+    setLastPid(pid);
+    setLastCanceled(false);
+    const res = { success: true, data: { payment_id: pid, voucher_id: 'voucher-001', merchant_id: 'merchant-001', amount: payAmt, balance_after: newBal, status: 'PAID', method: payMethod, paid_at: now() } };
+    addLog('POST', '/api/v1/payments', 201, res);
+  }
+
+  function doCancel() {
+    if (!lastPid) { addLog('POST', `/api/v1/payments/.../cancel`, 404, { success: false, error: { code: 'E404', message: 'Payment not found — 먼저 결제를 실행하세요' } }); return; }
+    if (lastCanceled) { addLog('POST', `/api/v1/payments/${lastPid}/cancel`, 409, { success: false, error: { code: 'E409-ST', message: 'Already canceled' } }); return; }
+    setBalance(b => b + payAmt);
+    setLastCanceled(true);
+    const res = { success: true, data: { payment_id: lastPid, status: 'CANCEL_REQUESTED', cancel_reason: cancelReason, requested_at: now() } };
+    addLog('POST', `/api/v1/payments/${lastPid}/cancel`, 200, res);
+  }
+
+  function doRefund() {
+    if (!lastPid || !lastCanceled) { addLog('POST', '/api/v1/refunds', 409, { success: false, error: { code: 'E409-ST', message: 'Payment must be CANCELED before refund' } }); return; }
+    const res = { success: true, data: { refund_id: `ref-${uid()}`, payment_id: lastPid, amount: payAmt, status: 'REQUESTED', reason: '데모 환불', requested_at: now() } };
+    addLog('POST', '/api/v1/refunds', 201, res);
+  }
+
+  const inputStyle: React.CSSProperties = { width: '100%', padding: '8px 12px', background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text-primary)', fontSize: '0.85rem' };
+  const labelStyle: React.CSSProperties = { fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' };
+
+  return (
+    <div className="space-y-4">
+      <Card className="p-4 text-center" style={{ backgroundColor: 'color-mix(in srgb, #22c55e 8%, var(--bg-primary))', border: '1px solid color-mix(in srgb, #22c55e 30%, transparent)' }}>
+        <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>상품권 잔액 (voucher-001 / 홍길동)</div>
+        <div className="text-3xl font-bold" style={{ color: '#22c55e' }}>{balance.toLocaleString()}원</div>
+        <div className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>클라이언트 시뮬레이션 — BL-001~047 비즈니스 룰 반영</div>
+      </Card>
+
+      <div className="grid grid-cols-2 gap-3">
+        <Card className="p-4">
+          <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--accent)' }}>1. 충전</h3>
+          <div style={labelStyle}>충전 금액 (원, 1,000단위)</div>
+          <input type="number" value={chargeAmt} onChange={e => setChargeAmt(Number(e.target.value))} step={1000} min={1000} max={500000} style={inputStyle} />
+          <button onClick={doCharge} className="mt-3 px-4 py-2 rounded-lg text-sm font-semibold text-white" style={{ background: '#2563eb' }}>충전하기</button>
+        </Card>
+        <Card className="p-4">
+          <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--accent)' }}>2. 결제</h3>
+          <div style={labelStyle}>결제 금액 (원)</div>
+          <input type="number" value={payAmt} onChange={e => setPayAmt(Number(e.target.value))} step={1000} style={inputStyle} />
+          <div style={{ ...labelStyle, marginTop: '8px' }}>결제 수단</div>
+          <select value={payMethod} onChange={e => setPayMethod(e.target.value)} style={inputStyle}>
+            <option value="QR">QR</option><option value="CARD">카드</option>
+          </select>
+          <button onClick={doPayment} className="mt-3 px-4 py-2 rounded-lg text-sm font-semibold text-white" style={{ background: '#2563eb' }}>결제하기</button>
+        </Card>
+        <Card className="p-4">
+          <h3 className="text-sm font-semibold mb-3" style={{ color: '#ef4444' }}>3. 결제 취소</h3>
+          <div style={labelStyle}>결제 ID</div>
+          <input type="text" value={lastPid} readOnly style={{ ...inputStyle, opacity: 0.7 }} placeholder="결제 후 자동 입력" />
+          <div style={{ ...labelStyle, marginTop: '8px' }}>취소 사유</div>
+          <input type="text" value={cancelReason} onChange={e => setCancelReason(e.target.value)} style={inputStyle} />
+          <button onClick={doCancel} className="mt-3 px-4 py-2 rounded-lg text-sm font-semibold text-white" style={{ background: '#dc2626' }}>결제 취소</button>
+        </Card>
+        <Card className="p-4">
+          <h3 className="text-sm font-semibold mb-3" style={{ color: '#d97706' }}>4. 환불 신청</h3>
+          <div style={labelStyle}>결제 ID (취소된 건)</div>
+          <input type="text" value={lastCanceled ? lastPid : ''} readOnly style={{ ...inputStyle, opacity: 0.7 }} placeholder="취소 후 자동 입력" />
+          <div style={{ ...labelStyle, marginTop: '8px' }}>환불 금액</div>
+          <input type="number" value={payAmt} readOnly style={{ ...inputStyle, opacity: 0.7 }} />
+          <button onClick={doRefund} className="mt-3 px-4 py-2 rounded-lg text-sm font-semibold text-white" style={{ background: '#d97706' }}>환불 신청</button>
+        </Card>
+      </div>
+
+      <Card className="p-4">
+        <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--accent)' }}>API 호출 로그</h3>
+        <div style={{ maxHeight: '350px', overflowY: 'auto', fontFamily: 'monospace', fontSize: '0.8rem' }}>
+          {logs.length === 0 && <div className="text-center py-8" style={{ color: 'var(--text-secondary)' }}>위 버튼을 눌러 API를 테스트하세요</div>}
+          {logs.map((log, i) => (
+            <div key={i} style={{ padding: '8px', borderBottom: '1px solid var(--border)' }}>
+              <span style={{ color: 'var(--text-secondary)' }}>{log.time} </span>
+              <span style={{ fontWeight: 700, color: log.method === 'POST' ? '#22c55e' : '#60a5fa' }}>{log.method} </span>
+              <span>{log.path} </span>
+              <span style={{ color: log.ok ? '#22c55e' : '#ef4444' }}>{log.status}</span>
+              <pre style={{ color: 'var(--text-secondary)', whiteSpace: 'pre-wrap', wordBreak: 'break-all', marginTop: '4px', fontSize: '0.75rem' }}>{log.body}</pre>
+            </div>
+          ))}
+        </div>
+      </Card>
+    </div>
+  );
+}
+
 /* ─── Main Tabs ─── */
 
 const TABS = [
@@ -513,6 +637,7 @@ const TABS = [
   { id: 'prd', label: 'PRD', labelEn: 'PRD', icon: <ClipboardList className="w-4 h-4" /> },
   { id: 'specs', label: '스펙 문서', labelEn: 'Specs', icon: <BookOpen className="w-4 h-4" /> },
   { id: 'code', label: 'Working Version', labelEn: 'Code', icon: <Code2 className="w-4 h-4" /> },
+  { id: 'demo', label: '라이브 데모', labelEn: 'Live Demo', icon: <Play className="w-4 h-4" /> },
   { id: 'tests', label: '테스트', labelEn: 'Tests', icon: <TestTube2 className="w-4 h-4" /> },
   { id: 'pdca', label: 'PDCA', labelEn: 'PDCA', icon: <IterationCcw className="w-4 h-4" /> },
 ] as const;
@@ -555,6 +680,7 @@ export default function PocReportPage() {
         <TabsContent value="prd"><PrdTab /></TabsContent>
         <TabsContent value="specs"><SpecDocsTab /></TabsContent>
         <TabsContent value="code"><WorkingVersionTab /></TabsContent>
+        <TabsContent value="demo"><LiveDemoTab /></TabsContent>
         <TabsContent value="tests"><TestResultsTab /></TabsContent>
         <TabsContent value="pdca"><PdcaTab /></TabsContent>
       </Tabs>
