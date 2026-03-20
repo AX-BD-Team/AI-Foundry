@@ -194,7 +194,8 @@ export async function generatePrototype(
     logger.info("Prototype generation completed", { prototypeId, r2Key, fileCount: files.length });
 
   } catch (e) {
-    logger.error("Prototype generation failed", { prototypeId, error: String(e) });
-    await updatePrototypeStatus(env, prototypeId, "failed", undefined, undefined, String(e));
+    const errMsg = e instanceof Error ? `${e.message}\n${e.stack?.split("\n").slice(0, 3).join("\n")}` : String(e);
+    logger.error("Prototype generation failed", { prototypeId, error: errMsg });
+    await updatePrototypeStatus(env, prototypeId, "failed", undefined, undefined, errMsg);
   }
 }

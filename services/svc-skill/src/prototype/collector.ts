@@ -212,17 +212,33 @@ export async function collectOrgData(
   env: Env,
   orgId: string,
 ): Promise<CollectedData> {
-  // 1~3 병렬 수집 (독립적)
-  const [policies, terms, documents, skills] = await Promise.all([
+  // 1~4 병렬 수집 — 각 서비스 실패 시 빈 배열로 fallback
+  const results = await Promise.allSettled([
     fetchAllPolicies(env, orgId),
     fetchAllTerms(env, orgId),
     fetchAllDocuments(env, orgId),
     fetchBundledSkills(env, orgId),
   ]);
 
-  // 4. extractions — documents 기반 (의존)
+  const policies = results[0]?.status === "fulfilled" ? results[0].value : [];
+  const terms = results[1]?.status === "fulfilled" ? results[1].value : [];
+  const documents = results[2]?.status === "fulfilled" ? results[2].value : [];
+  const skills = results[3]?.status === "fulfilled" ? results[3].value : [];
+
+  // 실패 서비스 로깅
+  const serviceNames = ["SVC_POLICY", "SVC_ONTOLOGY", "SVC_INGESTION", "DB_SKILL(local)"];
+  for (let i = 0; i < results.length; i++) {
+    if (results[i]?.status === "rejected") {
+      const reason = (results[i] as PromiseRejectedResult).reason;
+      console.error(`[collector] ${serviceNames[i]} failed: ${String(reason)}`);
+    }
+  }
+
+  // 5. extractions — documents 기반 (의존)
   const documentIds = documents.map((d) => d.document_id);
-  const extractions = await fetchExtractions(env, documentIds);
+  const extractions = documentIds.length > 0
+    ? await fetchExtractions(env, documentIds).catch(() => [] as ExtractionResult[])
+    : [];
 
   return { policies, terms, documents, skills, extractions };
 }
