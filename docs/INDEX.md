@@ -107,6 +107,8 @@
 | AIF-RPRT-012 | Miraeasset 퇴직연금 분석 보고서 v0.6.0 | 1.0 | Active | `04-report/AIF-RPRT-012_miraeasset-analysis-report.md` |
 | AIF-RPRT-026C | Foundry-X TaskType 확장 Phase 1-3 완료 보고서 | 1.0 | Active | `04-report/features/req-026-phase-1-3.report.md` |
 | AIF-RPRT-026D | 반제품 생성 엔진 Phase 2 PDCA 완료 보고서 | 1.0 | Active | `04-report/features/req-026-phase-2.report.md` |
+| AIF-RPRT-026E | 반제품 생성 엔진 Sprint 2 완료 보고서 | 1.0 | Active | `04-report/features/req-026-phase-2-sprint-2.report.md` |
+| AIF-RPRT-026F | 반제품 생성 엔진 Sprint 3 완료 보고서 | 1.0 | Active | `04-report/features/req-026-phase-2-sprint-3.report.md` |
 | AIF-RPRT-027 | 반제품 스펙 포맷 정의 및 파일럿 생성 완료 보고서 | 1.0 | Active | `04-report/features/req-027-semi-finished-spec.report.md` |
 | AIF-RPRT-029 | Skill Framework Phase 1a 완료 보고서 | 1.0 | Active | `04-report/features/skill-framework.report.md` |
 | AIF-RPRT-029B | Skill Framework Phase 1b 완료 보고서 | 1.0 | Active | `04-report/features/skill-framework-1b.report.md` |
