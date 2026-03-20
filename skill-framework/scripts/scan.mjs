@@ -29,7 +29,7 @@ function getArg(name, defaultValue) {
 
 const scope = getArg('scope', 'all');
 const autoClassify = args.includes('--auto-classify');
-const threshold = parseFloat(getArg('threshold', '0.3'));
+const threshold = parseFloat(getArg('threshold', '0.2'));
 const projectRoot = resolve(process.cwd());
 const defaultOutput = join(projectRoot, 'skill-framework', 'data', 'skill-catalog.json');
 const outputPath = resolve(getArg('output', defaultOutput));

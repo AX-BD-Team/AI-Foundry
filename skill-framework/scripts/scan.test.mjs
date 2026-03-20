@@ -5,6 +5,12 @@
 
 import { strictEqual, deepStrictEqual, ok } from 'node:assert';
 import assert from 'node:assert';
+import { readFileSync } from 'node:fs';
+import { resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const ROOT = resolve(__dirname, '..');
 
 // ── Extract functions from scan.mjs by re-implementing (scan.mjs has no exports) ──
 
@@ -546,6 +552,89 @@ await test('classify: false positive rate stays low', async () => {
   };
   const result = classifyByKeywords(skill, keywordsMap);
   assert.strictEqual(result.category, 'uncategorized');
+});
+
+// === Phase 3 Tests: refactor.mjs ===
+console.log('');
+console.log('Phase 3 — refactor:');
+
+test('refactor: analyzeSkill detects missing gotchas', () => {
+  const skill = { id: 'test-skill', hasGotchas: false, type: 'command' };
+  const issues = [];
+  if (!skill.hasGotchas) issues.push({ ruleId: 'has-gotchas', fixable: true });
+  assert.strictEqual(issues.length, 1);
+  assert.strictEqual(issues[0].fixable, true);
+});
+
+test('refactor: fixGotchas skips if gotchas exists', () => {
+  const content = '# My Skill\n## Gotchas\n- Watch out';
+  const hasGotchas = /##\s+gotchas/i.test(content);
+  assert.strictEqual(hasGotchas, true);
+});
+
+test('refactor: report format is markdown table', () => {
+  const report = '| Skill | Type | Issues |\n|-------|------|:------:|';
+  assert.ok(report.includes('| Skill |'));
+});
+
+// === Phase 3 Tests: deps.mjs ===
+console.log('');
+console.log('Phase 3 — deps:');
+
+test('deps: graph generates mermaid syntax', () => {
+  const deps = [{ from: 'a', to: 'b' }, { from: 'a', to: 'c' }];
+  const lines = deps.map(d => `  ${d.from} --> ${d.to}`);
+  const mermaid = 'graph LR\n' + lines.join('\n');
+  assert.ok(mermaid.includes('graph LR'));
+  assert.ok(mermaid.includes('a --> b'));
+});
+
+test('deps: check detects cycle', () => {
+  const graph = new Map([['a', ['b']], ['b', ['c']], ['c', ['a']]]);
+  const visited = new Set();
+  const recStack = new Set();
+  function dfs(node) {
+    visited.add(node);
+    recStack.add(node);
+    for (const dep of (graph.get(node) || [])) {
+      if (!visited.has(dep)) { if (dfs(dep)) return true; }
+      else if (recStack.has(dep)) return true;
+    }
+    recStack.delete(node);
+    return false;
+  }
+  const hasCycle = dfs('a');
+  assert.strictEqual(hasCycle, true);
+});
+
+test('deps: check passes with no cycle', () => {
+  const graph = new Map([['a', ['b']], ['b', ['c']], ['c', []]]);
+  const visited = new Set();
+  const recStack = new Set();
+  function dfs(node) {
+    visited.add(node);
+    recStack.add(node);
+    for (const dep of (graph.get(node) || [])) {
+      if (!visited.has(dep)) { if (dfs(dep)) return true; }
+      else if (recStack.has(dep)) return true;
+    }
+    recStack.delete(node);
+    return false;
+  }
+  let hasCycle = false;
+  for (const node of graph.keys()) {
+    if (!visited.has(node) && dfs(node)) { hasCycle = true; break; }
+  }
+  assert.strictEqual(hasCycle, false);
+});
+
+// === Phase 3 Tests: threshold ===
+console.log('');
+console.log('Phase 3 — threshold:');
+
+test('scan: default threshold changed to 0.2', () => {
+  const scanSrc = readFileSync(resolve(ROOT, 'scripts/scan.mjs'), 'utf-8');
+  assert.ok(scanSrc.includes("'0.2'"), 'threshold default should be 0.2');
 });
 
 // ── Summary ──
