@@ -29,6 +29,15 @@ import testCancel from '../../../../반제품-스펙/pilot-lpon-cancel/working-v
 import testCharging from '../../../../반제품-스펙/pilot-lpon-cancel/working-version/src/__tests__/charging.test.ts?raw';
 import testPayment from '../../../../반제품-스펙/pilot-lpon-cancel/working-version/src/__tests__/payment.test.ts?raw';
 
+// Sprint 2 — 자동 생성 엔진 코드
+import engineOrchestrator from '../../../../services/svc-skill/src/prototype/orchestrator.ts?raw';
+import engineDataModel from '../../../../services/svc-skill/src/prototype/generators/data-model.ts?raw';
+import engineFeatureSpec from '../../../../services/svc-skill/src/prototype/generators/feature-spec.ts?raw';
+import engineArchitecture from '../../../../services/svc-skill/src/prototype/generators/architecture.ts?raw';
+import engineApiSpec from '../../../../services/svc-skill/src/prototype/generators/api-spec.ts?raw';
+import engineClaudeMd from '../../../../services/svc-skill/src/prototype/generators/claude-md.ts?raw';
+import engineCollector from '../../../../services/svc-skill/src/prototype/collector.ts?raw';
+
 // ─── Exports ─────────────────────────────────────────────────────────────────
 
 export const interview = interviewLog;
@@ -81,6 +90,35 @@ export const testResults = {
   ],
 } as const;
 
+export interface EngineFile {
+  path: string;
+  content: string;
+  category: 'orchestrator' | 'generator' | 'collector';
+  label: string;
+  lines: number;
+}
+
+export const engineFiles: EngineFile[] = [
+  { path: 'prototype/orchestrator.ts', content: engineOrchestrator, category: 'orchestrator', label: 'Orchestrator (3-Phase)', lines: engineOrchestrator.split('\n').length },
+  { path: 'prototype/collector.ts', content: engineCollector, category: 'collector', label: 'Collector (5-SVC 병렬)', lines: engineCollector.split('\n').length },
+  { path: 'prototype/generators/data-model.ts', content: engineDataModel, category: 'generator', label: 'G4: Data Model', lines: engineDataModel.split('\n').length },
+  { path: 'prototype/generators/feature-spec.ts', content: engineFeatureSpec, category: 'generator', label: 'G5: Feature Spec', lines: engineFeatureSpec.split('\n').length },
+  { path: 'prototype/generators/architecture.ts', content: engineArchitecture, category: 'generator', label: 'G6: Architecture', lines: engineArchitecture.split('\n').length },
+  { path: 'prototype/generators/api-spec.ts', content: engineApiSpec, category: 'generator', label: 'G7: API Spec', lines: engineApiSpec.split('\n').length },
+  { path: 'prototype/generators/claude-md.ts', content: engineClaudeMd, category: 'generator', label: 'G8: CLAUDE.md', lines: engineClaudeMd.split('\n').length },
+];
+
+export const engineGenerators = [
+  { id: 'G1', name: 'Business Logic', file: 'business-logic.ts', type: 'LLM+Mechanical', output: 'specs/01-business-logic.md', input: 'policies', sprint: 1 },
+  { id: 'G2', name: 'Rules JSON', file: 'rules-json.ts', type: 'Mechanical', output: 'rules/business-rules.json', input: 'policies', sprint: 1 },
+  { id: 'G3', name: 'Terms JSON-LD', file: 'terms-jsonld.ts', type: 'Mechanical', output: 'ontology/terms.jsonld', input: 'terms', sprint: 1 },
+  { id: 'G4', name: 'Data Model', file: 'data-model.ts', type: 'LLM+Mechanical', output: 'specs/02-data-model.md', input: 'terms', sprint: 2 },
+  { id: 'G5', name: 'Feature Spec', file: 'feature-spec.ts', type: 'LLM', output: 'specs/03-functions.md', input: 'skills+G1+G4', sprint: 2 },
+  { id: 'G6', name: 'Architecture', file: 'architecture.ts', type: 'LLM', output: 'specs/04-architecture.md', input: 'data+G5', sprint: 2 },
+  { id: 'G7', name: 'API Spec', file: 'api-spec.ts', type: 'LLM', output: 'specs/05-api.md', input: 'G5', sprint: 2 },
+  { id: 'G8', name: 'CLAUDE.md', file: 'claude-md.ts', type: 'Template', output: 'CLAUDE.md', input: 'all', sprint: 2 },
+] as const;
+
 export const metrics = {
   specDocuments: 6,
   sourceFiles: 14,
@@ -94,4 +132,16 @@ export const metrics = {
   businessRules: 42,
   apiEndpoints: 10,
   dbTables: 7,
+} as const;
+
+export const engineMetrics = {
+  generators: 8,
+  generatorCodeLines: 1358,
+  totalTests: 291,
+  testFiles: 28,
+  zipFiles: 11,
+  e2eTime: '10초',
+  sprint1Generators: 3,
+  sprint2Generators: 5,
+  productionE2e: true,
 } as const;
