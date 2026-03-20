@@ -13,8 +13,11 @@
 - ✅ PDCA Plan + Design 문서 작성 (AIF-PLAN-026F, AIF-DSGN-026F)
 - ✅ poc-report: Sprint 2 자동화 엔진 탭 추가 + Pages 배포
 - ✅ Agent Team s3-engine: 2W / 5m30s / Guard 0건
+- ✅ `scripts/bootstrap-from-zip.ts` (252줄): ZIP→Working Version 부트스트랩 CLI
+- ✅ `orchestrator-llm.test.ts` (205줄): LLM 활성화/fallback 테스트 5건
+- ✅ Agent Team s3-llm-cli: 2W / 3m15s / Guard 0건
 
-**검증 결과**: typecheck 18/18 pass, tests 305 pass (+14)
+**검증 결과**: typecheck 18/18 pass, tests 310 pass (+19 from 291)
 
 ---
 
